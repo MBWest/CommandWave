@@ -2,7 +2,7 @@
 
 Command Wave is a web-based interface designed to manage, filter, and execute commands, featuring integrated terminal sessions. It provides a centralized location to store frequently used commands, substitute variables, and send them directly to interactive terminal windows within the browser.
 
-![CommandWave](https://github.com/user-attachments/assets/56317d14-247e-42a4-8268-86ac36c5729d)
+![CommandWave](https://github.com/user-attachments/assets/493be333-0e69-4f0c-818d-78da95d5252a)
 
 * **Command Management:** Add, edit, delete, and view commands through the web UI.
 * **Filtering & Searching:**
