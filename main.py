@@ -70,27 +70,6 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-# --- REMOVED HARDCODED PREDEFINED LISTS ---
-# PREDEFINED_OS = ['linux', 'windows']
-# PREDEFINED_ITEMS = [
-#     'Username', 'Password', 'No Creds', 'Hash', 'TGS', 'TGT', 'PFX', 'Shell',
-#     'Target IP', 'DC IP', 'DNS IP'
-# ]
-# PREDEFINED_FILTER_CATEGORIES = {
-#     "Services": [
-#         'SMB', 'WMI', 'DCOM', 'Kerberos', 'RPC', 'LDAP', 'NTLM', 'DNS',
-#         'SSH', 'FTP', 'HTTP/HTTPS', 'SNMP'
-#     ],
-#     "Attack Type": [
-#         'Enumeration', 'Exploitation', 'Persistence', 'Privilege Escalation',
-#         'Credential Access', 'Exfiltration', 'Lateral Movement', 'Masquerade'
-#     ]
-# }
-# ALL_PREDEFINED_FILTERS = sorted([
-#     f for category_filters in PREDEFINED_FILTER_CATEGORIES.values()
-#     for f in category_filters
-# ])
-
 # --- Terminal Process Management State ---
 _running_ttyd_processes = {} # {port: Popen object}
 _running_tmux_sessions = {} # {port: session_name}
