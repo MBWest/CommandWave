@@ -2,8 +2,9 @@
  * Filename: static/js/script.js
  * Description: Frontend JavaScript logic for the Command Wave application.
  * Handles:
- * - Fetching commands and filter data from the backend API.
+ * - Fetching commands and DYNAMIC option data (OS, Items, Filters) from the backend API.
  * - Displaying commands and applying filters (OS, Items, Tags, Search) using BUTTONS.
+ * - Handling the addition of NEW options (OS, Items, Filters) via API calls.
  * - Real-time command preview with variable substitution using TAB-SPECIFIC variables.
  * - Adding, editing commands via API calls using BUTTONS for tags in form.
  * - Deleting commands via API calls.
@@ -18,9 +19,12 @@
 document.addEventListener('DOMContentLoaded', async () => {
 
     // --- Constants & Global State ---
-    const PREDEFINED_ITEMS = [ 'Username', 'Password', 'No Creds', 'Hash', 'TGS', 'TGT', 'PFX', 'Shell', 'Target IP', 'DC IP', 'DNS IP' ];
-    const PREDEFINED_OS = ['linux', 'windows'];
-    let PREDEFINED_FILTER_CATEGORIES = {};
+    // REMOVED hardcoded: PREDEFINED_ITEMS, PREDEFINED_OS
+    let dynamicOsOptions = []; // Will be fetched
+    let dynamicItemOptions = []; // Will be fetched
+    let dynamicFilterCategories = { "Service": [], "Attack Type": [] }; // Structure expected by populate functions
+
+    // Descriptions remain useful for tooltips
     const ITEM_DESCRIPTIONS = {
         'Username': "A unique name identifying a user for login purposes.",
         'Password': "A secret word or phrase used to gain admission to something.",
@@ -33,10 +37,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         'Target IP': "The IP address of the primary machine or service being targeted by the command.",
         'DC IP': "The IP address associated with a network domain, typically a Domain Controller.",
         'DNS IP': "The IP address of a Domain Name System server used for name resolution."
+        // Add descriptions for dynamically added items here if needed, or fetch them? For now, relies on keys.
     };
     const OS_DESCRIPTIONS = {
         'linux': "A family of open-source Unix-like operating systems based on the Linux kernel.",
         'windows': "A group of proprietary graphical operating system families developed and marketed by Microsoft."
+        // Add descriptions for dynamically added OS here if needed
     };
     const FILTER_DESCRIPTIONS = {
         // Services
@@ -61,6 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         'Exfiltration': "Unauthorized transfer of data from a computer or network.",
         'Lateral Movement': "Moving through a network from one compromised host to another.",
         'Masquerade': "Posing as a legitimate user, service, or system component to evade detection."
+        // Add descriptions for dynamically added filters here if needed
     };
     const VARIABLE_MAP = {
         'var-target-ip': { stateKey: 'targetIP', placeholder: '$TargetIP' },
@@ -83,7 +90,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let isEditMode = false;
     let globalEditModeEnabled = false;
     let globalExecuteModeEnabled = false;
-    let initialTerminalPort = 7681;
+    let initialTerminalPort = 7681; // Default, might be overwritten
 
     // --- DOM Element References ---
     const commandListDiv = document.getElementById('commandList');
@@ -91,27 +98,41 @@ document.addEventListener('DOMContentLoaded', async () => {
     const searchInput = document.getElementById('searchInput');
     const formMessage = document.getElementById('form-message');
     const ioMessageDiv = document.getElementById('io-message');
-    const addCommandSection = document.getElementById('add-command-section'); // The section itself
-    const filterControlsSection = document.getElementById('filter-controls-section'); // The section itself
+    const addCommandSection = document.getElementById('add-command-section');
+    const filterControlsSection = document.getElementById('filter-controls-section');
     const commandItemTemplate = document.getElementById('command-item-template');
     const toggleEditModeBtn = document.getElementById('toggle-edit-mode-btn');
     const toggleExecuteModeBtn = document.getElementById('toggle-execute-mode-btn');
-    const addSectionToggle = document.getElementById('add-section-toggle'); // The H2 toggle
-    const filterSectionToggle = document.getElementById('filter-section-toggle'); // The H2 toggle
+    const addSectionToggle = document.getElementById('add-section-toggle');
+    const filterSectionToggle = document.getElementById('filter-section-toggle');
+    // Form Button Groups
     const formOSButtonGroupDiv = document.getElementById('form-os-button-group');
     const formItemsButtonGroupDiv = document.getElementById('form-items-button-group');
     const formServicesButtonGroupDiv = document.getElementById('form-services-button-group');
     const formAttackTypeButtonGroupDiv = document.getElementById('form-attacktype-button-group');
-    const formSubmitBtn = document.getElementById('form-submit-btn');
-    const formEditIdInput = document.getElementById('edit-command-id');
-    const cancelEditContainer = document.getElementById('cancel-edit-container');
-    const cancelEditBtn = document.getElementById('cancel-edit-btn');
+    // Filter Button Groups
     const filterOSButtonGroupDiv = document.getElementById('filter-os-button-group');
     const filterItemsButtonGroupDiv = document.getElementById('filter-items-button-group');
     const filterServicesButtonGroupDiv = document.getElementById('filter-services-button-group');
     const filterAttackTypeButtonGroupDiv = document.getElementById('filter-attacktype-button-group');
+    // Add Option Inputs/Buttons (in Form section)
+    const addOsInput = document.getElementById('add-os-input');
+    const addOsBtn = document.getElementById('add-os-btn');
+    const addItemInput = document.getElementById('add-item-input');
+    const addItemBtn = document.getElementById('add-item-btn');
+    const addServiceInput = document.getElementById('add-service-input');
+    const addServiceBtn = document.getElementById('add-service-btn');
+    const addAttackTypeInput = document.getElementById('add-attacktype-input');
+    const addAttackTypeBtn = document.getElementById('add-attacktype-btn');
+    // Other Form Elements
+    const formSubmitBtn = document.getElementById('form-submit-btn');
+    const formEditIdInput = document.getElementById('edit-command-id');
+    const cancelEditContainer = document.getElementById('cancel-edit-container');
+    const cancelEditBtn = document.getElementById('cancel-edit-btn');
+    // Variable Inputs
     const variableInputElements = {};
     Object.keys(VARIABLE_MAP).forEach(id => { variableInputElements[id] = document.getElementById(id); if (!variableInputElements[id]) { console.warn(`Var input "${id}" not found.`); } });
+    // Modal Elements
     const backupImportModal = document.getElementById('backup-import-modal');
     const toggleBackupImportModalBtn = document.getElementById('toggle-backup-import-modal-btn');
     const modalCloseBtn = backupImportModal?.querySelector('.modal-close-btn');
@@ -119,6 +140,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const modalExportCsvBtn = document.getElementById('modal-export-csv-btn');
     const modalImportFileInp = document.getElementById('modal-importFile');
     const modalImportBtn = document.getElementById('modal-import-btn');
+    // Terminal Elements
     const terminalTabsContainer = document.querySelector('.terminal-tabs');
     const terminalIframesContainer = document.querySelector('.terminal-iframes');
     const addTerminalTabBtn = document.getElementById('add-terminal-tab-btn');
@@ -133,15 +155,181 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- Initialization Functions ---
     function updateVariableInputsUI(terminalId) { const variables = terminalVariablesState[terminalId] || DEFAULT_VARIABLES; console.log(`Updating var UI for: ${terminalId}`, variables); for (const inputId in VARIABLE_MAP) { const stateKey = VARIABLE_MAP[inputId].stateKey; const inputElement = variableInputElements[inputId]; if (inputElement) { inputElement.value = variables[stateKey] || ''; } } }
-    async function initializeApp() { console.log("Initializing..."); try { const mainTermElem = document.getElementById('term-main'); const portFromData = mainTermElem?.dataset.initialPort; if (portFromData && !isNaN(parseInt(portFromData, 10))) { initialTerminalPort = parseInt(portFromData, 10); console.log(`Initial port: ${initialTerminalPort}`); } else { console.error("Could not get initial port!"); } if (mainTerminalTab) mainTerminalTab.title = `Main Terminal (Port ${initialTerminalPort}). Double-click rename.`; activeTerminalId = 'term-main'; terminalVariablesState[activeTerminalId] = { ...DEFAULT_VARIABLES }; updateVariableInputsUI(activeTerminalId); await fetchPredefinedFilters(); const itemsToDisplay = PREDEFINED_ITEMS; populateFilterButtons(formOSButtonGroupDiv, PREDEFINED_OS, 'form_os_', OS_DESCRIPTIONS); populateFilterButtons(formItemsButtonGroupDiv, itemsToDisplay, 'form_item_', ITEM_DESCRIPTIONS); populateFilterButtons(formServicesButtonGroupDiv, PREDEFINED_FILTER_CATEGORIES["Services"] || [], 'form_service_', FILTER_DESCRIPTIONS); populateFilterButtons(formAttackTypeButtonGroupDiv, PREDEFINED_FILTER_CATEGORIES["Attack Type"] || [], 'form_attack_', FILTER_DESCRIPTIONS); populateFilterButtons(filterOSButtonGroupDiv, PREDEFINED_OS, 'filter_os_', OS_DESCRIPTIONS); populateFilterButtons(filterItemsButtonGroupDiv, itemsToDisplay, 'filter_item_', ITEM_DESCRIPTIONS); populateFilterButtons(filterServicesButtonGroupDiv, PREDEFINED_FILTER_CATEGORIES["Services"] || [], 'filter_service_', FILTER_DESCRIPTIONS); populateFilterButtons(filterAttackTypeButtonGroupDiv, PREDEFINED_FILTER_CATEGORIES["Attack Type"] || [], 'filter_attack_', FILTER_DESCRIPTIONS); setupEventListeners(); await fetchCommands(); console.log("Init OK."); } catch (error) { console.error("Init failed:", error); commandListDiv.innerHTML = `<p class="error">App init failed: ${escapeHtml(error.message)}</p>`; showIoMessage(`Init failed: ${error.message}`, 'error', 15000); } }
-    async function fetchPredefinedFilters() { try { const response = await fetch('/api/filter_tags'); if (!response.ok) throw new Error(`HTTP ${response.status} fetch filters`); PREDEFINED_FILTER_CATEGORIES = await response.json(); if (typeof PREDEFINED_FILTER_CATEGORIES !== 'object' || PREDEFINED_FILTER_CATEGORIES === null) { PREDEFINED_FILTER_CATEGORIES = {}; throw new Error("Invalid filter data."); } PREDEFINED_FILTER_CATEGORIES["Services"] = PREDEFINED_FILTER_CATEGORIES["Services"] || []; PREDEFINED_FILTER_CATEGORIES["Attack Type"] = PREDEFINED_FILTER_CATEGORIES["Attack Type"] || []; console.log("Fetched Filters:", PREDEFINED_FILTER_CATEGORIES); } catch (error) { console.error("Err fetch filters:", error); PREDEFINED_FILTER_CATEGORIES = {"Services": [], "Attack Type": []}; throw new Error(`Could not fetch Filter cats: ${error.message}`); } }
-    function populateFilterButtons(containerDiv, itemsArray, idPrefix, descriptionMap) { if (!containerDiv) { console.warn("Btn container missing:", idPrefix); return; } containerDiv.innerHTML = ''; if (!Array.isArray(itemsArray) || itemsArray.length === 0) return; const sortedItems = [...itemsArray].sort((a, b) => a.localeCompare(b)); sortedItems.forEach(item => { const button = document.createElement('button'); button.type = 'button'; button.className = 'filter-button'; button.textContent = item; button.dataset.value = item; button.title = descriptionMap[item] || item; containerDiv.appendChild(button); }); }
+    async function initializeApp() {
+        console.log("Initializing...");
+        try {
+            // Get initial terminal port from HTML
+            const mainTermElem = document.getElementById('term-main');
+            const portFromData = mainTermElem?.dataset.initialPort;
+            if (portFromData && !isNaN(parseInt(portFromData, 10))) {
+                initialTerminalPort = parseInt(portFromData, 10);
+            } else {
+                console.error("Could not get initial terminal port from HTML data attribute!");
+            }
+
+            if (mainTerminalTab) mainTerminalTab.title = `Main Terminal (Port ${initialTerminalPort}). Double-click rename.`;
+            activeTerminalId = 'term-main';
+            terminalVariablesState[activeTerminalId] = { ...DEFAULT_VARIABLES };
+            updateVariableInputsUI(activeTerminalId);
+
+            // Fetch all dynamic options concurrently
+            await Promise.all([
+                fetchOsOptions(),
+                fetchItemOptions(),
+                fetchFilterTags()
+            ]);
+
+            // Setup listeners *after* initial data fetch might be needed
+            setupEventListeners();
+            await fetchCommands(); // Fetch commands after options are ready
+
+            console.log("Init OK.");
+        } catch (error) {
+            console.error("Init failed:", error);
+            commandListDiv.innerHTML = `<p class="error">App init failed: ${escapeHtml(error.message)}</p>`;
+            showIoMessage(`Init failed: ${error.message}`, 'error', 15000);
+        }
+    }
+
+    // --- Option Fetching and Population ---
+    async function fetchOsOptions() {
+        try {
+            const response = await fetch('/api/options/os');
+            if (!response.ok) throw new Error(`HTTP ${response.status} fetch OS options`);
+            const data = await response.json();
+            dynamicOsOptions = data.options || [];
+            console.log("Fetched OS Options:", dynamicOsOptions);
+            populateFilterButtons(formOSButtonGroupDiv, dynamicOsOptions, 'form_os_', OS_DESCRIPTIONS);
+            populateFilterButtons(filterOSButtonGroupDiv, dynamicOsOptions, 'filter_os_', OS_DESCRIPTIONS);
+        } catch (error) {
+            console.error("Err fetch OS options:", error);
+            showIoMessage(`Failed to load OS options: ${error.message}`, 'error');
+            dynamicOsOptions = []; // Ensure it's an empty array on error
+            // Populate with empty array to clear out any stale buttons
+            populateFilterButtons(formOSButtonGroupDiv, [], 'form_os_', OS_DESCRIPTIONS);
+            populateFilterButtons(filterOSButtonGroupDiv, [], 'filter_os_', OS_DESCRIPTIONS);
+        }
+    }
+
+    async function fetchItemOptions() {
+        try {
+            const response = await fetch('/api/options/item');
+            if (!response.ok) throw new Error(`HTTP ${response.status} fetch Item options`);
+            const data = await response.json();
+            dynamicItemOptions = data.options || [];
+            console.log("Fetched Item Options:", dynamicItemOptions);
+            populateFilterButtons(formItemsButtonGroupDiv, dynamicItemOptions, 'form_item_', ITEM_DESCRIPTIONS);
+            populateFilterButtons(filterItemsButtonGroupDiv, dynamicItemOptions, 'filter_item_', ITEM_DESCRIPTIONS);
+        } catch (error) {
+            console.error("Err fetch Item options:", error);
+            showIoMessage(`Failed to load Item options: ${error.message}`, 'error');
+            dynamicItemOptions = [];
+            populateFilterButtons(formItemsButtonGroupDiv, [], 'form_item_', ITEM_DESCRIPTIONS);
+            populateFilterButtons(filterItemsButtonGroupDiv, [], 'filter_item_', ITEM_DESCRIPTIONS);
+        }
+    }
+
+    async function fetchFilterTags() {
+        try {
+            const response = await fetch('/api/filter_tags');
+            if (!response.ok) throw new Error(`HTTP ${response.status} fetch filter tags`);
+            const data = await response.json();
+            // Ensure the expected structure exists, even if empty
+            dynamicFilterCategories = {
+                "Service": data["Service"] || [],
+                "Attack Type": data["Attack Type"] || []
+            };
+            console.log("Fetched Filter Categories:", dynamicFilterCategories);
+            populateFilterButtons(formServicesButtonGroupDiv, dynamicFilterCategories["Service"], 'form_service_', FILTER_DESCRIPTIONS);
+            populateFilterButtons(formAttackTypeButtonGroupDiv, dynamicFilterCategories["Attack Type"], 'form_attack_', FILTER_DESCRIPTIONS);
+            populateFilterButtons(filterServicesButtonGroupDiv, dynamicFilterCategories["Service"], 'filter_service_', FILTER_DESCRIPTIONS);
+            populateFilterButtons(filterAttackTypeButtonGroupDiv, dynamicFilterCategories["Attack Type"], 'filter_attack_', FILTER_DESCRIPTIONS);
+        } catch (error) {
+            console.error("Err fetch filter tags:", error);
+            showIoMessage(`Failed to load Filter tags: ${error.message}`, 'error');
+            dynamicFilterCategories = { "Service": [], "Attack Type": [] };
+            populateFilterButtons(formServicesButtonGroupDiv, [], 'form_service_', FILTER_DESCRIPTIONS);
+            populateFilterButtons(formAttackTypeButtonGroupDiv, [], 'form_attack_', FILTER_DESCRIPTIONS);
+            populateFilterButtons(filterServicesButtonGroupDiv, [], 'filter_service_', FILTER_DESCRIPTIONS);
+            populateFilterButtons(filterAttackTypeButtonGroupDiv, [], 'filter_attack_', FILTER_DESCRIPTIONS);
+        }
+    }
+
+    function populateFilterButtons(containerDiv, itemsArray, idPrefix, descriptionMap) {
+        if (!containerDiv) { console.warn("Btn container missing:", idPrefix); return; }
+        containerDiv.innerHTML = ''; // Clear existing buttons
+        if (!Array.isArray(itemsArray) || itemsArray.length === 0) return;
+        // Sort alphabetically for consistent display
+        const sortedItems = [...itemsArray].sort((a, b) => a.localeCompare(b));
+        sortedItems.forEach(item => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'filter-button';
+            button.textContent = item;
+            button.dataset.value = item; // Store the value
+            // Try to find description, default to item name if not found
+            button.title = descriptionMap[item] || item;
+            containerDiv.appendChild(button);
+        });
+    }
 
     // --- Core Data Handling ---
-    async function fetchCommands() { console.log("Fetching cmds..."); commandListDiv.innerHTML = '<p>Loading...</p>'; try { const response = await fetch('/api/commands'); if (!response.ok) throw new Error(`HTTP ${response.status} fetch cmds`); const fetchedCommands = await response.json(); if (!Array.isArray(fetchedCommands)) { allCommands = []; throw new Error("Cmd data not array."); } allCommands = fetchedCommands; console.log(`Workspaceed ${allCommands.length} cmds.`); applyFilters(); } catch (error) { console.error("Err fetch cmds:", error); allCommands = []; commandListDiv.innerHTML = `<p class="error">Load err: ${escapeHtml(error.message)}</p>`; applyFilters(); showIoMessage(`Load err: ${error.message}`, 'error'); } }
+    async function fetchCommands() {
+        console.log("Fetching cmds...");
+        commandListDiv.innerHTML = '<p>Loading commands...</p>';
+        try {
+            const response = await fetch('/api/commands');
+            if (!response.ok) throw new Error(`HTTP ${response.status} fetch cmds`);
+            const fetchedCommands = await response.json();
+            if (!Array.isArray(fetchedCommands)) {
+                allCommands = []; throw new Error("Cmd data not array.");
+            }
+            allCommands = fetchedCommands;
+            console.log(`Workspaceed ${allCommands.length} cmds.`);
+            applyFilters(); // Display initial list
+        } catch (error) {
+            console.error("Err fetch cmds:", error);
+            allCommands = [];
+            commandListDiv.innerHTML = `<p class="error">Load commands err: ${escapeHtml(error.message)}</p>`;
+            applyFilters(); // Ensure display is updated even on error
+            showIoMessage(`Load commands err: ${error.message}`, 'error');
+        }
+    }
 
     // --- Filtering Logic ---
-    function applyFilters() { console.log(`Applying filters - OS:[${currentFilterOS.join(',')}] Items:[${currentFilterItems.join(',')}] Tags:[${currentFilterTags.join(',')}] Search:[${currentSearchTerm}]`); let filteredCommands = allCommands; if (currentFilterOS.length > 0) { filteredCommands = filteredCommands.filter(cmd => Array.isArray(cmd.os) && cmd.os.some(cmdOs => currentFilterOS.includes(cmdOs))); } if (currentFilterItems.length > 0) { filteredCommands = filteredCommands.filter(cmd => Array.isArray(cmd.items) && cmd.items.some(item => currentFilterItems.includes(item))); } if (currentFilterTags.length > 0) { filteredCommands = filteredCommands.filter(cmd => Array.isArray(cmd.filters) && cmd.filters.some(tag => currentFilterTags.includes(tag))); } if (currentSearchTerm) { const searchTermLower = currentSearchTerm; filteredCommands = filteredCommands.filter(cmd => { const searchString = [ cmd.command, cmd.description, ...(Array.isArray(cmd.os) ? cmd.os : []), ...(Array.isArray(cmd.items) ? cmd.items : []), ...(Array.isArray(cmd.filters) ? cmd.filters : []) ].join(' ').toLowerCase(); return searchString.includes(searchTermLower); }); } const currentActiveVariables = terminalVariablesState[activeTerminalId] || DEFAULT_VARIABLES; displayCommands(filteredCommands, currentActiveVariables); }
+    function applyFilters() {
+        console.log(`Applying filters - OS:[${currentFilterOS.join(',')}] Items:[${currentFilterItems.join(',')}] Tags:[${currentFilterTags.join(',')}] Search:[${currentSearchTerm}]`);
+        let filteredCommands = allCommands;
+        // Apply OS Filter (if any selected)
+        if (currentFilterOS.length > 0) {
+            filteredCommands = filteredCommands.filter(cmd => Array.isArray(cmd.os) && cmd.os.some(cmdOs => currentFilterOS.includes(cmdOs)));
+        }
+        // Apply Item Filter (if any selected)
+        if (currentFilterItems.length > 0) {
+            filteredCommands = filteredCommands.filter(cmd => Array.isArray(cmd.items) && cmd.items.some(item => currentFilterItems.includes(item)));
+        }
+        // Apply Tag Filter (Service, Attack Type) (if any selected)
+        if (currentFilterTags.length > 0) {
+            filteredCommands = filteredCommands.filter(cmd => Array.isArray(cmd.filters) && cmd.filters.some(tag => currentFilterTags.includes(tag)));
+        }
+        // Apply Search Term Filter (if term exists)
+        if (currentSearchTerm) {
+            const searchTermLower = currentSearchTerm; // Already lowercased on input
+            filteredCommands = filteredCommands.filter(cmd => {
+                // Combine searchable fields into one string
+                const searchString = [
+                    cmd.command,
+                    cmd.description,
+                    ...(Array.isArray(cmd.os) ? cmd.os : []),
+                    ...(Array.isArray(cmd.items) ? cmd.items : []),
+                    ...(Array.isArray(cmd.filters) ? cmd.filters : [])
+                ].join(' ').toLowerCase();
+                return searchString.includes(searchTermLower);
+            });
+        }
+        const currentActiveVariables = terminalVariablesState[activeTerminalId] || DEFAULT_VARIABLES;
+        displayCommands(filteredCommands, currentActiveVariables);
+    }
 
     // --- Variable Substitution ---
     function performVariableSubstitution(originalCommand, variables) { let substitutedCommandHtml = escapeHtml(originalCommand); for (const inputId in VARIABLE_MAP) { const { stateKey, placeholder } = VARIABLE_MAP[inputId]; const value = variables && variables[stateKey] ? variables[stateKey].trim() : ''; if (value) { const escapedPlaceholder = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); const regex = new RegExp(escapedPlaceholder, 'g'); const replacementHtml = `<span class="substituted-var">${escapeHtml(value)}</span>`; substitutedCommandHtml = substitutedCommandHtml.replace(regex, replacementHtml); } } return substitutedCommandHtml; }
@@ -163,11 +351,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             cancelEditContainer.style.display = 'inline-block';
             addCommandForm.elements['command'].value = commandData.command || '';
             addCommandForm.elements['description'].value = commandData.description || '';
+            // Use the dynamically fetched options for setting state
             setButtonGroupState(formOSButtonGroupDiv, commandData.os);
             setButtonGroupState(formItemsButtonGroupDiv, commandData.items);
             const allCommandFilters = commandData.filters || [];
-            setButtonGroupState(formServicesButtonGroupDiv, allCommandFilters);
-            setButtonGroupState(formAttackTypeButtonGroupDiv, allCommandFilters);
+            // Need to separate filters back by category for setting state if using separate button groups
+            const serviceFilters = allCommandFilters.filter(f => dynamicFilterCategories["Service"].includes(f));
+            const attackFilters = allCommandFilters.filter(f => dynamicFilterCategories["Attack Type"].includes(f));
+            setButtonGroupState(formServicesButtonGroupDiv, serviceFilters);
+            setButtonGroupState(formAttackTypeButtonGroupDiv, attackFilters);
 
             // Ensure section is expanded if not already
             if (addCommandSection && !addCommandSection.classList.contains('expanded')) {
@@ -177,13 +369,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Scroll the title into view
             formTitleElement?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-        } else {
+        } else { // 'add' mode or reset
             if (formTitleElement) formTitleElement.textContent = 'Add New Command';
             formSubmitBtn.textContent = 'Add Command';
             formEditIdInput.value = '';
             cancelEditContainer.style.display = 'none';
             isEditMode = false;
-            addCommandForm.reset();
+            addCommandForm.reset(); // Resets text fields
+            // Reset button groups
             setButtonGroupState(formOSButtonGroupDiv, []);
             setButtonGroupState(formItemsButtonGroupDiv, []);
             setButtonGroupState(formServicesButtonGroupDiv, []);
@@ -192,9 +385,112 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // --- Event Handlers ---
-    async function handleAddCommandSubmit(event) { event.preventDefault(); const commandId = formEditIdInput.value; console.log(`Form submit. Mode: ${isEditMode ? 'Edit (ID: ' + commandId + ')' : 'Add'}`); formMessage.textContent = ''; formMessage.className = 'message'; const formData = new FormData(addCommandForm); const commandText = formData.get('command').trim(); const descriptionText = formData.get('description').trim(); const getActiveButtonValues = (containerDiv) => Array.from(containerDiv.querySelectorAll('.filter-button.active')).map(btn => btn.dataset.value); const selectedOS = getActiveButtonValues(formOSButtonGroupDiv); const selectedItems = getActiveButtonValues(formItemsButtonGroupDiv); const selectedServiceFilters = getActiveButtonValues(formServicesButtonGroupDiv); const selectedAttackFilters = getActiveButtonValues(formAttackTypeButtonGroupDiv); const data = { os: selectedOS, items: selectedItems, command: commandText, description: descriptionText, filters: [...new Set([...selectedServiceFilters, ...selectedAttackFilters])] }; if (!data.command) { formMessage.textContent = 'Cmd text missing.'; formMessage.className = 'message error visible'; return; } const url = isEditMode ? `/api/commands/${commandId}` : '/api/commands'; const method = isEditMode ? 'PUT' : 'POST'; formSubmitBtn.disabled = true; formSubmitBtn.textContent = isEditMode ? 'Updating...' : 'Adding...'; try { const response = await fetch(url, { method: method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) }); const result = await response.json(); if (response.ok) { console.log(`Cmd ${isEditMode ? 'updated' : 'added'}:`, result); formMessage.textContent = result.message || `Cmd ${isEditMode ? 'updated' : 'added'} OK!`; formMessage.className = 'message success visible'; setFormMode('add'); await fetchCommands(); if (addCommandSection.classList.contains('expanded')) { handleToggleSection(addSectionToggle, addCommandSection); } } else { console.error(`Fail ${isEditMode ? 'update' : 'add'}:`, result); let errorMsg = `Error: ${result.error || response.statusText || 'Op failed.'}`; if (result.details) { try { errorMsg += ` Details: ${JSON.stringify(result.details)}`; } catch (e) {} } formMessage.textContent = errorMsg; formMessage.className = 'message error visible'; } } catch (error) { console.error("Net err submit:", error); formMessage.textContent = `Net err: ${error.message}`; formMessage.className = 'message error visible'; } finally { formSubmitBtn.disabled = false; if (formMessage.classList.contains('error')) { formSubmitBtn.textContent = isEditMode ? 'Update Command' : 'Add Command'; } else if (!isEditMode) { formSubmitBtn.textContent = 'Add Command'; } setTimeout(() => { if (formMessage.classList.contains('visible')) { formMessage.className = 'message'; formMessage.textContent = ''; } }, 7000); } }
-    function handleFilterButtonClick(event) { const button = event.target; if (!button.classList.contains('filter-button') || !button.closest('#filter-controls-section')) return; button.classList.toggle('active'); const container = button.closest('.filter-button-container'); if (!container) return; const activeButtons = container.querySelectorAll('.filter-button.active'); const activeValues = Array.from(activeButtons).map(btn => btn.dataset.value); switch (container.id) { case 'filter-os-button-group': currentFilterOS = activeValues; break; case 'filter-items-button-group': currentFilterItems = activeValues; break; case 'filter-services-button-group': case 'filter-attacktype-button-group': const serviceTags = Array.from(filterServicesButtonGroupDiv.querySelectorAll('.filter-button.active')).map(btn => btn.dataset.value); const attackTags = Array.from(filterAttackTypeButtonGroupDiv.querySelectorAll('.filter-button.active')).map(btn => btn.dataset.value); currentFilterTags = [...new Set([...serviceTags, ...attackTags])]; break; } applyFilters(); }
-    function handleFormButtonClick(event) { const button = event.target; if (button.classList.contains('filter-button') && button.closest('#add-command-section')) { button.classList.toggle('active'); } }
+    async function handleAddCommandSubmit(event) {
+         event.preventDefault();
+         const commandId = formEditIdInput.value;
+         console.log(`Form submit. Mode: ${isEditMode ? 'Edit (ID: ' + commandId + ')' : 'Add'}`);
+         formMessage.textContent = ''; formMessage.className = 'message';
+
+         const formData = new FormData(addCommandForm);
+         const commandText = formData.get('command').trim();
+         const descriptionText = formData.get('description').trim();
+
+         // Get active buttons from the *form's* button groups
+         const getActiveButtonValues = (containerDiv) => Array.from(containerDiv.querySelectorAll('.filter-button.active')).map(btn => btn.dataset.value);
+         const selectedOS = getActiveButtonValues(formOSButtonGroupDiv);
+         const selectedItems = getActiveButtonValues(formItemsButtonGroupDiv);
+         const selectedServiceFilters = getActiveButtonValues(formServicesButtonGroupDiv);
+         const selectedAttackFilters = getActiveButtonValues(formAttackTypeButtonGroupDiv);
+
+         // Combine all selected filters
+         const selectedFilters = [...new Set([...selectedServiceFilters, ...selectedAttackFilters])];
+
+         const data = {
+             os: selectedOS,
+             items: selectedItems,
+             command: commandText,
+             description: descriptionText,
+             filters: selectedFilters
+         };
+
+         if (!data.command) { formMessage.textContent = 'Cmd text missing.'; formMessage.className = 'message error visible'; return; }
+
+         const url = isEditMode ? `/api/commands/${commandId}` : '/api/commands';
+         const method = isEditMode ? 'PUT' : 'POST';
+         formSubmitBtn.disabled = true; formSubmitBtn.textContent = isEditMode ? 'Updating...' : 'Adding...';
+
+         try {
+             const response = await fetch(url, { method: method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+             const result = await response.json(); // Attempt to parse JSON regardless of status
+
+             if (response.ok) {
+                 console.log(`Cmd ${isEditMode ? 'updated' : 'added'}:`, result);
+                 formMessage.textContent = result.message || `Cmd ${isEditMode ? 'updated' : 'added'} OK!`;
+                 formMessage.className = 'message success visible';
+                 setFormMode('add'); // Reset form to Add mode
+                 await fetchCommands(); // Refresh command list
+                 // Optionally collapse the add section after successful add/edit
+                 // if (addCommandSection.classList.contains('expanded')) {
+                 //     handleToggleSection(addSectionToggle, addCommandSection);
+                 // }
+             } else {
+                 console.error(`Fail ${isEditMode ? 'update' : 'add'}:`, result);
+                 let errorMsg = `Error: ${result.error || response.statusText || 'Op failed.'}`;
+                 if (result.details) { try { errorMsg += ` Details: ${JSON.stringify(result.details)}`; } catch (e) {} }
+                 formMessage.textContent = errorMsg;
+                 formMessage.className = 'message error visible';
+             }
+         } catch (error) {
+             console.error("Net err submit:", error);
+             formMessage.textContent = `Net err: ${error.message}`;
+             formMessage.className = 'message error visible';
+         } finally {
+             formSubmitBtn.disabled = false;
+             // Reset button text only if staying in the same mode (i.e., on error)
+             if (formMessage.classList.contains('error')) {
+                 formSubmitBtn.textContent = isEditMode ? 'Update Command' : 'Add Command';
+             }
+             // Auto-hide message after delay
+             setTimeout(() => { if (formMessage.classList.contains('visible')) { formMessage.className = 'message'; formMessage.textContent = ''; } }, 7000);
+         }
+     }
+    function handleFilterButtonClick(event) {
+         const button = event.target;
+         // Ensure the click is on a filter button within the filter section
+         if (!button.classList.contains('filter-button') || !button.closest('#filter-controls-section')) return;
+
+         button.classList.toggle('active');
+         const container = button.closest('.filter-button-container');
+         if (!container) return;
+
+         const activeValues = Array.from(container.querySelectorAll('.filter-button.active')).map(btn => btn.dataset.value);
+
+         // Update the correct filter array based on the container ID
+         switch (container.id) {
+             case 'filter-os-button-group':
+                 currentFilterOS = activeValues;
+                 break;
+             case 'filter-items-button-group':
+                 currentFilterItems = activeValues;
+                 break;
+             case 'filter-services-button-group':
+             case 'filter-attacktype-button-group':
+                 // Rebuild the combined filter list from both Service and Attack Type groups
+                 const serviceTags = Array.from(filterServicesButtonGroupDiv.querySelectorAll('.filter-button.active')).map(btn => btn.dataset.value);
+                 const attackTags = Array.from(filterAttackTypeButtonGroupDiv.querySelectorAll('.filter-button.active')).map(btn => btn.dataset.value);
+                 currentFilterTags = [...new Set([...serviceTags, ...attackTags])];
+                 break;
+         }
+         applyFilters(); // Re-apply filters after selection changes
+     }
+    function handleFormButtonClick(event) {
+         const button = event.target;
+         // Only toggle active state for filter buttons within the add command section
+         if (button.classList.contains('filter-button') && button.closest('#add-command-section')) {
+             button.classList.toggle('active');
+         }
+         // Clicks on "Add Option" buttons are handled by separate listeners
+     }
     function handleSearchInputChange(event) { currentSearchTerm = event.target.value.toLowerCase().trim(); applyFilters(); }
 
     /** Generic function to toggle a collapsible section based on its controller (title) */
@@ -206,9 +502,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const isExpanded = sectionElement.classList.toggle('expanded');
         controllerElement.setAttribute('aria-expanded', isExpanded);
 
-        // Specific logic for Add form reset when collapsing
+        // Specific logic for Add form reset when collapsing while in Edit mode
         if (sectionElement.id === 'add-command-section' && !isExpanded && isEditMode) {
-             setFormMode('add');
+             setFormMode('add'); // Reset form if collapsed during edit
         }
     }
 
@@ -223,60 +519,112 @@ document.addEventListener('DOMContentLoaded', async () => {
     function handleToggleExecuteMode() { globalExecuteModeEnabled = !globalExecuteModeEnabled; toggleExecuteModeBtn.setAttribute('aria-pressed', globalExecuteModeEnabled); const textNode = Array.from(toggleExecuteModeBtn.childNodes).find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim().startsWith('Execute Mode')); if (textNode) { textNode.textContent = globalExecuteModeEnabled ? ' Execute Mode ON' : ' Execute Mode'; } commandListDiv.querySelectorAll('.execute-btn').forEach(btn => { btn.classList.toggle('hidden', !globalExecuteModeEnabled); }); if (globalExecuteModeEnabled) { showIoMessage("Execute Mode ON: Cmds -> Terminals.", "warning", 5000); } }
     async function handleExecuteCommand(button) { const commandToSend = button.dataset.commandSubstituted?.trim(); if (!commandToSend) { showIoMessage("Cannot exec empty cmd.", "warning"); return; } const activeTab = terminalTabsContainer?.querySelector('.terminal-tab.active'); const terminalId = activeTab?.dataset.terminalId; if (!terminalId) { showIoMessage("No active terminal.", "error"); return; } let targetPort; if (terminalId === 'term-main') { targetPort = initialTerminalPort; if (isNaN(targetPort)) { showIoMessage("Initial port unknown.", "error"); return; } } else { const portMatch = terminalId.match(/^term-(\d+)$/); if (portMatch && portMatch[1]) { targetPort = parseInt(portMatch[1], 10); } else { showIoMessage(`Invalid term ID: ${terminalId}`, "error"); return; } } if (isNaN(targetPort)) { showIoMessage("Cannot find target port.", "error"); return; } console.log(`Executing on port ${targetPort}: ${commandToSend}`); showIoMessage(`Sending to Port ${targetPort}...`, 'info', 2000); button.disabled = true; const originalText = button.textContent; button.textContent = 'Executing...'; try { const response = await fetch('/api/terminals/sendkeys', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ port: targetPort, command: commandToSend }) }); const result = await response.json(); if (response.ok && result.success) { showIoMessage(result.message || "Cmd sent.", 'success', 3000); button.textContent = 'Sent!'; button.classList.add('sent'); setTimeout(() => { button.textContent = originalText; button.classList.remove('sent'); button.disabled = false; }, 1500); } else { console.error("Exec fail:", result); showIoMessage(`Exec Err: ${result.error || response.statusText}`, 'error'); button.textContent = 'Error!'; setTimeout(() => { button.textContent = originalText; button.disabled = false; }, 2000); } } catch (error) { console.error("Net err exec:", error); showIoMessage(`Net Err: ${error.message}`, 'error'); button.textContent = 'Error!'; setTimeout(() => { button.textContent = originalText; button.disabled = false; }, 2000); } }
 
+    // --- NEW: Add Option Handler ---
+    async function handleAddOption(optionType, inputElement, buttonElement, category = null) {
+        if (!inputElement || !buttonElement) {
+             console.error("Missing input or button element for adding option.");
+             return;
+        }
+        const name = inputElement.value.trim();
+        if (!name) {
+            showIoMessage("Option name cannot be empty.", "warning");
+            inputElement.focus();
+            return;
+        }
+
+        let apiUrl = '';
+        const requestBody = { name: name };
+
+        switch(optionType) {
+            case 'os':
+                apiUrl = '/api/options/os';
+                break;
+            case 'item':
+                apiUrl = '/api/options/item';
+                break;
+            case 'filter':
+                if (!category) {
+                    showIoMessage("Category (Service or Attack Type) is required for filters.", "error");
+                    return;
+                }
+                apiUrl = '/api/options/filter';
+                requestBody.category = category;
+                break;
+            default:
+                showIoMessage("Invalid option type specified.", "error");
+                return;
+        }
+
+        console.log(`Adding option: Type=${optionType}, Name=${name}, Category=${category || 'N/A'}`);
+        buttonElement.disabled = true;
+        buttonElement.textContent = 'Adding...';
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody)
+            });
+            const result = await response.json().catch(() => ({ message: response.statusText, error: null })); // Handle cases where response might not be JSON
+
+            if (response.status === 201) { // Created successfully
+                showIoMessage(result.message || `${optionType} option "${name}" added.`, 'success');
+                inputElement.value = ''; // Clear input
+                // Refresh the corresponding options list and buttons
+                switch(optionType) {
+                    case 'os': await fetchOsOptions(); break;
+                    case 'item': await fetchItemOptions(); break;
+                    case 'filter': await fetchFilterTags(); break; // Refresh both filter categories
+                }
+            } else if (response.status === 409) { // Conflict - already exists
+                showIoMessage(result.error || `Option "${name}" already exists.`, 'warning');
+                 inputElement.select(); // Select existing text
+            } else { // Other errors
+                 console.error("Add option failed:", result);
+                showIoMessage(`Error adding option: ${result.error || result.message || `HTTP ${response.status}`}`, 'error');
+            }
+        } catch (error) {
+            console.error(`Network error adding ${optionType} option:`, error);
+            showIoMessage(`Network error: ${error.message}`, 'error');
+        } finally {
+            buttonElement.disabled = false;
+            buttonElement.textContent = 'Add';
+        }
+    }
+
+
     // --- Backup/Import Event Handlers ---
     function handleExport(format) { showIoMessage(`Exporting ${format}...`, 'info', 3000); window.location.href = `/api/commands/export?format=${format}`; }
     async function handleImport() { const file = modalImportFileInp.files[0]; if (!file) { showIoMessage('Select .json/.csv file.', 'warning'); return; } showIoMessage(`Importing ${file.name}...`, 'info'); modalImportBtn.disabled = true; modalImportBtn.textContent = 'Importing...'; const formData = new FormData(); formData.append('importFile', file); try { const response = await fetch('/api/commands/import', { method: 'POST', body: formData }); const result = await response.json(); if (response.ok) { let message = result.message || `Import OK. Added: ${result.success_count || 0}, Skip: ${result.fail_count || 0}.`; showIoMessage(message, 'success', result.errors?.length > 0 ? 10000 : 5000); if (result.errors?.length > 0) console.warn("Import errs:", result.errors.slice(0, 20)); await fetchCommands(); closeBackupImportModal(); } else { console.error("Import fail:", result); showIoMessage(`Import Err: ${result.error || 'Unknown.'}`, 'error'); } } catch (error) { console.error("Net err import:", error); showIoMessage(`Net err: ${error.message}`, 'error'); } finally { modalImportBtn.disabled = false; modalImportBtn.textContent = 'Upload & Import'; modalImportFileInp.value = ''; } }
 
-    // --- Terminal Tab Handling ---
-
-     /** Handles clicks within the terminal tabs container (delegation). */
+    // --- Terminal Tab Handling --- (Unchanged from previous versions)
      function handleTerminalTabClick(event) {
         const clickedTab = event.target.closest('.terminal-tab');
         const clickedCloseButton = event.target.closest('.close-tab-btn');
-
-        if (clickedCloseButton) {
-            // Handle delete button click
-            handleDeleteTerminalTab(clickedCloseButton);
-        } else if (clickedTab && !clickedTab.classList.contains('active')) {
-             // Handle tab switching (only if not clicking close btn and not already active)
-             // Ignore clicks on the add button itself
+        if (clickedCloseButton) { handleDeleteTerminalTab(clickedCloseButton); }
+        else if (clickedTab && !clickedTab.classList.contains('active')) {
             if (clickedTab !== addTerminalTabBtn && clickedTab.dataset.terminalId) {
                 switchActiveTerminalTab(clickedTab, clickedTab.dataset.terminalId);
             }
         }
-        // Ignore clicks not on a tab or close button, or on the active tab itself
     }
-
-    /** Handles double-clicks within the terminal tabs container for renaming tabs (event delegation). */
     function handleTerminalTabDoubleClick(event) {
         const clickedTab = event.target.closest('.terminal-tab');
-        // Ignore double-clicks on close button or add button
         if (!clickedTab || event.target.closest('.close-tab-btn') || clickedTab === addTerminalTabBtn || !clickedTab.dataset.terminalId) return;
-        renameTerminalTab(clickedTab); // Initiate rename process
+        renameTerminalTab(clickedTab);
     }
-
-    /** Sets the specified tab button and corresponding iframe as active. */
     function switchActiveTerminalTab(tabElement, terminalId) {
-        // Check if the target element still exists in the DOM
         if (!document.body.contains(tabElement) || !terminalId || activeTerminalId === terminalId) {
             console.log("Switch aborted: Target tab doesn't exist or already active.", terminalId);
-             // If the intended target is gone, maybe default to main?
              if (activeTerminalId === terminalId && !document.body.contains(tabElement)) {
                   const mainTabEl = terminalTabsContainer?.querySelector('.terminal-tab[data-terminal-id="term-main"]');
-                  if (mainTabEl) {
-                      console.log("Falling back to main tab.");
-                      switchActiveTerminalTab(mainTabEl, 'term-main');
-                      return; // Prevent further execution with old/invalid ID
-                  }
+                  if (mainTabEl) { console.log("Falling back to main tab."); switchActiveTerminalTab(mainTabEl, 'term-main'); return; }
              }
-            return; // No change needed or possible
+            return;
         }
-
         console.log(`Switching active tab from ${activeTerminalId} to ${terminalId}`);
-
         terminalTabsContainer?.querySelectorAll('.terminal-tab').forEach(tab => tab.classList.remove('active'));
         terminalIframesContainer?.querySelectorAll('.terminal-iframe').forEach(iframe => iframe.classList.remove('active'));
-
         tabElement.classList.add('active');
         const iframeToShow = terminalIframesContainer?.querySelector(`#${terminalId}`);
         if (iframeToShow) {
@@ -285,31 +633,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             console.error(`Iframe missing: ${terminalId}`);
             showIoMessage(`Err: Cannot find term content ${terminalId}`, 'error');
-            // Fallback if iframe is missing after tab switch attempt
             const mainTabEl = terminalTabsContainer?.querySelector('.terminal-tab[data-terminal-id="term-main"]');
-             if (mainTabEl && terminalId !== 'term-main') {
-                 switchActiveTerminalTab(mainTabEl, 'term-main');
-             }
+             if (mainTabEl && terminalId !== 'term-main') { switchActiveTerminalTab(mainTabEl, 'term-main'); }
         }
-
         activeTerminalId = terminalId;
         updateVariableInputsUI(activeTerminalId);
         applyFilters();
     }
-
-
-    /** Prompts the user for a new name for the tab and updates the UI. */
     function renameTerminalTab(tabElement) {
-         const textSpan = tabElement.querySelector('.tab-text'); // Target the text span
-         if (!textSpan) return; // Should not happen if structure is correct
-
-         const currentName = textSpan.textContent; // Get text from inner span
+         const textSpan = tabElement.querySelector('.tab-text');
+         if (!textSpan) return;
+         const currentName = textSpan.textContent;
          const terminalId = tabElement.dataset.terminalId;
          const iframe = terminalIframesContainer?.querySelector(`#${terminalId}`);
          const newName = prompt(`New name for "${currentName}":`, currentName);
          if (newName && newName.trim() !== '' && newName.trim() !== currentName) {
              const sanitizedName = escapeHtml(newName.trim());
-             textSpan.textContent = sanitizedName; // Update inner span text
+             textSpan.textContent = sanitizedName;
              let portInfo = tabElement.title.match(/\(Port \d+\)/)?.[0] || '';
              tabElement.title = `Terminal: ${sanitizedName} ${portInfo}. Double-click rename.`;
              if (iframe) iframe.title = `${sanitizedName} ttyd terminal`;
@@ -318,9 +658,6 @@ document.addEventListener('DOMContentLoaded', async () => {
              showIoMessage("Tab name empty.", 'warning');
          }
     }
-
-
-    /** Handles click on the '+' button to add a new terminal tab. */
      async function handleAddTerminalTab() {
         if (!addTerminalTabBtn) return;
         addTerminalTabBtn.disabled = true; addTerminalTabBtn.textContent = '...';
@@ -328,159 +665,57 @@ document.addEventListener('DOMContentLoaded', async () => {
             const response = await fetch('/api/terminals/new', { method: 'POST' });
             const result = await response.json();
             if (response.ok && result.success) {
-                const newPort = result.port;
-                const newUrl = result.url;
-                const newTerminalId = `term-${newPort}`;
-                const defaultTabName = `Terminal ${newPort}`;
-
-                // --- Create New Tab Button ---
+                const newPort = result.port; const newUrl = result.url; const newTerminalId = `term-${newPort}`; const defaultTabName = `Terminal ${newPort}`;
                 const newTabButton = document.createElement('button');
-                newTabButton.className = 'terminal-tab';
-                newTabButton.dataset.terminalId = newTerminalId;
-                newTabButton.title = `Term port ${newPort}. Double-click rename.`;
-
-                // -- Add Text Span and Close Button Span --
-                const textSpan = document.createElement('span');
-                textSpan.className = 'tab-text';
-                textSpan.textContent = defaultTabName;
-
-                const closeSpan = document.createElement('span');
-                closeSpan.className = 'close-tab-btn';
-                closeSpan.innerHTML = '&times;'; // Use HTML entity for 'x'
-                closeSpan.setAttribute('aria-label', 'Close Tab');
-                closeSpan.title = 'Close Tab'; // Tooltip
-
-                newTabButton.appendChild(textSpan);
-                newTabButton.appendChild(closeSpan);
-                // ------------------------------------------
-
+                newTabButton.className = 'terminal-tab'; newTabButton.dataset.terminalId = newTerminalId; newTabButton.title = `Term port ${newPort}. Double-click rename.`;
+                const textSpan = document.createElement('span'); textSpan.className = 'tab-text'; textSpan.textContent = defaultTabName;
+                const closeSpan = document.createElement('span'); closeSpan.className = 'close-tab-btn'; closeSpan.innerHTML = '&times;'; closeSpan.setAttribute('aria-label', 'Close Tab'); closeSpan.title = 'Close Tab';
+                newTabButton.appendChild(textSpan); newTabButton.appendChild(closeSpan);
                 terminalTabsContainer?.insertBefore(newTabButton, addTerminalTabBtn);
-
-                // --- Create New Iframe ---
                 const newIframe = document.createElement('iframe');
-                newIframe.id = newTerminalId;
-                newIframe.className = 'terminal-iframe';
-                newIframe.src = newUrl;
-                newIframe.title = `${defaultTabName} ttyd terminal`;
+                newIframe.id = newTerminalId; newIframe.className = 'terminal-iframe'; newIframe.src = newUrl; newIframe.title = `${defaultTabName} ttyd terminal`;
                 newIframe.onload = () => console.log(`Iframe ${newTerminalId} loaded OK from ${newUrl}.`);
                 newIframe.onerror = () => { console.error(`Iframe ${newTerminalId} failed load: ${newUrl}`); showIoMessage(`Err load term Port ${newPort}`, 'error'); try { newIframe.contentDocument.body.innerHTML = `<p style='color:red; padding: 10px;'>Error loading terminal.</p>`; } catch(e) {} };
                 terminalIframesContainer?.appendChild(newIframe);
-
                 terminalVariablesState[newTerminalId] = { ...DEFAULT_VARIABLES };
                 console.log(`Init vars for new term: ${newTerminalId}`);
                 switchActiveTerminalTab(newTabButton, newTerminalId);
             } else {
-                const errorMsg = result.error || `Server error ${response.status}`;
-                console.error("Fail create term:", result);
-                showIoMessage(`Create term err: ${errorMsg}`, 'error');
+                const errorMsg = result.error || `Server error ${response.status}`; console.error("Fail create term:", result); showIoMessage(`Create term err: ${errorMsg}`, 'error');
             }
-        } catch (error) {
-            console.error("Net err create term:", error);
-            showIoMessage(`Net err: ${error.message}`, 'error');
-        } finally {
-            addTerminalTabBtn.disabled = false; addTerminalTabBtn.textContent = '+';
-        }
+        } catch (error) { console.error("Net err create term:", error); showIoMessage(`Net err: ${error.message}`, 'error');
+        } finally { addTerminalTabBtn.disabled = false; addTerminalTabBtn.textContent = '+'; }
      }
-
-    // --- Handler for deleting a terminal tab ---
     async function handleDeleteTerminalTab(closeButton) {
-        const tabToDelete = closeButton.closest('.terminal-tab');
-        if (!tabToDelete) return;
-
-        const terminalId = tabToDelete.dataset.terminalId;
-        const portMatch = terminalId.match(/^term-(\d+)$/);
-
-        // Ensure it's a dynamic tab (has port number) and not the main tab
-        if (!portMatch || !portMatch[1] || terminalId === 'term-main') {
-            if (terminalId === 'term-main') {
-                showIoMessage("The main terminal tab cannot be closed.", "warning");
-            } else {
-                console.error(`Invalid terminal ID format for deletion: ${terminalId}`);
-            }
-            return;
-        }
-
-        const port = parseInt(portMatch[1], 10);
-        const tabName = tabToDelete.querySelector('.tab-text')?.textContent || `port ${port}`;
-
-        if (!confirm(`Are you sure you want to close terminal "${tabName}"?`)) {
-            return;
-        }
-
-        console.log(`Attempting to delete terminal tab: ${terminalId} (Port: ${port})`);
-        tabToDelete.style.opacity = '0.5';
-        tabToDelete.style.pointerEvents = 'none';
-
+        const tabToDelete = closeButton.closest('.terminal-tab'); if (!tabToDelete) return;
+        const terminalId = tabToDelete.dataset.terminalId; const portMatch = terminalId.match(/^term-(\d+)$/);
+        if (!portMatch || !portMatch[1] || terminalId === 'term-main') { if (terminalId === 'term-main') { showIoMessage("Main cannot be closed.", "warning"); } else { console.error(`Invalid ID format: ${terminalId}`); } return; }
+        const port = parseInt(portMatch[1], 10); const tabName = tabToDelete.querySelector('.tab-text')?.textContent || `port ${port}`;
+        if (!confirm(`Close terminal "${tabName}"?`)) { return; }
+        console.log(`Deleting tab: ${terminalId} (Port: ${port})`); tabToDelete.style.opacity = '0.5'; tabToDelete.style.pointerEvents = 'none';
         try {
             const response = await fetch(`/api/terminals/${port}`, { method: 'DELETE' });
-            // Allow for potentially empty successful responses
-            const result = response.status === 200 ? (await response.json().catch(() => ({ success: true, message: `Terminal on port ${port} likely closed.` }))) : await response.json();
-
-
+            const result = response.status === 200 ? (await response.json().catch(() => ({ success: true, message: `Closed port ${port}.` }))) : await response.json();
             if (response.ok && result.success) {
-                showIoMessage(result.message || `Terminal "${tabName}" closed.`, 'success', 3000);
-
-                const iframeToRemove = terminalIframesContainer?.querySelector(`#${terminalId}`);
-                iframeToRemove?.remove();
-
-                // Determine next active tab more robustly
-                let nextActiveTabElement = null;
-                const allTabs = Array.from(terminalTabsContainer?.querySelectorAll('.terminal-tab:not(#add-terminal-tab-btn)') || []);
-                const currentIndex = allTabs.indexOf(tabToDelete);
-
-                if (currentIndex > 0) { // If not the first tab, try previous
-                    nextActiveTabElement = allTabs[currentIndex - 1];
-                } else if (allTabs.length > 1) { // If it was the first, try the new first (which was originally second)
-                    nextActiveTabElement = allTabs[1]; // Index 1 because tabToDelete is still technically in the array here before removal
-                } else { // Only tab left is main (should always exist)
-                     nextActiveTabElement = terminalTabsContainer?.querySelector('.terminal-tab[data-terminal-id="term-main"]');
-                }
-
-                // Fallback to main just in case
-                if (!nextActiveTabElement) {
-                    nextActiveTabElement = terminalTabsContainer?.querySelector('.terminal-tab[data-terminal-id="term-main"]');
-                }
-
-                // Remove the tab button
-                tabToDelete.remove();
-
-                // Clean up variable state
-                delete terminalVariablesState[terminalId];
-
-                // Switch to the determined next active tab
-                if (nextActiveTabElement && nextActiveTabElement.dataset.terminalId) {
-                     // Check if the currently active tab *was* the one deleted
-                    if (activeTerminalId === terminalId) {
-                        switchActiveTerminalTab(nextActiveTabElement, nextActiveTabElement.dataset.terminalId);
-                    } else {
-                         // Active tab was not deleted, no switch needed unless UI state is weird
-                         console.log("Deleted tab was not active, no switch needed.");
-                    }
-                } else {
-                    console.error("Could not determine valid next active tab after deletion.");
-                     // Force switch to main as ultimate fallback
-                    const mainTabEl = terminalTabsContainer?.querySelector('.terminal-tab[data-terminal-id="term-main"]');
-                    if(mainTabEl) switchActiveTerminalTab(mainTabEl, 'term-main');
-                }
-
-            } else {
-                showIoMessage(`Error closing tab "${tabName}": ${result.error || 'Unknown error'}`, 'error');
-                tabToDelete.style.opacity = '';
-                tabToDelete.style.pointerEvents = '';
-            }
-        } catch (error) {
-            console.error("Network error deleting terminal:", error);
-            showIoMessage(`Network error closing tab "${tabName}": ${error.message}`, 'error');
-             tabToDelete.style.opacity = '';
-             tabToDelete.style.pointerEvents = '';
-        }
+                showIoMessage(result.message || `Term "${tabName}" closed.`, 'success', 3000);
+                const iframeToRemove = terminalIframesContainer?.querySelector(`#${terminalId}`); iframeToRemove?.remove();
+                let nextActiveTabElement = null; const allTabs = Array.from(terminalTabsContainer?.querySelectorAll('.terminal-tab:not(#add-terminal-tab-btn)') || []); const currentIndex = allTabs.indexOf(tabToDelete);
+                if (currentIndex > 0) { nextActiveTabElement = allTabs[currentIndex - 1]; }
+                else if (allTabs.length > 1) { nextActiveTabElement = allTabs[1]; }
+                else { nextActiveTabElement = terminalTabsContainer?.querySelector('.terminal-tab[data-terminal-id="term-main"]'); }
+                if (!nextActiveTabElement) { nextActiveTabElement = terminalTabsContainer?.querySelector('.terminal-tab[data-terminal-id="term-main"]'); }
+                tabToDelete.remove(); delete terminalVariablesState[terminalId];
+                if (nextActiveTabElement && nextActiveTabElement.dataset.terminalId) { if (activeTerminalId === terminalId) { switchActiveTerminalTab(nextActiveTabElement, nextActiveTabElement.dataset.terminalId); } }
+                else { console.error("No valid next tab."); const mainTabEl = terminalTabsContainer?.querySelector('.terminal-tab[data-terminal-id="term-main"]'); if(mainTabEl) switchActiveTerminalTab(mainTabEl, 'term-main'); }
+            } else { showIoMessage(`Err closing "${tabName}": ${result.error || 'Unknown'}`, 'error'); tabToDelete.style.opacity = ''; tabToDelete.style.pointerEvents = ''; }
+        } catch (error) { console.error("Net err delete term:", error); showIoMessage(`Net err closing "${tabName}": ${error.message}`, 'error'); tabToDelete.style.opacity = ''; tabToDelete.style.pointerEvents = ''; }
     }
 
     // --- Setup Event Listeners ---
     function setupEventListeners() {
         console.log("Setting up listeners...");
 
-        // Core UI
+        // Core UI & Forms
         addCommandForm?.addEventListener('submit', handleAddCommandSubmit);
         searchInput?.addEventListener('input', handleSearchInputChange);
         cancelEditBtn?.addEventListener('click', handleCancelEdit);
@@ -493,9 +728,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         filterSectionToggle?.addEventListener('click', () => handleToggleSection(filterSectionToggle, filterControlsSection));
         filterSectionToggle?.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); handleToggleSection(filterSectionToggle, filterControlsSection); } });
 
-        // Filter/Form Buttons (Delegation)
+        // Filter Buttons (Delegation in Filter Section)
         filterControlsSection?.addEventListener('click', handleFilterButtonClick);
+        // Form Buttons (Delegation in Add/Edit Section - Only for toggling active state)
         addCommandSection?.addEventListener('click', handleFormButtonClick);
+
+        // NEW: Add Option Buttons (Specific Listeners)
+        addOsBtn?.addEventListener('click', () => handleAddOption('os', addOsInput, addOsBtn));
+        addItemBtn?.addEventListener('click', () => handleAddOption('item', addItemInput, addItemBtn));
+        addServiceBtn?.addEventListener('click', () => handleAddOption('filter', addServiceInput, addServiceBtn, 'Service')); // Pass category
+        addAttackTypeBtn?.addEventListener('click', () => handleAddOption('filter', addAttackTypeInput, addAttackTypeBtn, 'Attack Type')); // Pass category
 
         // Command List Actions (Delegation)
         commandListDiv?.addEventListener('click', (event) => { const targetButton = event.target.closest('button'); if (!targetButton) return; if (targetButton.classList.contains('copy-btn')) handleCopyCommand(targetButton); else if (targetButton.classList.contains('execute-btn') && !targetButton.classList.contains('hidden')) handleExecuteCommand(targetButton); else if (targetButton.classList.contains('edit-btn') && !targetButton.classList.contains('hidden')) handleEditClick(targetButton); else if (targetButton.classList.contains('delete-btn') && !targetButton.classList.contains('hidden')) handleDeleteClick(targetButton); });
@@ -512,15 +754,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         modalExportCsvBtn?.addEventListener('click', () => handleExport('csv'));
         modalImportBtn?.addEventListener('click', handleImport);
 
-        // Terminal Tabs - UPDATED listener to handle close buttons too
-        terminalTabsContainer?.addEventListener('click', handleTerminalTabClick); // Single listener handles switching and close clicks
-        terminalTabsContainer?.addEventListener('dblclick', handleTerminalTabDoubleClick); // Handles renaming
-        addTerminalTabBtn?.addEventListener('click', handleAddTerminalTab); // Handles adding tabs
+        // Terminal Tabs
+        terminalTabsContainer?.addEventListener('click', handleTerminalTabClick);
+        terminalTabsContainer?.addEventListener('dblclick', handleTerminalTabDoubleClick);
+        addTerminalTabBtn?.addEventListener('click', handleAddTerminalTab);
 
         console.log("Listeners setup OK.");
     }
 
     // --- Start ---
-    initializeApp();
+    initializeApp(); // Call the main initialization function
 
 }); // End DOMContentLoaded
