@@ -441,7 +441,7 @@ button[type="submit"]:hover {
 .message.warning { background-color: rgba(255, 255, 0, 0.15); border-color: var(--accent-neon); color: var(--accent-neon); text-shadow: var(--text-glow-accent); }
 
 
-/* --- NEW: Styles for Add Option Elements --- */
+/* --- Styles for Add Option Elements --- */
 .add-option-container {
     display: flex;
     gap: 8px; /* Spacing between input and button */
@@ -494,13 +494,47 @@ button[type="submit"]:hover {
 .section-header-actions .header-toggle-btn { margin-top: 0; } /* Align buttons */
 
 #commandList ul { list-style: none; padding-left: 0; }
+
 /* Individual command item styling */
-#commandList li {
-    background-color: rgba(0, 0, 0, 0.4); border-left: 4px solid var(--primary-neon);
-    padding: 15px 20px; margin-bottom: 15px; border-radius: 0 4px 4px 0;
+#commandList li { /* Base style for all li */
+    background-color: rgba(0, 0, 0, 0.4);
+    border-left: 4px solid var(--primary-neon);
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    border-radius: 0 4px 4px 0;
     transition: background-color 0.3s ease;
 }
-#commandList li:hover { background-color: rgba(0, 0, 0, 0.6); }
+
+/* --- NEW: Styles for Clickable Command Item & Toggle --- */
+#commandList li.command-item-clickable {
+    cursor: pointer;
+    /* transition added to base li style */
+}
+
+#commandList li.command-item-clickable:hover {
+     background-color: rgba(0, 0, 0, 0.55); /* Slightly darker on hover */
+}
+
+/* Hide the description paragraph by default */
+#commandList .command-description {
+    display: none;
+    color: #cccccc; /* Inherited, but ensure it's set */
+    font-size: 0.95em; /* Inherited, but ensure it's set */
+    padding-left: 8px; /* Inherited, but ensure it's set */
+    border-left: 1px solid rgba(0, 255, 255, 0.3); /* Inherited, but ensure it's set */
+    word-wrap: break-word; /* Inherited, but ensure it's set */
+    /* Optional: Add transition for smoother appearance */
+    /* transition: all 0.3s ease-in-out; */
+}
+
+/* Show the description when the parent LI has the 'expanded' class */
+#commandList li.command-item-clickable.expanded .command-description {
+    display: block; /* Show the paragraph */
+    margin-top: 12px; /* Add some space above the description when shown */
+    padding-top: 5px; /* Optional small padding top */
+}
+/* --- End NEW Styles --- */
+
 
 /* Header within each command item: Tags + Copy/Execute Buttons */
 .command-header {
@@ -576,8 +610,8 @@ button[type="submit"]:hover {
 #commandList code { color: var(--accent-neon); background-color: rgba(0, 0, 0, 0.5); padding: 5px 10px; border-radius: 3px; font-family: var(--font-code); font-size: 1.1em; word-break: break-all; display: inline-block; line-height: 1.4; }
 /* Style for substituted variables within the code */
 #commandList code .substituted-var { color: var(--primary-neon); padding: 1px 3px; margin: 0 1px; border-radius: 3px; font-weight: bold; text-shadow: var(--text-glow-primary); background-color: rgba(255, 0, 255, 0.08); }
-/* Command description paragraph */
-#commandList p { margin-top: 8px; color: #cccccc; font-size: 0.95em; padding-left: 8px; border-left: 1px solid rgba(0, 255, 255, 0.3); word-wrap: break-word; }
+/* Command description paragraph - styling handled by .command-description rules now */
+/* #commandList p { margin-top: 8px; color: #cccccc; font-size: 0.95em; padding-left: 8px; border-left: 1px solid rgba(0, 255, 255, 0.3); word-wrap: break-word; } */
 /* Container for Edit/Delete buttons */
 .command-actions { display: flex; gap: 8px; flex-shrink: 0; margin-left: auto; /* Pushes buttons to the right */ }
 .command-actions button { padding: 3px 10px; font-size: 0.85em; margin-top: 0; text-transform: none; letter-spacing: normal; }
