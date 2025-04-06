@@ -1,0 +1,871 @@
+/* projects/static/css/style.css */
+
+/* ==========================================================================
+   Base Styles, Variables, and Resets
+   ========================================================================== */
+:root {
+    /* Color Palette */
+    --bg-color: #1a0a2e;
+    --bg-color-trans: rgba(26, 10, 46, 0.85);
+    --text-color: #f0f0f0;
+    --primary-neon: #ff00ff; /* Magenta */
+    --secondary-neon: #00ffff; /* Cyan */
+    --accent-neon: #ffff00; /* Yellow */
+    --success-neon: #39ff14; /* Bright green */
+    --error-color: #ff4d4d; /* Red */
+    --danger-color: var(--error-color); /* Alias for Execute button/mode */
+    --success-color: var(--success-neon);
+    --info-color: var(--secondary-neon);
+    --button-inactive-bg: rgba(0, 0, 0, 0.4);
+    --button-inactive-border: var(--secondary-neon);
+    --button-inactive-text: var(--text-color);
+    --button-active-bg: var(--primary-neon);
+    --button-active-text: var(--bg-color);
+    --button-active-border: var(--primary-neon);
+    --button-hover-bg: rgba(0, 255, 255, 0.2);
+
+
+    /* Tag Specific Colors */
+    --tag-color-item: var(--primary-neon);
+    --tag-color-filter: var(--secondary-neon);
+    --tag-color-os: var(--accent-neon);
+    --tag-bg-color: var(--bg-color); /* Background for tags */
+
+    /* Effects */
+    --border-glow-primary: 0 0 3px var(--primary-neon), 0 0 6px var(--primary-neon);
+    --border-glow-secondary: 0 0 4px var(--secondary-neon), 0 0 8px var(--secondary-neon);
+    --border-glow-accent: 0 0 4px var(--accent-neon), 0 0 8px var(--accent-neon);
+    --border-glow-danger: 0 0 4px var(--danger-color), 0 0 8px var(--danger-color);
+    --border-glow-success: 0 0 4px var(--success-neon), 0 0 8px var(--success-neon);
+    --text-glow-primary: 0 0 2px var(--primary-neon);
+    --text-glow-secondary: 0 0 2px var(--secondary-neon);
+    --text-glow-accent: 0 0 2px var(--accent-neon);
+    --text-glow-danger: 0 0 3px var(--danger-color);
+    --text-glow-success: 0 0 3px var(--success-neon);
+
+    /* Typography */
+    --font-main: 'Roboto', sans-serif;
+    --font-display: 'Orbitron', sans-serif; /* For titles, prominent text */
+    /* Keep monospace as the base for code blocks */
+    --font-code: monospace;
+}
+
+/* Basic reset */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-main);
+    line-height: 1.6;
+    /* Subtle grid background */
+    background-image: linear-gradient(rgba(0, 255, 255, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 255, 0.07) 1px, transparent 1px);
+    background-size: 30px 30px;
+    padding-bottom: 80px; /* Space for potential fixed elements or just breathing room */
+}
+
+/* ==========================================================================
+   Layout & Structure
+   ========================================================================== */
+header {
+    position: relative;
+    max-width: 950px;
+    margin: 20px auto;
+    padding: 25px;
+    background: var(--bg-color-trans);
+    border: 1px solid var(--secondary-neon);
+    box-shadow: var(--border-glow-secondary), inset 0 0 10px rgba(0, 255, 255, 0.1);
+    border-radius: 6px;
+    text-align: center;
+    border-bottom: 2px solid var(--primary-neon);
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+}
+
+.main-wrapper {
+    display: flex;
+    width: 100%;
+    align-items: flex-start; /* Align items to the top */
+    padding: 0 15px;
+    margin-top: 20px;
+    gap: 20px;
+}
+
+.content-area {
+    flex: 1; /* Takes up available space */
+    margin: 0;
+    min-width: 0; /* Important for flex items containing long content */
+}
+
+.terminal-area {
+    flex: 1; /* Takes up available space */
+    position: sticky; /* Sticks to the top when scrolling */
+    top: 20px;
+    height: calc(100vh - 40px); /* Full viewport height minus some padding */
+    background: var(--bg-color-trans);
+    border: 1px solid var(--secondary-neon);
+    box-shadow: var(--border-glow-secondary), inset 0 0 10px rgba(0, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 0; /* Padding handled by inner elements */
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Important for flex items */
+}
+
+/* Applied to all sections that are NOT collapsible */
+main.content-area > section:not(.collapsible) {
+    padding: 25px;
+    background: var(--bg-color-trans);
+    border: 1px solid var(--secondary-neon);
+    box-shadow: var(--border-glow-secondary), inset 0 0 10px rgba(0, 255, 255, 0.1);
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+/* Special handling for variable section border */
+#variable-input-section {
+    border-color: var(--accent-neon); /* Yellow border */
+    box-shadow: var(--border-glow-accent), inset 0 0 10px rgba(255, 255, 0, 0.1);
+}
+
+
+/* ASCII Title Styling */
+#ascii-title {
+    /* Specify common monospace fonts first for better cross-browser compatibility */
+    font-family: figlet, Consolas, Monaco, 'Courier New', Courier, monospace;
+    color: var(--primary-neon);
+    text-shadow: var(--text-glow-primary), 0 0 4px var(--primary-neon), 0 0 7px var(--primary-neon);
+    font-size: 1em;
+    line-height: 1.2; /* Adjusted for potentially better alignment */
+    text-align: center;
+    margin-bottom: 20px;
+    white-space: pre; /* Crucial for preserving whitespace and line breaks */
+    overflow-x: auto; /* Prevent wrapping, allow scrolling if needed */
+}
+
+/* General H2 Styling (Applies to non-collapsible titles) */
+h2:not(.collapsible-title) {
+    font-family: var(--font-display);
+    color: var(--secondary-neon);
+    text-shadow: var(--text-glow-secondary);
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.5);
+    padding-bottom: 8px;
+    font-size: 1.8em;
+    font-weight: 700;
+}
+
+
+/* ==========================================================================
+   Header Controls (Search remains)
+   ========================================================================== */
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    justify-content: center; /* Center remaining items */
+}
+
+#searchInput {
+    flex-grow: 1;
+    margin: 0 10px;
+    min-width: 200px;
+    /* max-width: 450px; */ /* Removed max-width to allow fill */
+    width: auto; /* Allow flexible width */
+    padding: 10px 12px;
+    font-size: 1em;
+    /* Inherits general input styles defined later */
+}
+
+
+/* Kept for Backup/Import, Edit, Execute buttons */
+.header-toggle-btn {
+    background-color: rgba(0, 255, 255, 0.1);
+    border: 1px solid var(--secondary-neon);
+    color: var(--secondary-neon);
+    padding: 8px 12px;
+    font-family: var(--font-display);
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+    display: inline-flex; /* Align icon and text */
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0; /* Prevent shrinking */
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+.header-toggle-btn:hover,
+.header-toggle-btn:focus {
+    background-color: rgba(0, 255, 255, 0.2);
+    box-shadow: var(--border-glow-secondary);
+    outline: none;
+}
+
+.header-toggle-btn .icon {
+    font-weight: bold;
+    font-size: 1.1em;
+    display: inline-block;
+    text-align: center;
+    min-width: 1em;
+}
+
+/* ==========================================================================
+   Variable Input Section
+   ========================================================================== */
+/* Styling now handled by general section styles above */
+.variable-grid {
+    display: grid;
+    /* Responsive grid: columns are at least 250px wide */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px 20px; /* Row and column gap */
+}
+
+.variable-item label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: var(--accent-neon);
+    opacity: 0.9;
+}
+
+.variable-item input[type="text"] {
+    font-size: 0.95em;
+    padding: 8px 10px;
+    border-color: var(--accent-neon);
+    width: 100%;
+    /* Inherits general input styles */
+}
+.variable-item input[type="text"]:focus {
+    border-color: var(--primary-neon); /* Magenta focus */
+    box-shadow: var(--border-glow-primary);
+}
+/* Style for inputs that have content */
+.variable-item input[type="text"]:not(:placeholder-shown) {
+    background-color: rgba(0, 255, 255, 0.1);
+    border-color: var(--secondary-neon);
+    box-shadow: inset 0 0 5px rgba(0, 255, 255, 0.2);
+}
+
+/* ==========================================================================
+   Collapsible Sections (Add Form, Filters) - CORRECTED STYLES
+   ========================================================================== */
+
+/* Style for the clickable title (H2) */
+h2.collapsible-title {
+    font-family: var(--font-display);
+    color: var(--secondary-neon);
+    text-shadow: var(--text-glow-secondary);
+    font-size: 1.8em;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 10px 15px;
+    border: 1px solid var(--secondary-neon);
+    border-radius: 6px;
+    margin-bottom: 0; /* Override default margin when title is used for collapsed section */
+    margin-top: 20px; /* Add space above the collapsed title */
+    transition: background-color 0.3s ease, border-color 0.3s ease, border-radius 0.3s ease;
+    position: relative;
+    user-select: none;
+}
+
+h2.collapsible-title:hover,
+h2.collapsible-title:focus {
+    background-color: rgba(0, 255, 255, 0.1);
+    outline: none;
+}
+
+/* Icon using pseudo-element */
+h2.collapsible-title::after {
+    content: '+'; /* Default icon */
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: bold;
+    font-size: 0.8em;
+    line-height: 1;
+    color: var(--secondary-neon);
+    transition: transform 0.3s ease;
+}
+
+/* Collapsed State for the SECTION element */
+section.collapsible {
+    /* Smooth transition */
+    transition: max-height 0.6s cubic-bezier(0.25, 0.8, 0.25, 1),
+                opacity 0.6s cubic-bezier(0.25, 0.8, 0.25, 1),
+                padding-top 0.6s cubic-bezier(0.25, 0.8, 0.25, 1),
+                padding-bottom 0.6s cubic-bezier(0.25, 0.8, 0.25, 1),
+                border-width 0.1s 0.5s linear; /* Delay border collapse */
+
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    padding: 0 25px; /* Keep horizontal padding for content alignment */
+    margin: 0; /* Remove margin, spacing handled by title */
+    border: 1px solid transparent; /* Collapsed border */
+    border-top: none; /* No top border when collapsed */
+    border-radius: 0 0 6px 6px; /* Round bottom corners */
+    box-shadow: none;
+    background: none;
+}
+
+/* Expanded State for the SECTION element */
+section.collapsible.expanded {
+    max-height: 5000px; /* Or appropriate max height */
+    opacity: 1;
+    padding: 25px; /* Restore full padding */
+    margin: 0; /* Margin still handled by title above */
+    margin-bottom: 20px; /* Space below expanded section */
+    border: 1px solid var(--secondary-neon); /* Restore border */
+    border-top: none; /* Title acts as top border visually */
+    box-shadow: var(--border-glow-secondary), inset 0 0 10px rgba(0, 255, 255, 0.1);
+    background: var(--bg-color-trans);
+    transition-delay: 0s; /* Apply border immediately on expand */
+}
+
+/* Adjust title style when its associated section is expanded */
+h2.collapsible-title[aria-expanded="true"] {
+    border-bottom-left-radius: 0; /* Flatten bottom corners of title */
+    border-bottom-right-radius: 0;
+    border-bottom-color: transparent; /* Hide bottom border to blend with section */
+    margin-bottom: 0; /* Remove space between title and expanded section */
+}
+
+/* Change title icon when expanded */
+h2.collapsible-title[aria-expanded="true"]::after {
+    content: '−';
+}
+
+
+/* ==========================================================================
+   Forms (General Styles)
+   ========================================================================== */
+.form-group { margin-bottom: 18px; }
+
+fieldset {
+    border: 1px dashed var(--secondary-neon);
+    padding: 15px 20px;
+    border-radius: 4px;
+    margin-top: 10px; margin-bottom: 10px;
+}
+
+legend {
+    font-family: var(--font-display);
+    color: var(--primary-neon);
+    padding: 0 10px;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+/* General style for text inputs, selects, textareas */
+input[type="text"], select, textarea {
+    width: 100%;
+    padding: 12px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--secondary-neon);
+    color: var(--text-color);
+    border-radius: 4px;
+    font-family: var(--font-main);
+    font-size: 1em;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--primary-neon); /* Magenta focus */
+    box-shadow: var(--border-glow-primary);
+}
+
+textarea { resize: vertical; min-height: 60px; }
+
+/* --- Button Styles --- */
+/* Base style for primary, secondary, danger buttons */
+button[type="submit"], .secondary-btn, .danger-btn {
+    border: none; padding: 10px 20px; font-family: var(--font-display);
+    font-weight: bold; cursor: pointer; border-radius: 4px;
+    transition: all 0.3s ease; text-transform: uppercase;
+    letter-spacing: 1px; font-size: 0.9em; margin-top: 10px;
+}
+/* Primary button (Submit) */
+button[type="submit"] {
+    background-color: var(--primary-neon); color: var(--bg-color);
+    box-shadow: 0 0 6px var(--primary-neon), 0 0 10px var(--primary-neon);
+}
+button[type="submit"]:hover {
+    background-color: #ff40ff; /* Slightly lighter magenta */
+    box-shadow: 0 0 8px var(--primary-neon), 0 0 15px var(--primary-neon), 0 0 20px var(--primary-neon);
+    transform: translateY(-2px); /* Subtle lift effect */
+}
+/* Secondary button (Cancel Edit, Export, Import) */
+.secondary-btn {
+    background-color: rgba(0, 255, 255, 0.15); border: 1px solid var(--secondary-neon);
+    color: var(--secondary-neon); box-shadow: 0 0 4px var(--secondary-neon);
+}
+.secondary-btn:hover {
+    background-color: rgba(0, 255, 255, 0.3);
+    box-shadow: 0 0 6px var(--secondary-neon), 0 0 10px var(--secondary-neon);
+    transform: translateY(-1px);
+}
+/* Danger button (Delete) */
+.danger-btn {
+    background-color: rgba(255, 77, 77, 0.15); border: 1px solid var(--danger-color);
+    color: var(--danger-color); box-shadow: 0 0 4px var(--danger-color);
+}
+.danger-btn:hover {
+    background-color: rgba(255, 77, 77, 0.3);
+    box-shadow: 0 0 6px var(--danger-color), 0 0 10px var(--danger-color);
+    transform: translateY(-1px);
+}
+
+/* --- Message Area Styles (Used for form feedback, IO messages) --- */
+.message {
+    padding: 12px 15px; border-radius: 4px; font-weight: bold;
+    border: 1px solid transparent; text-align: center; opacity: 0;
+    max-height: 0; overflow: hidden;
+    /* Transition visibility, size, and spacing */
+    transition: opacity 0.5s ease, max-height 0.5s ease, padding 0.5s ease, margin 0.5s ease;
+    margin: 0 auto; /* Center message horizontally */
+}
+/* State when message should be visible */
+.message.visible {
+    opacity: 1; max-height: 100px; margin: 15px auto; padding: 12px 15px;
+}
+/* Color variants */
+.message.success { background-color: rgba(57, 255, 20, 0.15); border-color: var(--success-color); color: var(--success-color); text-shadow: var(--text-glow-success); }
+.message.error   { background-color: rgba(255, 77, 77, 0.15); border-color: var(--error-color); color: var(--error-color); text-shadow: 0 0 3px var(--error-color); }
+.message.info    { background-color: rgba(0, 255, 255, 0.15); border-color: var(--info-color); color: var(--info-color); text-shadow: var(--text-glow-secondary); }
+.message.warning { background-color: rgba(255, 255, 0, 0.15); border-color: var(--accent-neon); color: var(--accent-neon); text-shadow: var(--text-glow-accent); }
+
+/* ==========================================================================
+   Command List Display
+   ========================================================================== */
+#command-list-section {
+    /* Uses general section styles */
+    padding: 25px;
+    background: var(--bg-color-trans);
+    border: 1px solid var(--secondary-neon);
+    box-shadow: var(--border-glow-secondary), inset 0 0 10px rgba(0, 255, 255, 0.1);
+    border-radius: 6px;
+    margin-bottom: 20px;
+    margin-top: 20px; /* Ensure spacing above */
+}
+/* Header for the command list section (Title + Mode Toggles) */
+.section-header-with-buttons {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px; border-bottom: 1px solid rgba(0, 255, 255, 0.5);
+    padding-bottom: 8px; flex-wrap: wrap; gap: 10px;
+}
+.section-header-with-buttons h2 { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
+.section-header-actions { display: flex; gap: 10px; flex-shrink: 0; flex-wrap: wrap;}
+.section-header-actions .header-toggle-btn { margin-top: 0; } /* Align buttons */
+
+#commandList ul { list-style: none; padding-left: 0; }
+/* Individual command item styling */
+#commandList li {
+    background-color: rgba(0, 0, 0, 0.4); border-left: 4px solid var(--primary-neon);
+    padding: 15px 20px; margin-bottom: 15px; border-radius: 0 4px 4px 0;
+    transition: background-color 0.3s ease;
+}
+#commandList li:hover { background-color: rgba(0, 0, 0, 0.6); }
+
+/* Header within each command item: Tags + Copy/Execute Buttons */
+.command-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 15px; flex-wrap: wrap; margin-bottom: 10px;
+}
+.command-header-tags { display: flex; flex-wrap: wrap; gap: 6px 8px; flex-grow: 1; min-width: 100px; }
+.command-header-buttons { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
+
+/* Base style for header buttons (Copy, Execute) */
+.command-header .copy-btn,
+.command-header .execute-btn {
+    padding: 3px 10px; font-family: var(--font-display); font-weight: bold;
+    cursor: pointer; border-radius: 4px; transition: all 0.3s ease;
+    text-transform: none; letter-spacing: normal; font-size: 0.85em;
+    margin-top: 0; flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* Copy Button Specifics */
+.command-header .copy-btn {
+    border: 1px solid var(--secondary-neon); background-color: rgba(0, 255, 255, 0.15);
+    color: var(--secondary-neon); box-shadow: 0 0 4px var(--secondary-neon);
+    text-shadow: 0 0 2px var(--secondary-neon);
+}
+.command-header .copy-btn:hover, .command-header .copy-btn:focus {
+    background-color: rgba(0, 255, 255, 0.3);
+    box-shadow: 0 0 6px var(--secondary-neon), 0 0 10px var(--secondary-neon);
+    transform: translateY(-1px); outline: none;
+}
+/* Style when copy is successful */
+.command-header .copy-btn:disabled {
+    background-color: rgba(57, 255, 20, 0.2); border-color: var(--success-color);
+    color: var(--success-color); text-shadow: var(--text-glow-success);
+    box-shadow: 0 0 4px var(--success-color); cursor: default; transform: translateY(0);
+}
+
+/* Execute Button Specifics (RED) */
+.command-header .execute-btn {
+    border: 1px solid var(--danger-color);
+    background-color: rgba(255, 77, 77, 0.15);
+    color: var(--danger-color);
+    box-shadow: 0 0 3px var(--danger-color);
+    text-shadow: var(--text-glow-danger);
+}
+.command-header .execute-btn:hover, .command-header .execute-btn:focus {
+    background-color: rgba(255, 77, 77, 0.3);
+    box-shadow: var(--border-glow-danger), 0 0 9px var(--danger-color);
+    transform: translateY(-1px); outline: none;
+}
+/* Style when disabled (e.g., during sending or error) */
+.command-header .execute-btn:disabled {
+    background-color: rgba(180, 180, 180, 0.1); border-color: #aaa;
+    color: #aaa; cursor: default; transform: translateY(0);
+    box-shadow: none; text-shadow: none;
+}
+/* Style for "Sent!" state (Green flash) - still uses success color */
+.command-header .execute-btn.sent {
+    background-color: rgba(57, 255, 20, 0.2); border-color: var(--success-color);
+    color: var(--success-color); text-shadow: var(--text-glow-success);
+    box-shadow: 0 0 4px var(--success-color);
+}
+/* Style for initially hidden Execute button (controlled by JS) */
+.execute-btn.hidden { display: none; }
+
+/* Command Body (contains command line and description) */
+.command-body { margin-bottom: 12px; }
+/* Command Footer (contains filter tags) */
+.command-footer { border-top: 1px dotted rgba(0, 255, 255, 0.3); padding-top: 10px; margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+/* Command Line wrapper */
+.command-line { display: flex; align-items: center; gap: 15px; margin-bottom: 8px; flex-wrap: wrap; }
+.command-line strong { flex-grow: 1; min-width: 0; } /* Allow command code to take space */
+/* Command code block */
+#commandList code { color: var(--accent-neon); background-color: rgba(0, 0, 0, 0.5); padding: 5px 10px; border-radius: 3px; font-family: var(--font-code); font-size: 1.1em; word-break: break-all; display: inline-block; line-height: 1.4; }
+/* Style for substituted variables within the code */
+#commandList code .substituted-var { color: var(--primary-neon); padding: 1px 3px; margin: 0 1px; border-radius: 3px; font-weight: bold; text-shadow: var(--text-glow-primary); background-color: rgba(255, 0, 255, 0.08); }
+/* Command description paragraph */
+#commandList p { margin-top: 8px; color: #cccccc; font-size: 0.95em; padding-left: 8px; border-left: 1px solid rgba(0, 255, 255, 0.3); word-wrap: break-word; }
+/* Container for Edit/Delete buttons */
+.command-actions { display: flex; gap: 8px; flex-shrink: 0; margin-left: auto; /* Pushes buttons to the right */ }
+.command-actions button { padding: 3px 10px; font-size: 0.85em; margin-top: 0; text-transform: none; letter-spacing: normal; }
+/* Class to hide Edit/Delete buttons when not in Edit Mode (controlled by JS) */
+.command-edit-delete-btn.hidden { display: none; }
+
+/* ==========================================================================
+   Tag Styling (OS, Item, Filter)
+   ========================================================================== */
+.item-tag, .os-tag, .filter-tag { display: inline-block; padding: 3px 9px; border-radius: 4px; font-size: 0.8em; font-weight: bold; margin: 2px; line-height: 1.4; border: 1px solid rgba(0,0,0,0.2); }
+.item-tag, .filter-tag { font-family: var(--font-main); text-transform: none; }
+.os-tag { font-family: var(--font-display); text-transform: uppercase; }
+.item-tag { background-color: var(--tag-color-item); color: var(--tag-bg-color); }
+.os-tag { background-color: var(--tag-color-os); color: var(--tag-bg-color); font-size: 0.75em; }
+.filter-tag { background-color: var(--tag-color-filter); color: var(--tag-bg-color); font-size: 0.75em; }
+/* Style for placeholder tags when no tags are assigned */
+.item-tag.placeholder, .filter-tag.placeholder, .os-tag.placeholder { background-color: transparent; color: rgba(255, 255, 255, 0.5); font-style: italic; text-transform: none; border: 1px dashed rgba(255, 255, 255, 0.2); padding: 2px 7px; font-weight: normal; font-size: 0.75em; }
+
+
+/* ==========================================================================
+   Filter Button Styling (Used by Filter section AND Add/Edit Form)
+   ========================================================================== */
+.filter-button-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px; /* Spacing between buttons */
+    margin-top: 10px; /* Spacing above the buttons */
+    padding: 5px 0;
+}
+
+.filter-button {
+    padding: 5px 12px;
+    font-size: 0.9em;
+    font-family: var(--font-main);
+    background-color: var(--button-inactive-bg);
+    color: var(--button-inactive-text);
+    border: 1px solid var(--button-inactive-border);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    text-align: center;
+    white-space: nowrap;
+    user-select: none; /* Prevent text selection on click */
+    box-shadow: none;
+}
+
+.filter-button:hover {
+    background-color: var(--button-hover-bg);
+    border-color: var(--primary-neon); /* Magenta border on hover */
+    box-shadow: var(--border-glow-primary); /* Magenta glow on hover */
+}
+
+.filter-button:focus {
+    outline: none; /* Remove default outline */
+    border-color: var(--primary-neon);
+    box-shadow: var(--border-glow-primary); /* Magenta glow on focus */
+}
+
+/* Style for active/selected filter buttons */
+.filter-button.active {
+    background-color: var(--button-active-bg); /* Magenta background */
+    color: var(--button-active-text); /* Dark text for contrast */
+    border-color: var(--button-active-border); /* Magenta border */
+    font-weight: bold;
+    box-shadow: var(--border-glow-primary); /* Magenta glow when active */
+}
+
+
+/* ==========================================================================
+   Mode Toggle Buttons (Edit, Execute, Backup/Import) in Command List Header
+   ========================================================================== */
+#edit-mode-toggle-container,
+#execute-mode-toggle-container,
+#backup-import-toggle-container { display: inline-block; } /* Keep them inline */
+
+/* Backup/Import Button Specific Style */
+#toggle-backup-import-modal-btn { background-color: rgba(255, 255, 0, 0.1); border-color: var(--accent-neon); color: var(--accent-neon); text-shadow: var(--text-glow-accent); }
+#toggle-backup-import-modal-btn:hover { background-color: rgba(255, 255, 0, 0.2); box-shadow: var(--border-glow-accent); }
+
+/* Edit Mode Button Active State (Red) */
+#toggle-edit-mode-btn[aria-pressed="true"] { background-color: rgba(255, 77, 77, 0.25); border-color: var(--danger-color); color: var(--danger-color); box-shadow: 0 0 4px var(--danger-color), 0 0 8px var(--danger-color); text-shadow: 0 0 3px var(--danger-color); }
+
+/* Execute Mode Button Active State (Red) */
+#toggle-execute-mode-btn[aria-pressed="true"] {
+    background-color: rgba(255, 77, 77, 0.25);
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+    box-shadow: var(--border-glow-danger);
+    text-shadow: var(--text-glow-danger);
+}
+
+
+/* ==========================================================================
+   Modal Styles (Backup/Import)
+   ========================================================================== */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(10, 5, 15, 0.85); /* Dark semi-transparent overlay */
+    display: flex; justify-content: center; align-items: center;
+    z-index: 1100; /* Above other content */
+    padding: 20px;
+    opacity: 0; visibility: hidden; /* Start hidden */
+    /* Transition opacity and visibility */
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+}
+.modal-overlay.visible {
+    opacity: 1; visibility: visible;
+    transition-delay: 0s; /* Show immediately when class is added */
+}
+.modal-content {
+    background: var(--bg-color-trans);
+    border: 1px solid var(--primary-neon);
+    box-shadow: var(--border-glow-primary), 0 0 20px rgba(0,0,0,0.5);
+    padding: 30px 40px; border-radius: 6px;
+    max-width: 600px; width: 90%; position: relative;
+    max-height: 80vh; overflow-y: auto; /* Allow scrolling if content overflows */
+    transform: scale(0.95); /* Start slightly scaled down */
+    transition: transform 0.3s ease; /* Animate scale */
+}
+.modal-overlay.visible .modal-content {
+    transform: scale(1); /* Scale to full size when visible */
+}
+.modal-close-btn {
+    position: absolute; top: 10px; right: 15px;
+    background: none; border: none; font-size: 2em;
+    color: var(--secondary-neon); cursor: pointer;
+    padding: 0; line-height: 1; transition: color 0.2s ease;
+}
+.modal-close-btn:hover { color: var(--primary-neon); }
+.modal-content h2 {
+    font-family: var(--font-display); color: var(--primary-neon);
+    text-shadow: var(--text-glow-primary), 0 0 6px var(--primary-neon);
+    margin-top: 0; margin-bottom: 25px; text-align: center;
+    font-size: 1.8em; border-bottom: 1px solid rgba(255, 0, 255, 0.5);
+    padding-bottom: 10px;
+}
+.modal-section { margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px dashed rgba(0, 255, 255, 0.3); }
+.modal-section:last-child { border-bottom: none; padding-bottom: 0; }
+.modal-section h3 { font-family: var(--font-display); color: var(--secondary-neon); text-shadow: var(--text-glow-secondary); margin-bottom: 15px; font-size: 1.3em; }
+.modal-controls { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
+.modal-controls button { margin-top: 0; } /* Align buttons */
+.modal-controls input[type="file"] { color: var(--text-color); font-size: 0.9em; flex-grow: 1; }
+/* Style the file input's button */
+.modal-controls input[type="file"]#modal-importFile::file-selector-button {
+    border: 1px solid var(--secondary-neon); padding: 8px 12px; border-radius: 4px;
+    background-color: rgba(0, 255, 255, 0.1); color: var(--secondary-neon);
+    transition: background-color .3s ease; cursor: pointer;
+    font-family: var(--font-display); font-size: 0.9em; margin-right: 10px;
+}
+.modal-controls input[type="file"]#modal-importFile::file-selector-button:hover {
+    background-color: rgba(0, 255, 255, 0.2); box-shadow: var(--border-glow-secondary);
+}
+/* Accessibility: Hide label visually but keep for screen readers */
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); whitespace:nowrap; border-width:0; }
+
+/* ==========================================================================
+   Terminal Tabs Styling
+   ========================================================================== */
+.terminal-tabs {
+    display: flex; flex-wrap: nowrap; /* Prevent wrapping */
+    overflow-x: auto; /* Allow horizontal scrolling for many tabs */
+    overflow-y: hidden;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid var(--secondary-neon);
+    flex-shrink: 0; /* Prevent tabs container from shrinking */
+    padding: 5px 10px 0 10px; /* Padding top, sides, none bottom */
+    align-items: flex-end; /* Align tabs to the bottom border */
+}
+.terminal-tab {
+    background-color: transparent; border: 1px solid transparent; border-bottom: none;
+    color: var(--text-color); opacity: 0.7; /* Dim inactive tabs */
+    padding: 8px 15px;
+    padding-right: 28px; /* Make space for close button */
+    font-family: var(--font-display); font-size: 0.9em;
+    cursor: pointer; border-radius: 4px 4px 0 0; /* Rounded top corners */
+    transition: all 0.3s ease; margin-right: 4px; white-space: nowrap;
+    user-select: none;
+    position: relative; /* Needed for absolute positioning of close button */
+    display: inline-flex; /* Align text and close button */
+    align-items: center;
+}
+/* Span containing the tab text */
+.terminal-tab .tab-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-grow: 1; /* Allow text to take space */
+}
+
+.terminal-tab:hover { background-color: rgba(255, 255, 255, 0.1); opacity: 1; }
+.terminal-tab.active {
+    background-color: var(--bg-color-trans); /* Match terminal background */
+    border-color: var(--secondary-neon); opacity: 1;
+    border-bottom: 1px solid var(--bg-color-trans); /* Blend with iframe area */
+    margin-bottom: -1px; /* Overlap bottom border */
+}
+
+/* --- Close Tab Button Styles --- */
+.close-tab-btn {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-color);
+    opacity: 0.6;
+    font-size: 1.2em;
+    line-height: 1;
+    padding: 0 2px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    flex-shrink: 0; /* Prevent button from shrinking */
+}
+.terminal-tab:hover .close-tab-btn {
+    opacity: 1; /* Show clearly on tab hover */
+}
+.close-tab-btn:hover {
+    background-color: rgba(255, 77, 77, 0.5); /* Reddish background on hover */
+    color: #fff;
+    opacity: 1;
+}
+/* Hide close button on the main, non-deletable tab */
+.terminal-tab[data-terminal-id="term-main"] .close-tab-btn {
+    display: none;
+}
+/* Adjust padding for main tab since close button is hidden */
+.terminal-tab[data-terminal-id="term-main"] {
+    padding-right: 15px;
+}
+/* --- End Close Tab Button Styles --- */
+
+
+#add-terminal-tab-btn {
+    background-color: rgba(0, 255, 255, 0.1); border: 1px dashed var(--secondary-neon);
+    color: var(--secondary-neon); padding: 6px 10px; font-size: 1.2em;
+    line-height: 1; border-radius: 4px; cursor: pointer; margin-left: 10px;
+    margin-bottom: 0; /* Align with other tabs */
+    opacity: 0.7; transition: all 0.3s ease;
+    flex-shrink: 0; /* Prevent add button from shrinking */
+}
+#add-terminal-tab-btn:hover { background-color: rgba(0, 255, 255, 0.2); opacity: 1; box-shadow: var(--border-glow-secondary); }
+/* Container for terminal iframes */
+.terminal-iframes {
+    flex-grow: 1; /* Take remaining vertical space */
+    position: relative; /* For potential absolute positioning inside */
+    background-color: var(--bg-color-trans);
+    padding: 0; /* No padding */
+    border-radius: 0 0 6px 6px; /* Rounded bottom corners */
+    overflow: hidden; /* Hide iframe content overflow */
+}
+.terminal-iframe { display: none; width: 100%; height: 100%; border: none; background-color: transparent; }
+.terminal-iframe.active { display: block; } /* Show only the active iframe */
+
+/* ==========================================================================
+   Media Queries (Responsive Design)
+   ========================================================================== */
+@media (max-width: 1024px) {
+    /* Stack content and terminal vertically */
+    .main-wrapper { flex-direction: column; width: auto; margin-left: 15px; margin-right: 15px; padding: 0; gap: 20px; }
+    .terminal-area { position: static; height: 60vh; width: 100%; margin-top: 0; margin-left: 0; flex: none; padding: 0; }
+    .content-area { flex: none; padding-right: 0; width: 100%; }
+    header { max-width: none; margin-left: 0; margin-right: 0; }
+    /* Adjust command list header layout */
+    .section-header-with-buttons { flex-direction: column; align-items: flex-start; margin-bottom: 15px; border-bottom: none; padding-bottom: 0; gap: 15px; }
+    .section-header-with-buttons h2 { border-bottom: 1px solid rgba(0, 255, 255, 0.5); padding-bottom: 8px; margin-bottom: 0; width: 100%; }
+    .section-header-actions { gap: 10px; margin-top: 10px; flex-wrap: wrap;}
+    .command-actions { margin-left: 0; /* Reset margin for stacked layout */ }
+}
+@media (max-width: 768px) {
+    /* Stack header controls vertically */
+    .header-controls { flex-direction: column; gap: 10px; align-items: stretch; }
+    #searchInput { order: 1; min-width: unset; margin: 0; max-width: none; } /* Search first */
+}
+@media (max-width: 600px) {
+    main.content-area > section:not(.collapsible),
+    section.collapsible.expanded { padding: 15px; } /* Adjust expanded padding */
+
+    h2.collapsible-title {
+        padding: 8px 10px; /* Adjust collapsed padding */
+        font-size: 1.5em;
+    }
+    h2.collapsible-title::after {
+        right: 10px;
+    }
+    header { padding: 15px; }
+    /* Reduce ASCII title size */
+    #ascii-title { font-size: 0.8em; line-height: 1.2; }
+    h2:not(.collapsible-title) { font-size: 1.5em; } /* Only non-collapsible titles */
+
+    #searchInput { width: 100%; }
+    button[type="submit"] { width: 100%; padding: 15px; }
+    /* Adjust filter button layout */
+    .filter-button-container { gap: 6px; }
+    .filter-button { font-size: 0.85em; padding: 4px 10px; }
+    /* Reduce tag size */
+    .item-tag, .os-tag, .filter-tag { font-size: 0.75em; padding: 2px 6px; }
+    #commandList code { font-size: 1em; }
+    /* Stack command line elements */
+    .command-line { flex-direction: column; align-items: stretch; gap: 10px; }
+    .command-line strong { margin-bottom: 8px; }
+    .command-actions { justify-content: flex-start; margin-left: 0; }
+    header { padding-left: 10px; padding-right: 10px; }
+    .section-header-actions .header-toggle-btn { font-size: 0.8em; padding: 6px 10px; }
+    /* Modal adjustments */
+    .modal-content { padding: 20px; }
+    .modal-content h2 { font-size: 1.5em; }
+    .modal-section h3 { font-size: 1.1em; }
+    .modal-controls { flex-direction: column; align-items: stretch; }
+    .modal-controls button, .modal-controls input[type="file"] { width: 100%; }
+    /* Reduce overall padding/margins */
+    .main-wrapper { margin-left: 5px; margin-right: 5px; }
+    body { padding-bottom: 60px; }
+    /* Terminal tab adjustments */
+    .terminal-tabs { padding: 3px 5px 0 5px;}
+    .terminal-tab { padding: 6px 10px; padding-right: 24px; font-size: 0.8em;} /* Adjust padding for smaller close btn */
+    .close-tab-btn { right: 5px; font-size: 1em; } /* Adjust close btn position/size */
+    .terminal-tab[data-terminal-id="term-main"] { padding-right: 10px; } /* Adjust main tab padding */
+    #add-terminal-tab-btn { padding: 4px 8px; font-size: 1em;}
+}
