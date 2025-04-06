@@ -219,7 +219,7 @@ def init_db():
                 )
             ''')
              # Add default OS options if table is newly created or empty
-            cursor.execute("INSERT OR IGNORE INTO os_options (name) VALUES ('linux'), ('windows')")
+            cursor.execute("INSERT OR IGNORE INTO os_options (name) VALUES ('Linux'), ('Windows')")
 
             # New Table for Item Options ("What you have")
             cursor.execute('''
