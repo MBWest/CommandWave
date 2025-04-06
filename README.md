@@ -39,7 +39,7 @@ Command Wave is a web-based interface designed to manage, filter, and execute co
 
 2.  **Clone the Repository:**
     ```bash
-    git clone https://github.com/MBWest/CommandWave.git
+    git clone https://github.com/Journey-West/CommandWave.git
     cd CommandWave
     ```
 
