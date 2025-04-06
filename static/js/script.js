@@ -40,8 +40,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Descriptions for dynamically added items might need a different approach if required.
     };
     const OS_DESCRIPTIONS = {
-        'linux': "A family of open-source Unix-like operating systems based on the Linux kernel.",
-        'windows': "A group of proprietary graphical operating system families developed and marketed by Microsoft."
+        'Linux': "A family of open-source Unix-like operating systems based on the Linux kernel.",
+        'Windows': "A group of proprietary graphical operating system families developed and marketed by Microsoft."
         // Descriptions for dynamically added OS might need a different approach.
     };
     const FILTER_DESCRIPTIONS = {
