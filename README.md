@@ -106,27 +106,38 @@ Each command object should have the following structure:
 
 ```json
 [
-  {
-    "os": ["linux", "windows"],
-    "command": "nmap -sV -p $Port $TargetIP",
-    "description": "Service version detection on a specific port.",
-    "items": ["Target IP", "Port"],
-    "filters": ["Network Scan", "Enumeration"]
-  },
-  {
-    "os": ["windows"],
-    "command": "crackmapexec smb $TargetIP -u $UserFile -p $PassFile --shares",
-    "description": "Enumerate SMB shares using user/pass lists.",
-    "items": ["Target IP", "User File", "Pass File"],
-    "filters": ["SMB", "Enumeration", "Credential Access"]
-  },
-  {
-    "command": "ping -c 4 $TargetIP",
-    "description": "Simple ping command.",
-    "items": ["Target IP"],
-    "filters": ["Network Scan"]
-  }
-]
+    {
+        "os": [
+            "Linux"
+        ],
+        "command": "crackmapexec smb $TargetIP -u $UserFile -p $PassFile --shares",
+        "description": "Enumerate SMB shares using user/pass lists.",
+        "items": [
+            "Password",
+            "Target IP",
+            "Username"
+        ],
+        "filters": [
+            "Credential Access",
+            "Enumeration",
+            "SMB"
+        ]
+    },
+    {
+        "os": [
+            "Windows"
+        ],
+        "command": "Get-ADComputer -Filter * -Properties * | Select Name, DNSHostName, OperatingSystem",
+        "description": "PowerShell command to list AD computers.",
+        "items": [
+            "DC IP"
+        ],
+        "filters": [
+            "Enumeration",
+            "LDAP"
+        ]
+    }
+] 
 ```
 
 ### CSV Format
@@ -149,11 +160,12 @@ The CSV file must contain a header row with the following column names:
 **Example `import_commands.csv`:**
 
 ```csv
-os,command,description,items,filters
-"linux,windows","nmap -sV -p $Port $TargetIP","Service version detection on a specific port.","Target IP,Port","Network Scan,Enumeration"
-windows,"crackmapexec smb $TargetIP -u $UserFile -p $PassFile --shares","Enumerate SMB shares using user/pass lists.","Target IP,User File,Pass File","SMB,Enumeration,Credential Access"
-,"ping -c 4 $TargetIP","Simple ping command.","Target IP",Network Scan
-linux,"ssh -L 8080:localhost:80 user@$TargetIP","SSH Tunnel","Target IP,Username",SSH,Tunneling
+"os","command","description","items","filters"
+"Windows","crackmapexec smb $TargetIP -u $UserFile -p $PassFile --shares","Enumerate SMB shares using user/pass lists.","Password,Target IP,Username","Credential Access,Enumeration,SMB"
+"","echo 'Placeholder command'","A command with no specific tags.","",""
+"Windows","Get-ADComputer -Filter * -Properties * | Select Name, DNSHostName, OperatingSystem","PowerShell command to list AD computers.","DC IP","Enumeration,LDAP"
+"","ping -c 4 $TargetIP","Simple ping command (no specific OS).","Target IP",""
+"Linux","ssh -i keyfile user@$TargetIP","SSH login using a key file.","Target IP,Username","Lateral Movement,SSH"
 ```
 
 ## Inspiration
