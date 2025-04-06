@@ -400,7 +400,7 @@ button[type="submit"]:hover {
     box-shadow: 0 0 8px var(--primary-neon), 0 0 15px var(--primary-neon), 0 0 20px var(--primary-neon);
     transform: translateY(-2px); /* Subtle lift effect */
 }
-/* Secondary button (Cancel Edit, Export, Import) */
+/* Secondary button (Cancel Edit, Export, Import, Add Option) */
 .secondary-btn {
     background-color: rgba(0, 255, 255, 0.15); border: 1px solid var(--secondary-neon);
     color: var(--secondary-neon); box-shadow: 0 0 4px var(--secondary-neon);
@@ -439,6 +439,36 @@ button[type="submit"]:hover {
 .message.error   { background-color: rgba(255, 77, 77, 0.15); border-color: var(--error-color); color: var(--error-color); text-shadow: 0 0 3px var(--error-color); }
 .message.info    { background-color: rgba(0, 255, 255, 0.15); border-color: var(--info-color); color: var(--info-color); text-shadow: var(--text-glow-secondary); }
 .message.warning { background-color: rgba(255, 255, 0, 0.15); border-color: var(--accent-neon); color: var(--accent-neon); text-shadow: var(--text-glow-accent); }
+
+
+/* --- NEW: Styles for Add Option Elements --- */
+.add-option-container {
+    display: flex;
+    gap: 8px; /* Spacing between input and button */
+    margin-top: 10px; /* Spacing below the filter buttons */
+    align-items: center; /* Vertically align items */
+}
+
+.add-option-container input[type="text"] {
+    flex-grow: 1; /* Allows input to take up available space */
+    padding: 6px 10px; /* Slightly reduced padding */
+    font-size: 0.9em; /* Slightly smaller font */
+    width: auto; /* Let flexbox determine width */
+    min-width: 150px; /* Prevent input from becoming too small */
+    /* It will inherit background, border, color etc from the general input rule */
+}
+
+.add-option-container button {
+    /* Match input style */
+    padding: 6px 12px;
+    font-size: 0.9em;
+    margin-top: 0; /* Override default margin-top from .secondary-btn */
+    flex-shrink: 0; /* Prevent button from shrinking */
+    /* It will inherit styles from .secondary-btn */
+    text-transform: none; /* Override uppercase from .secondary-btn if desired */
+    letter-spacing: normal; /* Override letter-spacing if needed */
+}
+
 
 /* ==========================================================================
    Command List Display
@@ -822,6 +852,9 @@ button[type="submit"]:hover {
     /* Stack header controls vertically */
     .header-controls { flex-direction: column; gap: 10px; align-items: stretch; }
     #searchInput { order: 1; min-width: unset; margin: 0; max-width: none; } /* Search first */
+    /* Adjust add option container for smaller screens */
+    .add-option-container { flex-wrap: wrap; } /* Allow wrapping */
+    .add-option-container input[type="text"] { min-width: 100px; /* Allow smaller min width */ }
 }
 @media (max-width: 600px) {
     main.content-area > section:not(.collapsible),
@@ -868,4 +901,9 @@ button[type="submit"]:hover {
     .close-tab-btn { right: 5px; font-size: 1em; } /* Adjust close btn position/size */
     .terminal-tab[data-terminal-id="term-main"] { padding-right: 10px; } /* Adjust main tab padding */
     #add-terminal-tab-btn { padding: 4px 8px; font-size: 1em;}
+     /* Adjust add option container spacing/layout */
+    .add-option-container { margin-top: 12px; gap: 6px; }
+    .add-option-container input[type="text"] { padding: 5px 8px; font-size: 0.85em; }
+    .add-option-container button { padding: 5px 10px; font-size: 0.85em; }
+
 }
