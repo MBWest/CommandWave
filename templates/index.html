@@ -8,6 +8,29 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic styling for the new add option elements */
+        .add-option-container {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            align-items: center;
+        }
+        .add-option-container input[type="text"] {
+            flex-grow: 1; /* Take available space */
+            padding: 6px 10px; /* Slightly smaller padding */
+            font-size: 0.9em;
+            /* Inherit general input styles but override width if needed */
+            width: auto;
+            min-width: 150px;
+        }
+        .add-option-container button {
+            padding: 6px 12px; /* Match input padding */
+            font-size: 0.9em;
+            margin-top: 0; /* Remove default button margin */
+            flex-shrink: 0; /* Prevent button from shrinking */
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -59,12 +82,48 @@
             <section id="add-command-section" class="collapsible">
                  <form id="addCommandForm">
                      <input type="hidden" id="edit-command-id" name="edit_command_id" value="">
-                     <div class="form-group"><fieldset><legend>OS:</legend><div id="form-os-button-group" class="filter-button-container"></div></fieldset></div>
-                     <div class="form-group"><fieldset><legend>Items:</legend><div id="form-items-button-group" class="filter-button-container"></div></fieldset></div>
+                     <div class="form-group">
+                         <fieldset>
+                             <legend>OS:</legend>
+                             <div id="form-os-button-group" class="filter-button-container"></div>
+                             <div class="add-option-container">
+                                 <input type="text" id="add-os-input" placeholder="Add new OS...">
+                                 <button type="button" id="add-os-btn" class="secondary-btn">Add</button>
+                             </div>
+                         </fieldset>
+                     </div>
+                     <div class="form-group">
+                         <fieldset>
+                             <legend>What you have:</legend>
+                             <div id="form-items-button-group" class="filter-button-container"></div>
+                             <div class="add-option-container">
+                                 <input type="text" id="add-item-input" placeholder="Add new item...">
+                                 <button type="button" id="add-item-btn" class="secondary-btn">Add</button>
+                             </div>
+                         </fieldset>
+                     </div>
                      <div class="form-group"><label for="command">Command:</label><input type="text" id="command" name="command" required></div>
                      <div class="form-group"><label for="description">Description:</label><textarea id="description" name="description" rows="3"></textarea></div>
-                     <div class="form-group"><fieldset><legend>Services:</legend><div id="form-services-button-group" class="filter-button-container"></div></fieldset></div>
-                     <div class="form-group"><fieldset><legend>Attack Type:</legend><div id="form-attacktype-button-group" class="filter-button-container"></div></fieldset></div>
+                     <div class="form-group">
+                         <fieldset>
+                             <legend>Services:</legend>
+                             <div id="form-services-button-group" class="filter-button-container"></div>
+                             <div class="add-option-container">
+                                 <input type="text" id="add-service-input" placeholder="Add new service...">
+                                 <button type="button" id="add-service-btn" class="secondary-btn">Add</button>
+                             </div>
+                         </fieldset>
+                     </div>
+                     <div class="form-group">
+                         <fieldset>
+                             <legend>Attack Type:</legend>
+                             <div id="form-attacktype-button-group" class="filter-button-container"></div>
+                              <div class="add-option-container">
+                                 <input type="text" id="add-attacktype-input" placeholder="Add new attack type...">
+                                 <button type="button" id="add-attacktype-btn" class="secondary-btn">Add</button>
+                             </div>
+                         </fieldset>
+                     </div>
                      <button type="submit" id="form-submit-btn">Add Command</button>
                      <span id="cancel-edit-container" style="display: none; margin-left: 10px;"><button type="button" id="cancel-edit-btn" class="secondary-btn">Cancel Edit</button></span>
                      <p id="form-message" class="message"></p>
@@ -74,10 +133,10 @@
             <h2 id="filter-section-toggle" class="collapsible-title" tabindex="0" aria-controls="filter-controls-section" aria-expanded="false">Filter Commands</h2>
             <section id="filter-controls-section" class="collapsible">
                  <div class="filter-group"><fieldset><legend>OS:</legend><div id="filter-os-button-group" class="filter-button-container"></div></fieldset></div>
-                 <div class="filter-group"><fieldset><legend>Items:</legend><div id="filter-items-button-group" class="filter-button-container"></div></fieldset></div>
+                 <div class="filter-group"><fieldset><legend>What you have:</legend><div id="filter-items-button-group" class="filter-button-container"></div></fieldset></div>
                  <div class="filter-group"><fieldset><legend>Services:</legend><div id="filter-services-button-group" class="filter-button-container"></div></fieldset></div>
                  <div class="filter-group"><fieldset><legend>Attack Type:</legend><div id="filter-attacktype-button-group" class="filter-button-container"></div></fieldset></div>
-            </section>
+                 </section>
 
             <section id="command-list-section">
                 <div class="section-header-with-buttons">
