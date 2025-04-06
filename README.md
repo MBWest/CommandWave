@@ -81,6 +81,77 @@ Command Wave is a web-based interface designed to manage, filter, and execute co
 8.  **Edit/Delete:** Enable "Edit Mode" to show the "Edit" and "Delete" buttons for each command.
 9.  **Backup/Import:** Use the "Backup/Import" button to open a modal window for exporting your command database to JSON/CSV or importing from a previous backup.
 
+
+## Import Formats
+
+The application allows importing commands from either `.json` or `.csv` files using the "Backup/Import" feature.
+
+### JSON Format
+
+The JSON file must contain a single JSON array (`[]`) where each element in the array is an object representing a command.
+
+Each command object should have the following structure:
+
+* **`command`** (String, Required): The command text itself. You can include variable placeholders like `$TargetIP`, `$Port`, etc.
+* **`description`** (String, Optional): A description of what the command does. Defaults to an empty string if omitted.
+* **`os`** (Array of Strings, Optional): A list of operating systems the command applies to (e.g., `["linux", "windows"]`). Must match predefined OS types. Defaults to an empty list if omitted.
+* **`items`** (Array of Strings, Optional): A list of item tags associated with the command (e.g., `["Username", "Password", "Target IP"]`). Must match predefined item types. Defaults to an empty list if omitted.
+* **`filters`** (Array of Strings, Optional): A list of filter tags (like Services or Attack Types) associated with the command (e.g., `["SMB", "Enumeration"]`). Must match predefined filter tags. Defaults to an empty list if omitted.
+
+**Example `import_commands.json`:**
+
+```json
+[
+  {
+    "os": ["linux", "windows"],
+    "command": "nmap -sV -p $Port $TargetIP",
+    "description": "Service version detection on a specific port.",
+    "items": ["Target IP", "Port"],
+    "filters": ["Network Scan", "Enumeration"]
+  },
+  {
+    "os": ["windows"],
+    "command": "crackmapexec smb $TargetIP -u $UserFile -p $PassFile --shares",
+    "description": "Enumerate SMB shares using user/pass lists.",
+    "items": ["Target IP", "User File", "Pass File"],
+    "filters": ["SMB", "Enumeration", "Credential Access"]
+  },
+  {
+    "command": "ping -c 4 $TargetIP",
+    "description": "Simple ping command.",
+    "items": ["Target IP"],
+    "filters": ["Network Scan"]
+  }
+]
+```
+
+### CSV Format
+
+The CSV file must contain a header row with the following column names:
+
+* **`command`** (Required): The command text. Variable placeholders can be included.
+* **`description`** (Optional): A description of the command.
+* **`os`** (Optional): A comma-separated string of OS tags (e.g., `"linux,windows"`).
+* **`items`** (Optional): A comma-separated string of item tags (e.g., `"Target IP,Port"`).
+* **`filters`** (Optional): A comma-separated string of filter tags (e.g., `"SMB,Enumeration"`).
+
+**Important Notes for CSV:**
+
+* The header row is mandatory and must include at least the `command` column.
+* The order of columns doesn't matter as long as the headers are correct.
+* Values containing commas (especially descriptions or commands) should ideally be enclosed in double quotes (`"`) according to standard CSV practices, although the backend attempts dialect sniffing.
+* Multiple tags for `os`, `items`, or `filters` within a single command should be placed in the corresponding cell, separated by commas.
+
+**Example `import_commands.csv`:**
+
+```csv
+os,command,description,items,filters
+"linux,windows","nmap -sV -p $Port $TargetIP","Service version detection on a specific port.","Target IP,Port","Network Scan,Enumeration"
+windows,"crackmapexec smb $TargetIP -u $UserFile -p $PassFile --shares","Enumerate SMB shares using user/pass lists.","Target IP,User File,Pass File","SMB,Enumeration,Credential Access"
+,"ping -c 4 $TargetIP","Simple ping command.","Target IP",Network Scan
+linux,"ssh -L 8080:localhost:80 user@$TargetIP","SSH Tunnel","Target IP,Username",SSH,Tunneling
+```
+
 ## Inspiration
 
 The initial concept and inspiration for some of the features in Command Wave came from [wadcoms.github.io](https://wadcoms.github.io/). Their work provided a valuable starting point and motivation for this project.
@@ -88,3 +159,6 @@ The initial concept and inspiration for some of the features in Command Wave cam
 ## Contributing
 
 Contributions are welcome! Please feel free to submit pull requests or open issues for bugs, feature requests, or improvements.
+
+
+
