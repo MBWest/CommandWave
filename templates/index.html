@@ -160,8 +160,7 @@
                 <div id="commandList"><p>Loading commands...</p></div>
 
                 <template id="command-item-template">
-                    <li>
-                        <div class="command-header">
+                    <li class="command-item-clickable"> <div class="command-header">
                             <div class="command-header-tags">
                                 <span class="tags-items"></span> <span class="tags-os"></span>
                             </div>
@@ -178,12 +177,12 @@
                                     <button class="delete-btn danger-btn command-edit-delete-btn hidden" type="button" title="Delete Command" data-command-id="">Delete</button>
                                 </div>
                             </div>
-                            <p></p> </div>
+                            <p class="command-description"></p> </div>
                         <div class="command-footer">
                             <span class="tags-filters"></span> </div>
                     </li>
                 </template>
-            </section>
+                </section>
         </main>
 
         <aside class="terminal-area">
