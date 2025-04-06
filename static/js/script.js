@@ -1,943 +1,767 @@
-/* projects/static/css/style.css */
-
-/* ==========================================================================
-   Base Styles, Variables, and Resets
-   ========================================================================== */
-:root {
-    /* Color Palette */
-    --bg-color: #1a0a2e;
-    --bg-color-trans: rgba(26, 10, 46, 0.85);
-    --text-color: #f0f0f0;
-    --primary-neon: #ff00ff; /* Magenta */
-    --secondary-neon: #00ffff; /* Cyan */
-    --accent-neon: #ffff00; /* Yellow */
-    --success-neon: #39ff14; /* Bright green */
-    --error-color: #ff4d4d; /* Red */
-    --danger-color: var(--error-color); /* Alias for Execute button/mode */
-    --success-color: var(--success-neon);
-    --info-color: var(--secondary-neon);
-    --button-inactive-bg: rgba(0, 0, 0, 0.4);
-    --button-inactive-border: var(--secondary-neon);
-    --button-inactive-text: var(--text-color);
-    --button-active-bg: var(--primary-neon);
-    --button-active-text: var(--bg-color);
-    --button-active-border: var(--primary-neon);
-    --button-hover-bg: rgba(0, 255, 255, 0.2);
-
-
-    /* Tag Specific Colors */
-    --tag-color-item: var(--primary-neon);
-    --tag-color-filter: var(--secondary-neon);
-    --tag-color-os: var(--accent-neon);
-    --tag-bg-color: var(--bg-color); /* Background for tags */
-
-    /* Effects */
-    --border-glow-primary: 0 0 3px var(--primary-neon), 0 0 6px var(--primary-neon);
-    --border-glow-secondary: 0 0 4px var(--secondary-neon), 0 0 8px var(--secondary-neon);
-    --border-glow-accent: 0 0 4px var(--accent-neon), 0 0 8px var(--accent-neon);
-    --border-glow-danger: 0 0 4px var(--danger-color), 0 0 8px var(--danger-color);
-    --border-glow-success: 0 0 4px var(--success-neon), 0 0 8px var(--success-neon);
-    --text-glow-primary: 0 0 2px var(--primary-neon);
-    --text-glow-secondary: 0 0 2px var(--secondary-neon);
-    --text-glow-accent: 0 0 2px var(--accent-neon);
-    --text-glow-danger: 0 0 3px var(--danger-color);
-    --text-glow-success: 0 0 3px var(--success-neon);
-
-    /* Typography */
-    --font-main: 'Roboto', sans-serif;
-    --font-display: 'Orbitron', sans-serif; /* For titles, prominent text */
-    /* Keep monospace as the base for code blocks */
-    --font-code: monospace;
-}
-
-/* Basic reset */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-
-body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    font-family: var(--font-main);
-    line-height: 1.6;
-    /* Subtle grid background */
-    background-image: linear-gradient(rgba(0, 255, 255, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 255, 0.07) 1px, transparent 1px);
-    background-size: 30px 30px;
-    padding-bottom: 80px; /* Space for potential fixed elements or just breathing room */
-}
-
-/* ==========================================================================
-   Layout & Structure
-   ========================================================================== */
-header {
-    position: relative;
-    max-width: 950px;
-    margin: 20px auto;
-    padding: 25px;
-    background: var(--bg-color-trans);
-    border: 1px solid var(--secondary-neon);
-    box-shadow: var(--border-glow-secondary), inset 0 0 10px rgba(0, 255, 255, 0.1);
-    border-radius: 6px;
-    text-align: center;
-    border-bottom: 2px solid var(--primary-neon);
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-}
-
-.main-wrapper {
-    display: flex;
-    width: 100%;
-    align-items: flex-start; /* Align items to the top */
-    padding: 0 15px;
-    margin-top: 20px;
-    gap: 20px;
-}
-
-.content-area {
-    flex: 1; /* Takes up available space */
-    margin: 0;
-    min-width: 0; /* Important for flex items containing long content */
-}
-
-.terminal-area {
-    flex: 1; /* Takes up available space */
-    position: sticky; /* Sticks to the top when scrolling */
-    top: 20px;
-    height: calc(100vh - 40px); /* Full viewport height minus some padding */
-    background: var(--bg-color-trans);
-    border: 1px solid var(--secondary-neon);
-    box-shadow: var(--border-glow-secondary), inset 0 0 10px rgba(0, 255, 255, 0.1);
-    border-radius: 6px;
-    padding: 0; /* Padding handled by inner elements */
-    display: flex;
-    flex-direction: column;
-    min-width: 0; /* Important for flex items */
-}
-
-/* Applied to all sections that are NOT collapsible */
-main.content-area > section:not(.collapsible) {
-    padding: 25px;
-    background: var(--bg-color-trans);
-    border: 1px solid var(--secondary-neon);
-    box-shadow: var(--border-glow-secondary), inset 0 0 10px rgba(0, 255, 255, 0.1);
-    border-radius: 6px;
-    margin-bottom: 20px;
-}
-/* Special handling for variable section border */
-#variable-input-section {
-    border-color: var(--accent-neon); /* Yellow border */
-    box-shadow: var(--border-glow-accent), inset 0 0 10px rgba(255, 255, 0, 0.1);
-}
-
-
-/* ASCII Title Styling */
-#ascii-title {
-    /* Specify common monospace fonts first for better cross-browser compatibility */
-    font-family: figlet, Consolas, Monaco, 'Courier New', Courier, monospace;
-    color: var(--primary-neon);
-    text-shadow: var(--text-glow-primary), 0 0 4px var(--primary-neon), 0 0 7px var(--primary-neon);
-    font-size: 1em;
-    line-height: 1.2; /* Adjusted for potentially better alignment */
-    text-align: center;
-    margin-bottom: 20px;
-    white-space: pre; /* Crucial for preserving whitespace and line breaks */
-    overflow-x: auto; /* Prevent wrapping, allow scrolling if needed */
-}
-
-/* General H2 Styling (Applies to non-collapsible titles) */
-h2:not(.collapsible-title) {
-    font-family: var(--font-display);
-    color: var(--secondary-neon);
-    text-shadow: var(--text-glow-secondary);
-    margin-bottom: 20px;
-    border-bottom: 1px solid rgba(0, 255, 255, 0.5);
-    padding-bottom: 8px;
-    font-size: 1.8em;
-    font-weight: 700;
-}
-
-
-/* ==========================================================================
-   Header Controls (Search remains)
-   ========================================================================== */
-.header-controls {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-top: 20px;
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
-    justify-content: center; /* Center remaining items */
-}
-
-#searchInput {
-    flex-grow: 1;
-    margin: 0 10px;
-    min-width: 200px;
-    /* max-width: 450px; */ /* Removed max-width to allow fill */
-    width: auto; /* Allow flexible width */
-    padding: 10px 12px;
-    font-size: 1em;
-    /* Inherits general input styles defined later */
-}
-
-
-/* Kept for Backup/Import, Edit, Execute buttons */
-.header-toggle-btn {
-    background-color: rgba(0, 255, 255, 0.1);
-    border: 1px solid var(--secondary-neon);
-    color: var(--secondary-neon);
-    padding: 8px 12px;
-    font-family: var(--font-display);
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 0.9em;
-    transition: all 0.3s ease;
-    display: inline-flex; /* Align icon and text */
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0; /* Prevent shrinking */
-    white-space: nowrap; /* Prevent text wrapping */
-}
-
-.header-toggle-btn:hover,
-.header-toggle-btn:focus {
-    background-color: rgba(0, 255, 255, 0.2);
-    box-shadow: var(--border-glow-secondary);
-    outline: none;
-}
-
-.header-toggle-btn .icon {
-    font-weight: bold;
-    font-size: 1.1em;
-    display: inline-block;
-    text-align: center;
-    min-width: 1em;
-}
-
-/* ==========================================================================
-   Variable Input Section
-   ========================================================================== */
-/* Styling now handled by general section styles above */
-.variable-grid {
-    display: grid;
-    /* Responsive grid: columns are at least 250px wide */
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px 20px; /* Row and column gap */
-}
-
-.variable-item label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 0.9em;
-    color: var(--accent-neon);
-    opacity: 0.9;
-}
-
-.variable-item input[type="text"] {
-    font-size: 0.95em;
-    padding: 8px 10px;
-    border-color: var(--accent-neon);
-    width: 100%;
-    /* Inherits general input styles */
-}
-.variable-item input[type="text"]:focus {
-    border-color: var(--primary-neon); /* Magenta focus */
-    box-shadow: var(--border-glow-primary);
-}
-/* Style for inputs that have content */
-.variable-item input[type="text"]:not(:placeholder-shown) {
-    background-color: rgba(0, 255, 255, 0.1);
-    border-color: var(--secondary-neon);
-    box-shadow: inset 0 0 5px rgba(0, 255, 255, 0.2);
-}
-
-/* ==========================================================================
-   Collapsible Sections (Add Form, Filters) - CORRECTED STYLES
-   ========================================================================== */
-
-/* Style for the clickable title (H2) */
-h2.collapsible-title {
-    font-family: var(--font-display);
-    color: var(--secondary-neon);
-    text-shadow: var(--text-glow-secondary);
-    font-size: 1.8em;
-    font-weight: 700;
-    cursor: pointer;
-    padding: 10px 15px;
-    border: 1px solid var(--secondary-neon);
-    border-radius: 6px;
-    margin-bottom: 0; /* Override default margin when title is used for collapsed section */
-    margin-top: 20px; /* Add space above the collapsed title */
-    transition: background-color 0.3s ease, border-color 0.3s ease, border-radius 0.3s ease;
-    position: relative;
-    user-select: none;
-}
-
-h2.collapsible-title:hover,
-h2.collapsible-title:focus {
-    background-color: rgba(0, 255, 255, 0.1);
-    outline: none;
-}
-
-/* Icon using pseudo-element */
-h2.collapsible-title::after {
-    content: '+'; /* Default icon */
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-weight: bold;
-    font-size: 0.8em;
-    line-height: 1;
-    color: var(--secondary-neon);
-    transition: transform 0.3s ease;
-}
-
-/* Collapsed State for the SECTION element */
-section.collapsible {
-    /* Smooth transition */
-    transition: max-height 0.6s cubic-bezier(0.25, 0.8, 0.25, 1),
-                opacity 0.6s cubic-bezier(0.25, 0.8, 0.25, 1),
-                padding-top 0.6s cubic-bezier(0.25, 0.8, 0.25, 1),
-                padding-bottom 0.6s cubic-bezier(0.25, 0.8, 0.25, 1),
-                border-width 0.1s 0.5s linear; /* Delay border collapse */
-
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-    padding: 0 25px; /* Keep horizontal padding for content alignment */
-    margin: 0; /* Remove margin, spacing handled by title */
-    border: 1px solid transparent; /* Collapsed border */
-    border-top: none; /* No top border when collapsed */
-    border-radius: 0 0 6px 6px; /* Round bottom corners */
-    box-shadow: none;
-    background: none;
-}
-
-/* Expanded State for the SECTION element */
-section.collapsible.expanded {
-    max-height: 5000px; /* Or appropriate max height */
-    opacity: 1;
-    padding: 25px; /* Restore full padding */
-    margin: 0; /* Margin still handled by title above */
-    margin-bottom: 20px; /* Space below expanded section */
-    border: 1px solid var(--secondary-neon); /* Restore border */
-    border-top: none; /* Title acts as top border visually */
-    box-shadow: var(--border-glow-secondary), inset 0 0 10px rgba(0, 255, 255, 0.1);
-    background: var(--bg-color-trans);
-    transition-delay: 0s; /* Apply border immediately on expand */
-}
-
-/* Adjust title style when its associated section is expanded */
-h2.collapsible-title[aria-expanded="true"] {
-    border-bottom-left-radius: 0; /* Flatten bottom corners of title */
-    border-bottom-right-radius: 0;
-    border-bottom-color: transparent; /* Hide bottom border to blend with section */
-    margin-bottom: 0; /* Remove space between title and expanded section */
-}
-
-/* Change title icon when expanded */
-h2.collapsible-title[aria-expanded="true"]::after {
-    content: '−';
-}
-
-
-/* ==========================================================================
-   Forms (General Styles)
-   ========================================================================== */
-.form-group { margin-bottom: 18px; }
-
-fieldset {
-    border: 1px dashed var(--secondary-neon);
-    padding: 15px 20px;
-    border-radius: 4px;
-    margin-top: 10px; margin-bottom: 10px;
-}
-
-legend {
-    font-family: var(--font-display);
-    color: var(--primary-neon);
-    padding: 0 10px;
-    font-weight: bold;
-    font-size: 1.1em;
-}
-
-/* General style for text inputs, selects, textareas */
-input[type="text"], select, textarea {
-    width: 100%;
-    padding: 12px;
-    background-color: rgba(0, 0, 0, 0.6);
-    border: 1px solid var(--secondary-neon);
-    color: var(--text-color);
-    border-radius: 4px;
-    font-family: var(--font-main);
-    font-size: 1em;
-    transition: box-shadow 0.3s ease, border-color 0.3s ease;
-}
-
-input:focus, textarea:focus, select:focus {
-    outline: none;
-    border-color: var(--primary-neon); /* Magenta focus */
-    box-shadow: var(--border-glow-primary);
-}
-
-textarea { resize: vertical; min-height: 60px; }
-
-/* --- Button Styles --- */
-/* Base style for primary, secondary, danger buttons */
-button[type="submit"], .secondary-btn, .danger-btn {
-    border: none; padding: 10px 20px; font-family: var(--font-display);
-    font-weight: bold; cursor: pointer; border-radius: 4px;
-    transition: all 0.3s ease; text-transform: uppercase;
-    letter-spacing: 1px; font-size: 0.9em; margin-top: 10px;
-}
-/* Primary button (Submit) */
-button[type="submit"] {
-    background-color: var(--primary-neon); color: var(--bg-color);
-    box-shadow: 0 0 6px var(--primary-neon), 0 0 10px var(--primary-neon);
-}
-button[type="submit"]:hover {
-    background-color: #ff40ff; /* Slightly lighter magenta */
-    box-shadow: 0 0 8px var(--primary-neon), 0 0 15px var(--primary-neon), 0 0 20px var(--primary-neon);
-    transform: translateY(-2px); /* Subtle lift effect */
-}
-/* Secondary button (Cancel Edit, Export, Import, Add Option) */
-.secondary-btn {
-    background-color: rgba(0, 255, 255, 0.15); border: 1px solid var(--secondary-neon);
-    color: var(--secondary-neon); box-shadow: 0 0 4px var(--secondary-neon);
-}
-.secondary-btn:hover {
-    background-color: rgba(0, 255, 255, 0.3);
-    box-shadow: 0 0 6px var(--secondary-neon), 0 0 10px var(--secondary-neon);
-    transform: translateY(-1px);
-}
-/* Danger button (Delete) */
-.danger-btn {
-    background-color: rgba(255, 77, 77, 0.15); border: 1px solid var(--danger-color);
-    color: var(--danger-color); box-shadow: 0 0 4px var(--danger-color);
-}
-.danger-btn:hover {
-    background-color: rgba(255, 77, 77, 0.3);
-    box-shadow: 0 0 6px var(--danger-color), 0 0 10px var(--danger-color);
-    transform: translateY(-1px);
-}
-
-/* --- Message Area Styles (Used for form feedback, IO messages) --- */
-.message {
-    padding: 12px 15px; border-radius: 4px; font-weight: bold;
-    border: 1px solid transparent; text-align: center; opacity: 0;
-    max-height: 0; overflow: hidden;
-    /* Transition visibility, size, and spacing */
-    transition: opacity 0.5s ease, max-height 0.5s ease, padding 0.5s ease, margin 0.5s ease;
-    margin: 0 auto; /* Center message horizontally */
-}
-/* State when message should be visible */
-.message.visible {
-    opacity: 1; max-height: 100px; margin: 15px auto; padding: 12px 15px;
-}
-/* Color variants */
-.message.success { background-color: rgba(57, 255, 20, 0.15); border-color: var(--success-color); color: var(--success-color); text-shadow: var(--text-glow-success); }
-.message.error   { background-color: rgba(255, 77, 77, 0.15); border-color: var(--error-color); color: var(--error-color); text-shadow: 0 0 3px var(--error-color); }
-.message.info    { background-color: rgba(0, 255, 255, 0.15); border-color: var(--info-color); color: var(--info-color); text-shadow: var(--text-glow-secondary); }
-.message.warning { background-color: rgba(255, 255, 0, 0.15); border-color: var(--accent-neon); color: var(--accent-neon); text-shadow: var(--text-glow-accent); }
-
-
-/* --- Styles for Add Option Elements --- */
-.add-option-container {
-    display: flex;
-    gap: 8px; /* Spacing between input and button */
-    margin-top: 10px; /* Spacing below the filter buttons */
-    align-items: center; /* Vertically align items */
-}
-
-.add-option-container input[type="text"] {
-    flex-grow: 1; /* Allows input to take up available space */
-    padding: 6px 10px; /* Slightly reduced padding */
-    font-size: 0.9em; /* Slightly smaller font */
-    width: auto; /* Let flexbox determine width */
-    min-width: 150px; /* Prevent input from becoming too small */
-    /* It will inherit background, border, color etc from the general input rule */
-}
-
-.add-option-container button {
-    /* Match input style */
-    padding: 6px 12px;
-    font-size: 0.9em;
-    margin-top: 0; /* Override default margin-top from .secondary-btn */
-    flex-shrink: 0; /* Prevent button from shrinking */
-    /* It will inherit styles from .secondary-btn */
-    text-transform: none; /* Override uppercase from .secondary-btn if desired */
-    letter-spacing: normal; /* Override letter-spacing if needed */
-}
-
-
-/* ==========================================================================
-   Command List Display
-   ========================================================================== */
-#command-list-section {
-    /* Uses general section styles */
-    padding: 25px;
-    background: var(--bg-color-trans);
-    border: 1px solid var(--secondary-neon);
-    box-shadow: var(--border-glow-secondary), inset 0 0 10px rgba(0, 255, 255, 0.1);
-    border-radius: 6px;
-    margin-bottom: 20px;
-    margin-top: 20px; /* Ensure spacing above */
-}
-/* Header for the command list section (Title + Mode Toggles) */
-.section-header-with-buttons {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 20px; border-bottom: 1px solid rgba(0, 255, 255, 0.5);
-    padding-bottom: 8px; flex-wrap: wrap; gap: 10px;
-}
-.section-header-with-buttons h2 { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
-.section-header-actions { display: flex; gap: 10px; flex-shrink: 0; flex-wrap: wrap;}
-.section-header-actions .header-toggle-btn { margin-top: 0; } /* Align buttons */
-
-#commandList ul { list-style: none; padding-left: 0; }
-
-/* Individual command item styling */
-#commandList li { /* Base style for all li */
-    background-color: rgba(0, 0, 0, 0.4);
-    border-left: 4px solid var(--primary-neon);
-    padding: 15px 20px;
-    margin-bottom: 15px;
-    border-radius: 0 4px 4px 0;
-    transition: background-color 0.3s ease;
-}
-
-/* --- NEW: Styles for Clickable Command Item & Toggle --- */
-#commandList li.command-item-clickable {
-    cursor: pointer;
-    /* transition added to base li style */
-}
-
-#commandList li.command-item-clickable:hover {
-     background-color: rgba(0, 0, 0, 0.55); /* Slightly darker on hover */
-}
-
-/* Hide the description paragraph by default */
-#commandList .command-description {
-    display: none;
-    color: #cccccc; /* Inherited, but ensure it's set */
-    font-size: 0.95em; /* Inherited, but ensure it's set */
-    padding-left: 8px; /* Inherited, but ensure it's set */
-    border-left: 1px solid rgba(0, 255, 255, 0.3); /* Inherited, but ensure it's set */
-    word-wrap: break-word; /* Inherited, but ensure it's set */
-    /* Optional: Add transition for smoother appearance */
-    /* transition: all 0.3s ease-in-out; */
-}
-
-/* Show the description when the parent LI has the 'expanded' class */
-#commandList li.command-item-clickable.expanded .command-description {
-    display: block; /* Show the paragraph */
-    margin-top: 12px; /* Add some space above the description when shown */
-    padding-top: 5px; /* Optional small padding top */
-}
-/* --- End NEW Styles --- */
-
-
-/* Header within each command item: Tags + Copy/Execute Buttons */
-.command-header {
-    display: flex; justify-content: space-between; align-items: flex-start;
-    gap: 15px; flex-wrap: wrap; margin-bottom: 10px;
-}
-.command-header-tags { display: flex; flex-wrap: wrap; gap: 6px 8px; flex-grow: 1; min-width: 100px; }
-.command-header-buttons { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
-
-/* Base style for header buttons (Copy, Execute) */
-.command-header .copy-btn,
-.command-header .execute-btn {
-    padding: 3px 10px; font-family: var(--font-display); font-weight: bold;
-    cursor: pointer; border-radius: 4px; transition: all 0.3s ease;
-    text-transform: none; letter-spacing: normal; font-size: 0.85em;
-    margin-top: 0; flex-shrink: 0; /* Prevent shrinking */
-}
-
-/* Copy Button Specifics */
-.command-header .copy-btn {
-    border: 1px solid var(--secondary-neon); background-color: rgba(0, 255, 255, 0.15);
-    color: var(--secondary-neon); box-shadow: 0 0 4px var(--secondary-neon);
-    text-shadow: 0 0 2px var(--secondary-neon);
-}
-.command-header .copy-btn:hover, .command-header .copy-btn:focus {
-    background-color: rgba(0, 255, 255, 0.3);
-    box-shadow: 0 0 6px var(--secondary-neon), 0 0 10px var(--secondary-neon);
-    transform: translateY(-1px); outline: none;
-}
-/* Style when copy is successful */
-.command-header .copy-btn:disabled {
-    background-color: rgba(57, 255, 20, 0.2); border-color: var(--success-color);
-    color: var(--success-color); text-shadow: var(--text-glow-success);
-    box-shadow: 0 0 4px var(--success-color); cursor: default; transform: translateY(0);
-}
-
-/* Execute Button Specifics (RED) */
-.command-header .execute-btn {
-    border: 1px solid var(--danger-color);
-    background-color: rgba(255, 77, 77, 0.15);
-    color: var(--danger-color);
-    box-shadow: 0 0 3px var(--danger-color);
-    text-shadow: var(--text-glow-danger);
-}
-.command-header .execute-btn:hover, .command-header .execute-btn:focus {
-    background-color: rgba(255, 77, 77, 0.3);
-    box-shadow: var(--border-glow-danger), 0 0 9px var(--danger-color);
-    transform: translateY(-1px); outline: none;
-}
-/* Style when disabled (e.g., during sending or error) */
-.command-header .execute-btn:disabled {
-    background-color: rgba(180, 180, 180, 0.1); border-color: #aaa;
-    color: #aaa; cursor: default; transform: translateY(0);
-    box-shadow: none; text-shadow: none;
-}
-/* Style for "Sent!" state (Green flash) - still uses success color */
-.command-header .execute-btn.sent {
-    background-color: rgba(57, 255, 20, 0.2); border-color: var(--success-color);
-    color: var(--success-color); text-shadow: var(--text-glow-success);
-    box-shadow: 0 0 4px var(--success-color);
-}
-/* Style for initially hidden Execute button (controlled by JS) */
-.execute-btn.hidden { display: none; }
-
-/* Command Body (contains command line and description) */
-.command-body { margin-bottom: 12px; }
-/* Command Footer (contains filter tags) */
-.command-footer { border-top: 1px dotted rgba(0, 255, 255, 0.3); padding-top: 10px; margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
-/* Command Line wrapper */
-.command-line { display: flex; align-items: center; gap: 15px; margin-bottom: 8px; flex-wrap: wrap; }
-.command-line strong { flex-grow: 1; min-width: 0; } /* Allow command code to take space */
-/* Command code block */
-#commandList code { color: var(--accent-neon); background-color: rgba(0, 0, 0, 0.5); padding: 5px 10px; border-radius: 3px; font-family: var(--font-code); font-size: 1.1em; word-break: break-all; display: inline-block; line-height: 1.4; }
-/* Style for substituted variables within the code */
-#commandList code .substituted-var { color: var(--primary-neon); padding: 1px 3px; margin: 0 1px; border-radius: 3px; font-weight: bold; text-shadow: var(--text-glow-primary); background-color: rgba(255, 0, 255, 0.08); }
-/* Command description paragraph - styling handled by .command-description rules now */
-/* #commandList p { margin-top: 8px; color: #cccccc; font-size: 0.95em; padding-left: 8px; border-left: 1px solid rgba(0, 255, 255, 0.3); word-wrap: break-word; } */
-/* Container for Edit/Delete buttons */
-.command-actions { display: flex; gap: 8px; flex-shrink: 0; margin-left: auto; /* Pushes buttons to the right */ }
-.command-actions button { padding: 3px 10px; font-size: 0.85em; margin-top: 0; text-transform: none; letter-spacing: normal; }
-/* Class to hide Edit/Delete buttons when not in Edit Mode (controlled by JS) */
-.command-edit-delete-btn.hidden { display: none; }
-
-/* ==========================================================================
-   Tag Styling (OS, Item, Filter)
-   ========================================================================== */
-.item-tag, .os-tag, .filter-tag { display: inline-block; padding: 3px 9px; border-radius: 4px; font-size: 0.8em; font-weight: bold; margin: 2px; line-height: 1.4; border: 1px solid rgba(0,0,0,0.2); }
-.item-tag, .filter-tag { font-family: var(--font-main); text-transform: none; }
-.os-tag { font-family: var(--font-display); text-transform: uppercase; }
-.item-tag { background-color: var(--tag-color-item); color: var(--tag-bg-color); }
-.os-tag { background-color: var(--tag-color-os); color: var(--tag-bg-color); font-size: 0.75em; }
-.filter-tag { background-color: var(--tag-color-filter); color: var(--tag-bg-color); font-size: 0.75em; }
-/* Style for placeholder tags when no tags are assigned */
-.item-tag.placeholder, .filter-tag.placeholder, .os-tag.placeholder { background-color: transparent; color: rgba(255, 255, 255, 0.5); font-style: italic; text-transform: none; border: 1px dashed rgba(255, 255, 255, 0.2); padding: 2px 7px; font-weight: normal; font-size: 0.75em; }
-
-
-/* ==========================================================================
-   Filter Button Styling (Used by Filter section AND Add/Edit Form)
-   ========================================================================== */
-.filter-button-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px; /* Spacing between buttons */
-    margin-top: 10px; /* Spacing above the buttons */
-    padding: 5px 0;
-}
-
-.filter-button {
-    padding: 5px 12px;
-    font-size: 0.9em;
-    font-family: var(--font-main);
-    background-color: var(--button-inactive-bg);
-    color: var(--button-inactive-text);
-    border: 1px solid var(--button-inactive-border);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-    text-align: center;
-    white-space: nowrap;
-    user-select: none; /* Prevent text selection on click */
-    box-shadow: none;
-}
-
-.filter-button:hover {
-    background-color: var(--button-hover-bg);
-    border-color: var(--primary-neon); /* Magenta border on hover */
-    box-shadow: var(--border-glow-primary); /* Magenta glow on hover */
-}
-
-.filter-button:focus {
-    outline: none; /* Remove default outline */
-    border-color: var(--primary-neon);
-    box-shadow: var(--border-glow-primary); /* Magenta glow on focus */
-}
-
-/* Style for active/selected filter buttons */
-.filter-button.active {
-    background-color: var(--button-active-bg); /* Magenta background */
-    color: var(--button-active-text); /* Dark text for contrast */
-    border-color: var(--button-active-border); /* Magenta border */
-    font-weight: bold;
-    box-shadow: var(--border-glow-primary); /* Magenta glow when active */
-}
-
-
-/* ==========================================================================
-   Mode Toggle Buttons (Edit, Execute, Backup/Import) in Command List Header
-   ========================================================================== */
-#edit-mode-toggle-container,
-#execute-mode-toggle-container,
-#backup-import-toggle-container { display: inline-block; } /* Keep them inline */
-
-/* Backup/Import Button Specific Style */
-#toggle-backup-import-modal-btn { background-color: rgba(255, 255, 0, 0.1); border-color: var(--accent-neon); color: var(--accent-neon); text-shadow: var(--text-glow-accent); }
-#toggle-backup-import-modal-btn:hover { background-color: rgba(255, 255, 0, 0.2); box-shadow: var(--border-glow-accent); }
-
-/* Edit Mode Button Active State (Red) */
-#toggle-edit-mode-btn[aria-pressed="true"] { background-color: rgba(255, 77, 77, 0.25); border-color: var(--danger-color); color: var(--danger-color); box-shadow: 0 0 4px var(--danger-color), 0 0 8px var(--danger-color); text-shadow: 0 0 3px var(--danger-color); }
-
-/* Execute Mode Button Active State (Red) */
-#toggle-execute-mode-btn[aria-pressed="true"] {
-    background-color: rgba(255, 77, 77, 0.25);
-    border-color: var(--danger-color);
-    color: var(--danger-color);
-    box-shadow: var(--border-glow-danger);
-    text-shadow: var(--text-glow-danger);
-}
-
-
-/* ==========================================================================
-   Modal Styles (Backup/Import)
-   ========================================================================== */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(10, 5, 15, 0.85); /* Dark semi-transparent overlay */
-    display: flex; justify-content: center; align-items: center;
-    z-index: 1100; /* Above other content */
-    padding: 20px;
-    opacity: 0; visibility: hidden; /* Start hidden */
-    /* Transition opacity and visibility */
-    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
-}
-.modal-overlay.visible {
-    opacity: 1; visibility: visible;
-    transition-delay: 0s; /* Show immediately when class is added */
-}
-.modal-content {
-    background: var(--bg-color-trans);
-    border: 1px solid var(--primary-neon);
-    box-shadow: var(--border-glow-primary), 0 0 20px rgba(0,0,0,0.5);
-    padding: 30px 40px; border-radius: 6px;
-    max-width: 600px; width: 90%; position: relative;
-    max-height: 80vh; overflow-y: auto; /* Allow scrolling if content overflows */
-    transform: scale(0.95); /* Start slightly scaled down */
-    transition: transform 0.3s ease; /* Animate scale */
-}
-.modal-overlay.visible .modal-content {
-    transform: scale(1); /* Scale to full size when visible */
-}
-.modal-close-btn {
-    position: absolute; top: 10px; right: 15px;
-    background: none; border: none; font-size: 2em;
-    color: var(--secondary-neon); cursor: pointer;
-    padding: 0; line-height: 1; transition: color 0.2s ease;
-}
-.modal-close-btn:hover { color: var(--primary-neon); }
-.modal-content h2 {
-    font-family: var(--font-display); color: var(--primary-neon);
-    text-shadow: var(--text-glow-primary), 0 0 6px var(--primary-neon);
-    margin-top: 0; margin-bottom: 25px; text-align: center;
-    font-size: 1.8em; border-bottom: 1px solid rgba(255, 0, 255, 0.5);
-    padding-bottom: 10px;
-}
-.modal-section { margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px dashed rgba(0, 255, 255, 0.3); }
-.modal-section:last-child { border-bottom: none; padding-bottom: 0; }
-.modal-section h3 { font-family: var(--font-display); color: var(--secondary-neon); text-shadow: var(--text-glow-secondary); margin-bottom: 15px; font-size: 1.3em; }
-.modal-controls { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
-.modal-controls button { margin-top: 0; } /* Align buttons */
-.modal-controls input[type="file"] { color: var(--text-color); font-size: 0.9em; flex-grow: 1; }
-/* Style the file input's button */
-.modal-controls input[type="file"]#modal-importFile::file-selector-button {
-    border: 1px solid var(--secondary-neon); padding: 8px 12px; border-radius: 4px;
-    background-color: rgba(0, 255, 255, 0.1); color: var(--secondary-neon);
-    transition: background-color .3s ease; cursor: pointer;
-    font-family: var(--font-display); font-size: 0.9em; margin-right: 10px;
-}
-.modal-controls input[type="file"]#modal-importFile::file-selector-button:hover {
-    background-color: rgba(0, 255, 255, 0.2); box-shadow: var(--border-glow-secondary);
-}
-/* Accessibility: Hide label visually but keep for screen readers */
-.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); whitespace:nowrap; border-width:0; }
-
-/* ==========================================================================
-   Terminal Tabs Styling
-   ========================================================================== */
-.terminal-tabs {
-    display: flex; flex-wrap: nowrap; /* Prevent wrapping */
-    overflow-x: auto; /* Allow horizontal scrolling for many tabs */
-    overflow-y: hidden;
-    background-color: rgba(0, 0, 0, 0.3);
-    border-bottom: 1px solid var(--secondary-neon);
-    flex-shrink: 0; /* Prevent tabs container from shrinking */
-    padding: 5px 10px 0 10px; /* Padding top, sides, none bottom */
-    align-items: flex-end; /* Align tabs to the bottom border */
-}
-.terminal-tab {
-    background-color: transparent; border: 1px solid transparent; border-bottom: none;
-    color: var(--text-color); opacity: 0.7; /* Dim inactive tabs */
-    padding: 8px 15px;
-    padding-right: 28px; /* Make space for close button */
-    font-family: var(--font-display); font-size: 0.9em;
-    cursor: pointer; border-radius: 4px 4px 0 0; /* Rounded top corners */
-    transition: all 0.3s ease; margin-right: 4px; white-space: nowrap;
-    user-select: none;
-    position: relative; /* Needed for absolute positioning of close button */
-    display: inline-flex; /* Align text and close button */
-    align-items: center;
-}
-/* Span containing the tab text */
-.terminal-tab .tab-text {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    flex-grow: 1; /* Allow text to take space */
-}
-
-.terminal-tab:hover { background-color: rgba(255, 255, 255, 0.1); opacity: 1; }
-.terminal-tab.active {
-    background-color: var(--bg-color-trans); /* Match terminal background */
-    border-color: var(--secondary-neon); opacity: 1;
-    border-bottom: 1px solid var(--bg-color-trans); /* Blend with iframe area */
-    margin-bottom: -1px; /* Overlap bottom border */
-}
-
-/* --- Close Tab Button Styles --- */
-.close-tab-btn {
-    position: absolute;
-    top: 50%;
-    right: 8px;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: var(--text-color);
-    opacity: 0.6;
-    font-size: 1.2em;
-    line-height: 1;
-    padding: 0 2px;
-    cursor: pointer;
-    border-radius: 3px;
-    transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease;
-    flex-shrink: 0; /* Prevent button from shrinking */
-}
-.terminal-tab:hover .close-tab-btn {
-    opacity: 1; /* Show clearly on tab hover */
-}
-.close-tab-btn:hover {
-    background-color: rgba(255, 77, 77, 0.5); /* Reddish background on hover */
-    color: #fff;
-    opacity: 1;
-}
-/* Hide close button on the main, non-deletable tab */
-.terminal-tab[data-terminal-id="term-main"] .close-tab-btn {
-    display: none;
-}
-/* Adjust padding for main tab since close button is hidden */
-.terminal-tab[data-terminal-id="term-main"] {
-    padding-right: 15px;
-}
-/* --- End Close Tab Button Styles --- */
-
-
-#add-terminal-tab-btn {
-    background-color: rgba(0, 255, 255, 0.1); border: 1px dashed var(--secondary-neon);
-    color: var(--secondary-neon); padding: 6px 10px; font-size: 1.2em;
-    line-height: 1; border-radius: 4px; cursor: pointer; margin-left: 10px;
-    margin-bottom: 0; /* Align with other tabs */
-    opacity: 0.7; transition: all 0.3s ease;
-    flex-shrink: 0; /* Prevent add button from shrinking */
-}
-#add-terminal-tab-btn:hover { background-color: rgba(0, 255, 255, 0.2); opacity: 1; box-shadow: var(--border-glow-secondary); }
-/* Container for terminal iframes */
-.terminal-iframes {
-    flex-grow: 1; /* Take remaining vertical space */
-    position: relative; /* For potential absolute positioning inside */
-    background-color: var(--bg-color-trans);
-    padding: 0; /* No padding */
-    border-radius: 0 0 6px 6px; /* Rounded bottom corners */
-    overflow: hidden; /* Hide iframe content overflow */
-}
-.terminal-iframe { display: none; width: 100%; height: 100%; border: none; background-color: transparent; }
-.terminal-iframe.active { display: block; } /* Show only the active iframe */
-
-/* ==========================================================================
-   Media Queries (Responsive Design)
-   ========================================================================== */
-@media (max-width: 1024px) {
-    /* Stack content and terminal vertically */
-    .main-wrapper { flex-direction: column; width: auto; margin-left: 15px; margin-right: 15px; padding: 0; gap: 20px; }
-    .terminal-area { position: static; height: 60vh; width: 100%; margin-top: 0; margin-left: 0; flex: none; padding: 0; }
-    .content-area { flex: none; padding-right: 0; width: 100%; }
-    header { max-width: none; margin-left: 0; margin-right: 0; }
-    /* Adjust command list header layout */
-    .section-header-with-buttons { flex-direction: column; align-items: flex-start; margin-bottom: 15px; border-bottom: none; padding-bottom: 0; gap: 15px; }
-    .section-header-with-buttons h2 { border-bottom: 1px solid rgba(0, 255, 255, 0.5); padding-bottom: 8px; margin-bottom: 0; width: 100%; }
-    .section-header-actions { gap: 10px; margin-top: 10px; flex-wrap: wrap;}
-    .command-actions { margin-left: 0; /* Reset margin for stacked layout */ }
-}
-@media (max-width: 768px) {
-    /* Stack header controls vertically */
-    .header-controls { flex-direction: column; gap: 10px; align-items: stretch; }
-    #searchInput { order: 1; min-width: unset; margin: 0; max-width: none; } /* Search first */
-    /* Adjust add option container for smaller screens */
-    .add-option-container { flex-wrap: wrap; } /* Allow wrapping */
-    .add-option-container input[type="text"] { min-width: 100px; /* Allow smaller min width */ }
-}
-@media (max-width: 600px) {
-    main.content-area > section:not(.collapsible),
-    section.collapsible.expanded { padding: 15px; } /* Adjust expanded padding */
-
-    h2.collapsible-title {
-        padding: 8px 10px; /* Adjust collapsed padding */
-        font-size: 1.5em;
+/**
+ * Filename: static/js/script.js
+ * Description: Frontend JavaScript logic for the Command Wave application.
+ * Handles:
+ * - Fetching commands and DYNAMIC option data (OS, Items, Filters) from the backend API.
+ * - Displaying commands and applying filters (OS, Items, Tags, Search) using BUTTONS.
+ * - Handling the addition of NEW options (OS, Items, Filters) via API calls.
+ * - Real-time command preview with variable substitution using TAB-SPECIFIC variables.
+ * - Adding, editing commands via API calls using BUTTONS for tags in form.
+ * - Deleting commands via API calls.
+ * - Toggling UI sections (Add Form, Filters) using clickable titles.
+ * - Toggling command description visibility on click.
+ * - Copying commands to the clipboard.
+ * - Sending commands (Execute) to the active terminal via backend API (Requires Execute Mode).
+ * - Managing global Edit Mode & Execute Mode state.
+ * - Handling Backup/Import functionality via a modal window.
+ * - Handling terminal tab switching, adding new terminals, renaming, and DELETING tabs.
+ */
+
+document.addEventListener('DOMContentLoaded', async () => {
+
+    // --- Constants & Global State ---
+    let dynamicOsOptions = []; // Will be fetched
+    let dynamicItemOptions = []; // Will be fetched
+    let dynamicFilterCategories = { "Service": [], "Attack Type": [] }; // Structure expected by populate functions
+
+    // Descriptions remain useful for tooltips
+    const ITEM_DESCRIPTIONS = {
+        'Username': "A unique name identifying a user for login purposes.",
+        'Password': "A secret word or phrase used to gain admission to something.",
+        'No Creds': "Indicates that no specific credentials (username/password/hash) are required or used by the command.",
+        'Hash': "A non-reversible representation of data, often used for password storage (e.g., NTLM, LM).",
+        'TGS': "Kerberos Ticket Granting Service ticket, used to request service tickets for specific resources.",
+        'TGT': "Kerberos Ticket Granting Ticket, obtained after initial authentication, used to request TGS tickets.",
+        'PFX': "Personal Information Exchange format (.pfx), commonly used to bundle a certificate with its private key.",
+        'Shell': "Command-line interface access to an operating system.",
+        'Target IP': "The IP address of the primary machine or service being targeted by the command.",
+        'DC IP': "The IP address associated with a network domain, typically a Domain Controller.",
+        'DNS IP': "The IP address of a Domain Name System server used for name resolution."
+        // Descriptions for dynamically added items might need a different approach if required.
+    };
+    const OS_DESCRIPTIONS = {
+        'linux': "A family of open-source Unix-like operating systems based on the Linux kernel.",
+        'windows': "A group of proprietary graphical operating system families developed and marketed by Microsoft."
+        // Descriptions for dynamically added OS might need a different approach.
+    };
+    const FILTER_DESCRIPTIONS = {
+        // Services
+        'SMB': "Server Message Block protocol, used for file sharing, printing, and inter-process communication on Windows networks.",
+        'WMI': "Windows Management Instrumentation, allows scripting and management of Windows systems.",
+        'DCOM': "Distributed Component Object Model, enables software components to communicate across networks.",
+        'Kerberos': "Network authentication protocol using tickets to allow nodes to prove their identity over a non-secure network.",
+        'RPC': "Remote Procedure Call, allows a program to execute code on another computer.",
+        'LDAP': "Lightweight Directory Access Protocol, for accessing and maintaining distributed directory information services.",
+        'NTLM': "NT LAN Manager, a suite of Microsoft security protocols for authentication.",
+        'DNS': "Domain Name System, translates human-readable domain names to machine-readable IP addresses.",
+        'SSH': "Secure Shell, a cryptographic network protocol for secure remote login and command execution.",
+        'FTP': "File Transfer Protocol, used for transferring files between computers on a network.",
+        'HTTP/HTTPS': "Hypertext Transfer Protocol (Secure), foundation of data communication for the World Wide Web.",
+        'SNMP': "Simple Network Management Protocol, for collecting and organizing information about managed devices on IP networks.",
+        // Attack Types (MITRE ATT&CK Tactics)
+        'Enumeration': "Gathering information about the target system or network (users, shares, services).",
+        'Exploitation': "Taking advantage of a vulnerability to gain access or execute code.",
+        'Persistence': "Maintaining access to a compromised system across restarts or credential changes.",
+        'Privilege Escalation': "Gaining higher-level permissions than initially granted.",
+        'Credential Access': "Stealing account names and passwords/hashes (e.g., dumping LSASS, Mimikatz).",
+        'Exfiltration': "Unauthorized transfer of data from a computer or network.",
+        'Lateral Movement': "Moving through a network from one compromised host to another.",
+        'Masquerade': "Posing as a legitimate user, service, or system component to evade detection."
+        // Descriptions for dynamically added filters might need a different approach.
+    };
+    const VARIABLE_MAP = {
+        'var-target-ip': { stateKey: 'targetIP', placeholder: '$TargetIP' },
+        'var-port':      { stateKey: 'port',     placeholder: '$Port' },
+        'var-dc-ip':     { stateKey: 'dcIP',     placeholder: '$DCIP' },
+        'var-user-file': { stateKey: 'userFile', placeholder: '$UserFile' },
+        'var-pass-file': { stateKey: 'passFile', placeholder: '$PassFile' },
+        'var-word-list': { stateKey: 'wordlist', placeholder: '$Wordlist' },
+        'var-control-socket': { stateKey: 'controlSocket', placeholder: '$ControlSocket' }
+    };
+    const DEFAULT_VARIABLES = { targetIP: '', port: '', dcIP: '', userFile: '', passFile: '', wordlist: '', controlSocket: '' };
+
+    let allCommands = [];
+    let currentFilterOS = [];
+    let currentFilterItems = [];
+    let currentFilterTags = [];
+    let currentSearchTerm = '';
+    let terminalVariablesState = {};
+    let activeTerminalId = 'term-main';
+    let isEditMode = false;
+    let globalEditModeEnabled = false;
+    let globalExecuteModeEnabled = false;
+    let initialTerminalPort = 7681; // Default, might be overwritten
+
+    // --- DOM Element References ---
+    const commandListDiv = document.getElementById('commandList');
+    const addCommandForm = document.getElementById('addCommandForm');
+    const searchInput = document.getElementById('searchInput');
+    const formMessage = document.getElementById('form-message');
+    const ioMessageDiv = document.getElementById('io-message');
+    const addCommandSection = document.getElementById('add-command-section');
+    const filterControlsSection = document.getElementById('filter-controls-section');
+    const commandItemTemplate = document.getElementById('command-item-template');
+    const toggleEditModeBtn = document.getElementById('toggle-edit-mode-btn');
+    const toggleExecuteModeBtn = document.getElementById('toggle-execute-mode-btn');
+    const addSectionToggle = document.getElementById('add-section-toggle');
+    const filterSectionToggle = document.getElementById('filter-section-toggle');
+    // Form Button Groups
+    const formOSButtonGroupDiv = document.getElementById('form-os-button-group');
+    const formItemsButtonGroupDiv = document.getElementById('form-items-button-group');
+    const formServicesButtonGroupDiv = document.getElementById('form-services-button-group');
+    const formAttackTypeButtonGroupDiv = document.getElementById('form-attacktype-button-group');
+    // Filter Button Groups
+    const filterOSButtonGroupDiv = document.getElementById('filter-os-button-group');
+    const filterItemsButtonGroupDiv = document.getElementById('filter-items-button-group');
+    const filterServicesButtonGroupDiv = document.getElementById('filter-services-button-group');
+    const filterAttackTypeButtonGroupDiv = document.getElementById('filter-attacktype-button-group');
+    // Add Option Inputs/Buttons (in Form section)
+    const addOsInput = document.getElementById('add-os-input');
+    const addOsBtn = document.getElementById('add-os-btn');
+    const addItemInput = document.getElementById('add-item-input');
+    const addItemBtn = document.getElementById('add-item-btn');
+    const addServiceInput = document.getElementById('add-service-input');
+    const addServiceBtn = document.getElementById('add-service-btn');
+    const addAttackTypeInput = document.getElementById('add-attacktype-input');
+    const addAttackTypeBtn = document.getElementById('add-attacktype-btn');
+    // Other Form Elements
+    const formSubmitBtn = document.getElementById('form-submit-btn');
+    const formEditIdInput = document.getElementById('edit-command-id');
+    const cancelEditContainer = document.getElementById('cancel-edit-container');
+    const cancelEditBtn = document.getElementById('cancel-edit-btn');
+    // Variable Inputs
+    const variableInputElements = {};
+    Object.keys(VARIABLE_MAP).forEach(id => { variableInputElements[id] = document.getElementById(id); if (!variableInputElements[id]) { console.warn(`Var input "${id}" not found.`); } });
+    // Modal Elements
+    const backupImportModal = document.getElementById('backup-import-modal');
+    const toggleBackupImportModalBtn = document.getElementById('toggle-backup-import-modal-btn');
+    const modalCloseBtn = backupImportModal?.querySelector('.modal-close-btn');
+    const modalExportJsonBtn = document.getElementById('modal-export-json-btn');
+    const modalExportCsvBtn = document.getElementById('modal-export-csv-btn');
+    const modalImportFileInp = document.getElementById('modal-importFile');
+    const modalImportBtn = document.getElementById('modal-import-btn');
+    // Terminal Elements
+    const terminalTabsContainer = document.querySelector('.terminal-tabs');
+    const terminalIframesContainer = document.querySelector('.terminal-iframes');
+    const addTerminalTabBtn = document.getElementById('add-terminal-tab-btn');
+    const mainTerminalTab = document.querySelector('.terminal-tab[data-terminal-id="term-main"]');
+
+    // --- Utility Functions ---
+    function escapeHtml(unsafe) { if (unsafe === null || unsafe === undefined) return ''; return unsafe.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
+    function setButtonGroupState(containerDiv, values) { if (!containerDiv) return; const valuesSet = new Set(values || []); containerDiv.querySelectorAll('.filter-button').forEach(btn => { btn.classList.toggle('active', valuesSet.has(btn.dataset.value)); }); }
+    function showIoMessage(message, type = 'info', duration = 7000) { if (!ioMessageDiv) return; ioMessageDiv.textContent = message; ioMessageDiv.className = `message ${type}`; void ioMessageDiv.offsetWidth; ioMessageDiv.classList.add('visible'); if (ioMessageDiv.hideTimeout) clearTimeout(ioMessageDiv.hideTimeout); ioMessageDiv.hideTimeout = setTimeout(() => { ioMessageDiv.classList.remove('visible'); ioMessageDiv.addEventListener('transitionend', () => { if (!ioMessageDiv.classList.contains('visible')) { ioMessageDiv.textContent = ''; ioMessageDiv.className = 'message'; } }, { once: true }); }, duration); }
+    function openBackupImportModal() { if (backupImportModal) { backupImportModal.style.display = 'flex'; requestAnimationFrame(() => { backupImportModal.classList.add('visible'); }); } }
+    function closeBackupImportModal() { if (backupImportModal) { backupImportModal.classList.remove('visible'); const handleTransitionEnd = (event) => { if (event.target === backupImportModal) { backupImportModal.style.display = 'none'; backupImportModal.removeEventListener('transitionend', handleTransitionEnd); } }; backupImportModal.addEventListener('transitionend', handleTransitionEnd); setTimeout(() => { if (backupImportModal.style.display !== 'none' && !backupImportModal.classList.contains('visible')) { backupImportModal.style.display = 'none'; backupImportModal.removeEventListener('transitionend', handleTransitionEnd); } }, 500); } }
+
+    // --- Initialization Functions ---
+    function updateVariableInputsUI(terminalId) { const variables = terminalVariablesState[terminalId] || DEFAULT_VARIABLES; console.log(`Updating var UI for: ${terminalId}`, variables); for (const inputId in VARIABLE_MAP) { const stateKey = VARIABLE_MAP[inputId].stateKey; const inputElement = variableInputElements[inputId]; if (inputElement) { inputElement.value = variables[stateKey] || ''; } } }
+    async function initializeApp() {
+        console.log("Initializing...");
+        try {
+            const mainTermElem = document.getElementById('term-main');
+            const portFromData = mainTermElem?.dataset.initialPort;
+            if (portFromData && !isNaN(parseInt(portFromData, 10))) {
+                initialTerminalPort = parseInt(portFromData, 10);
+            } else {
+                console.error("Could not get initial terminal port from HTML data attribute!");
+            }
+
+            if (mainTerminalTab) mainTerminalTab.title = `Main Terminal (Port ${initialTerminalPort}). Double-click rename.`;
+            activeTerminalId = 'term-main';
+            terminalVariablesState[activeTerminalId] = { ...DEFAULT_VARIABLES };
+            updateVariableInputsUI(activeTerminalId);
+
+            // Fetch dynamic options first
+            await Promise.all([
+                fetchOsOptions(),
+                fetchItemOptions(),
+                fetchFilterTags()
+            ]);
+
+            // Setup listeners which might depend on fetched data being available
+            setupEventListeners();
+            // Fetch commands after initial setup and options are potentially loaded
+            await fetchCommands();
+
+            console.log("Init OK.");
+        } catch (error) {
+            console.error("Init failed:", error);
+            commandListDiv.innerHTML = `<p class="error">App init failed: ${escapeHtml(error.message)}</p>`;
+            showIoMessage(`Init failed: ${error.message}`, 'error', 15000);
+        }
     }
-    h2.collapsible-title::after {
-        right: 10px;
+
+    // --- Option Fetching and Population ---
+    async function fetchOsOptions() {
+        try {
+            const response = await fetch('/api/options/os');
+            if (!response.ok) throw new Error(`HTTP ${response.status} fetch OS options`);
+            const data = await response.json();
+            dynamicOsOptions = data.options || [];
+            console.log("Fetched OS Options:", dynamicOsOptions);
+            populateFilterButtons(formOSButtonGroupDiv, dynamicOsOptions, 'form_os_', OS_DESCRIPTIONS);
+            populateFilterButtons(filterOSButtonGroupDiv, dynamicOsOptions, 'filter_os_', OS_DESCRIPTIONS);
+        } catch (error) {
+            console.error("Err fetch OS options:", error);
+            showIoMessage(`Failed to load OS options: ${error.message}`, 'error');
+            dynamicOsOptions = [];
+            populateFilterButtons(formOSButtonGroupDiv, [], 'form_os_', OS_DESCRIPTIONS);
+            populateFilterButtons(filterOSButtonGroupDiv, [], 'filter_os_', OS_DESCRIPTIONS);
+        }
     }
-    header { padding: 15px; }
-    /* Reduce ASCII title size */
-    #ascii-title { font-size: 0.8em; line-height: 1.2; }
-    h2:not(.collapsible-title) { font-size: 1.5em; } /* Only non-collapsible titles */
 
-    #searchInput { width: 100%; }
-    button[type="submit"] { width: 100%; padding: 15px; }
-    /* Adjust filter button layout */
-    .filter-button-container { gap: 6px; }
-    .filter-button { font-size: 0.85em; padding: 4px 10px; }
-    /* Reduce tag size */
-    .item-tag, .os-tag, .filter-tag { font-size: 0.75em; padding: 2px 6px; }
-    #commandList code { font-size: 1em; }
-    /* Stack command line elements */
-    .command-line { flex-direction: column; align-items: stretch; gap: 10px; }
-    .command-line strong { margin-bottom: 8px; }
-    .command-actions { justify-content: flex-start; margin-left: 0; }
-    header { padding-left: 10px; padding-right: 10px; }
-    .section-header-actions .header-toggle-btn { font-size: 0.8em; padding: 6px 10px; }
-    /* Modal adjustments */
-    .modal-content { padding: 20px; }
-    .modal-content h2 { font-size: 1.5em; }
-    .modal-section h3 { font-size: 1.1em; }
-    .modal-controls { flex-direction: column; align-items: stretch; }
-    .modal-controls button, .modal-controls input[type="file"] { width: 100%; }
-    /* Reduce overall padding/margins */
-    .main-wrapper { margin-left: 5px; margin-right: 5px; }
-    body { padding-bottom: 60px; }
-    /* Terminal tab adjustments */
-    .terminal-tabs { padding: 3px 5px 0 5px;}
-    .terminal-tab { padding: 6px 10px; padding-right: 24px; font-size: 0.8em;} /* Adjust padding for smaller close btn */
-    .close-tab-btn { right: 5px; font-size: 1em; } /* Adjust close btn position/size */
-    .terminal-tab[data-terminal-id="term-main"] { padding-right: 10px; } /* Adjust main tab padding */
-    #add-terminal-tab-btn { padding: 4px 8px; font-size: 1em;}
-     /* Adjust add option container spacing/layout */
-    .add-option-container { margin-top: 12px; gap: 6px; }
-    .add-option-container input[type="text"] { padding: 5px 8px; font-size: 0.85em; }
-    .add-option-container button { padding: 5px 10px; font-size: 0.85em; }
+    async function fetchItemOptions() {
+        try {
+            const response = await fetch('/api/options/item');
+            if (!response.ok) throw new Error(`HTTP ${response.status} fetch Item options`);
+            const data = await response.json();
+            dynamicItemOptions = data.options || [];
+            console.log("Fetched Item Options:", dynamicItemOptions);
+            populateFilterButtons(formItemsButtonGroupDiv, dynamicItemOptions, 'form_item_', ITEM_DESCRIPTIONS);
+            populateFilterButtons(filterItemsButtonGroupDiv, dynamicItemOptions, 'filter_item_', ITEM_DESCRIPTIONS);
+        } catch (error) {
+            console.error("Err fetch Item options:", error);
+            showIoMessage(`Failed to load Item options: ${error.message}`, 'error');
+            dynamicItemOptions = [];
+            populateFilterButtons(formItemsButtonGroupDiv, [], 'form_item_', ITEM_DESCRIPTIONS);
+            populateFilterButtons(filterItemsButtonGroupDiv, [], 'filter_item_', ITEM_DESCRIPTIONS);
+        }
+    }
 
-}
+    async function fetchFilterTags() {
+        try {
+            const response = await fetch('/api/filter_tags');
+            if (!response.ok) throw new Error(`HTTP ${response.status} fetch filter tags`);
+            const data = await response.json();
+            dynamicFilterCategories = {
+                "Service": data["Service"] || [],
+                "Attack Type": data["Attack Type"] || []
+            };
+            console.log("Fetched Filter Categories:", dynamicFilterCategories);
+            populateFilterButtons(formServicesButtonGroupDiv, dynamicFilterCategories["Service"], 'form_service_', FILTER_DESCRIPTIONS);
+            populateFilterButtons(formAttackTypeButtonGroupDiv, dynamicFilterCategories["Attack Type"], 'form_attack_', FILTER_DESCRIPTIONS);
+            populateFilterButtons(filterServicesButtonGroupDiv, dynamicFilterCategories["Service"], 'filter_service_', FILTER_DESCRIPTIONS);
+            populateFilterButtons(filterAttackTypeButtonGroupDiv, dynamicFilterCategories["Attack Type"], 'filter_attack_', FILTER_DESCRIPTIONS);
+        } catch (error) {
+            console.error("Err fetch filter tags:", error);
+            showIoMessage(`Failed to load Filter tags: ${error.message}`, 'error');
+            dynamicFilterCategories = { "Service": [], "Attack Type": [] };
+            populateFilterButtons(formServicesButtonGroupDiv, [], 'form_service_', FILTER_DESCRIPTIONS);
+            populateFilterButtons(formAttackTypeButtonGroupDiv, [], 'form_attack_', FILTER_DESCRIPTIONS);
+            populateFilterButtons(filterServicesButtonGroupDiv, [], 'filter_service_', FILTER_DESCRIPTIONS);
+            populateFilterButtons(filterAttackTypeButtonGroupDiv, [], 'filter_attack_', FILTER_DESCRIPTIONS);
+        }
+    }
+
+    function populateFilterButtons(containerDiv, itemsArray, idPrefix, descriptionMap) {
+        if (!containerDiv) { console.warn("Btn container missing:", idPrefix); return; }
+        containerDiv.innerHTML = '';
+        if (!Array.isArray(itemsArray) || itemsArray.length === 0) return;
+        const sortedItems = [...itemsArray].sort((a, b) => a.localeCompare(b));
+        sortedItems.forEach(item => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'filter-button';
+            button.textContent = item;
+            button.dataset.value = item;
+            button.title = descriptionMap[item] || item;
+            containerDiv.appendChild(button);
+        });
+    }
+
+    // --- Core Data Handling ---
+    async function fetchCommands() {
+        console.log("Fetching cmds...");
+        commandListDiv.innerHTML = '<p>Loading commands...</p>';
+        try {
+            const response = await fetch('/api/commands');
+            if (!response.ok) throw new Error(`HTTP ${response.status} fetch cmds`);
+            const fetchedCommands = await response.json();
+            if (!Array.isArray(fetchedCommands)) {
+                allCommands = []; throw new Error("Cmd data not array.");
+            }
+            allCommands = fetchedCommands;
+            console.log(`Workspaceed ${allCommands.length} cmds.`);
+            applyFilters();
+        } catch (error) {
+            console.error("Err fetch cmds:", error);
+            allCommands = [];
+            commandListDiv.innerHTML = `<p class="error">Load commands err: ${escapeHtml(error.message)}</p>`;
+            applyFilters();
+            showIoMessage(`Load commands err: ${error.message}`, 'error');
+        }
+    }
+
+    // --- Filtering Logic ---
+    function applyFilters() {
+        console.log(`Applying filters - OS:[${currentFilterOS.join(',')}] Items:[${currentFilterItems.join(',')}] Tags:[${currentFilterTags.join(',')}] Search:[${currentSearchTerm}]`);
+        let filteredCommands = allCommands;
+        if (currentFilterOS.length > 0) {
+            filteredCommands = filteredCommands.filter(cmd => Array.isArray(cmd.os) && cmd.os.some(cmdOs => currentFilterOS.includes(cmdOs)));
+        }
+        if (currentFilterItems.length > 0) {
+            filteredCommands = filteredCommands.filter(cmd => Array.isArray(cmd.items) && cmd.items.some(item => currentFilterItems.includes(item)));
+        }
+        if (currentFilterTags.length > 0) {
+            filteredCommands = filteredCommands.filter(cmd => Array.isArray(cmd.filters) && cmd.filters.some(tag => currentFilterTags.includes(tag)));
+        }
+        if (currentSearchTerm) {
+            const searchTermLower = currentSearchTerm;
+            filteredCommands = filteredCommands.filter(cmd => {
+                const searchString = [
+                    cmd.command,
+                    cmd.description,
+                    ...(Array.isArray(cmd.os) ? cmd.os : []),
+                    ...(Array.isArray(cmd.items) ? cmd.items : []),
+                    ...(Array.isArray(cmd.filters) ? cmd.filters : [])
+                ].join(' ').toLowerCase();
+                return searchString.includes(searchTermLower);
+            });
+        }
+        const currentActiveVariables = terminalVariablesState[activeTerminalId] || DEFAULT_VARIABLES;
+        displayCommands(filteredCommands, currentActiveVariables);
+    }
+
+    // --- Variable Substitution ---
+    function performVariableSubstitution(originalCommand, variables) { let substitutedCommandHtml = escapeHtml(originalCommand); for (const inputId in VARIABLE_MAP) { const { stateKey, placeholder } = VARIABLE_MAP[inputId]; const value = variables && variables[stateKey] ? variables[stateKey].trim() : ''; if (value) { const escapedPlaceholder = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); const regex = new RegExp(escapedPlaceholder, 'g'); const replacementHtml = `<span class="substituted-var">${escapeHtml(value)}</span>`; substitutedCommandHtml = substitutedCommandHtml.replace(regex, replacementHtml); } } return substitutedCommandHtml; }
+    function getSubstitutedPlainText(originalCommand, variables) { let text = originalCommand; for (const inputId in VARIABLE_MAP) { const { stateKey, placeholder } = VARIABLE_MAP[inputId]; const value = variables && variables[stateKey] ? variables[stateKey].trim() : ''; if (value) { const escapedPlaceholder = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); const regex = new RegExp(escapedPlaceholder, 'g'); text = text.replace(regex, value); } } return text; }
+
+    // --- Display Logic ---
+     function displayCommands(commandsToDisplay, activeVariables) {
+         if (!commandListDiv) { console.error("Cmd list container missing!"); return; }
+         console.log(`Displaying ${commandsToDisplay ? commandsToDisplay.length : 0} cmds for tab ${activeTerminalId}`);
+         commandListDiv.innerHTML = '';
+         if (!commandsToDisplay || commandsToDisplay.length === 0) {
+             commandListDiv.innerHTML = `<p>No commands match filters.</p>`;
+             return;
+         }
+         const list = document.createElement('ul');
+         commandsToDisplay.forEach(command => {
+             try {
+                 const templateNode = commandItemTemplate.content.cloneNode(true);
+                 const listItem = templateNode.querySelector('li'); // Should have class command-item-clickable
+                 const currentVars = activeVariables || DEFAULT_VARIABLES;
+                 const substitutedText = getSubstitutedPlainText(command.command, currentVars);
+                 const substitutedHtml = performVariableSubstitution(command.command, currentVars);
+
+                 const createTagsHtml = (tags, cssClass, placeholderText) => {
+                     if (Array.isArray(tags) && tags.length > 0) {
+                         return tags.map(tag => `<span class="${cssClass}">${escapeHtml(tag)}</span>`).join(' ');
+                     }
+                     return `<span class="${cssClass} placeholder">${placeholderText}</span>`;
+                 };
+
+                 listItem.querySelector('.tags-items').innerHTML = createTagsHtml(command.items, 'item-tag', '[No Items]');
+                 listItem.querySelector('.tags-os').innerHTML = createTagsHtml(command.os, 'os-tag', '[No OS]');
+                 listItem.querySelector('.tags-filters').innerHTML = createTagsHtml(command.filters, 'filter-tag', '[No Tags]');
+                 listItem.querySelector('code').innerHTML = substitutedHtml;
+
+                 const descriptionP = listItem.querySelector('p.command-description'); // Target specific class
+                 if (descriptionP) {
+                      descriptionP.textContent = escapeHtml(command.description || 'No description.');
+                 } else {
+                     console.warn("Could not find description paragraph element in template for command:", command.id);
+                 }
+
+                 const copyBtn = listItem.querySelector('.copy-btn');
+                 if (copyBtn) copyBtn.dataset.commandSubstituted = substitutedText;
+                 const executeBtn = listItem.querySelector('.execute-btn');
+                 if (executeBtn) executeBtn.dataset.commandSubstituted = substitutedText;
+                 const editBtn = listItem.querySelector('.edit-btn');
+                 if (editBtn) editBtn.dataset.commandId = command.id;
+                 const deleteBtn = listItem.querySelector('.delete-btn');
+                 if (deleteBtn) deleteBtn.dataset.commandId = command.id;
+
+                 listItem.querySelectorAll('.command-edit-delete-btn').forEach(btn => {
+                     btn.classList.toggle('hidden', !globalEditModeEnabled);
+                 });
+                 executeBtn?.classList.toggle('hidden', !globalExecuteModeEnabled);
+
+                 // Ensure description starts hidden (CSS should handle this, but belt-and-suspenders)
+                 // if (descriptionP) descriptionP.style.display = 'none';
+                 // No need to add 'expanded' class here, click handler does that.
+
+                 list.appendChild(listItem);
+             } catch (error) {
+                 console.error("Err creating cmd item:", error, "Cmd:", command);
+                 const errorItem = document.createElement('li');
+                 errorItem.innerHTML = `<p class="error">Err display cmd ID ${command?.id || 'Unknown'}</p>`;
+                 list.appendChild(errorItem);
+             }
+         });
+         commandListDiv.appendChild(list);
+     }
+
+    // --- Form Handling ---
+    function setFormMode(mode, commandData = null) {
+        isEditMode = (mode === 'edit');
+        formMessage.textContent = ''; formMessage.className = 'message';
+        const formTitleElement = addSectionToggle;
+
+        if (isEditMode && commandData) {
+            if (formTitleElement) formTitleElement.textContent = 'Edit Command';
+            formSubmitBtn.textContent = 'Update Command';
+            formEditIdInput.value = commandData.id;
+            cancelEditContainer.style.display = 'inline-block';
+            addCommandForm.elements['command'].value = commandData.command || '';
+            addCommandForm.elements['description'].value = commandData.description || '';
+
+            setButtonGroupState(formOSButtonGroupDiv, commandData.os);
+            setButtonGroupState(formItemsButtonGroupDiv, commandData.items);
+            const allCommandFilters = commandData.filters || [];
+            const serviceFilters = allCommandFilters.filter(f => dynamicFilterCategories["Service"].includes(f));
+            const attackFilters = allCommandFilters.filter(f => dynamicFilterCategories["Attack Type"].includes(f));
+            setButtonGroupState(formServicesButtonGroupDiv, serviceFilters);
+            setButtonGroupState(formAttackTypeButtonGroupDiv, attackFilters);
+
+            if (addCommandSection && !addCommandSection.classList.contains('expanded')) {
+                 addCommandSection.classList.add('expanded');
+                 addSectionToggle?.setAttribute('aria-expanded', 'true');
+            }
+            formTitleElement?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        } else {
+            if (formTitleElement) formTitleElement.textContent = 'Add New Command';
+            formSubmitBtn.textContent = 'Add Command';
+            formEditIdInput.value = '';
+            cancelEditContainer.style.display = 'none';
+            isEditMode = false;
+            addCommandForm.reset();
+            setButtonGroupState(formOSButtonGroupDiv, []);
+            setButtonGroupState(formItemsButtonGroupDiv, []);
+            setButtonGroupState(formServicesButtonGroupDiv, []);
+            setButtonGroupState(formAttackTypeButtonGroupDiv, []);
+        }
+    }
+
+    // --- Event Handlers ---
+    async function handleAddCommandSubmit(event) {
+         event.preventDefault();
+         const commandId = formEditIdInput.value;
+         console.log(`Form submit. Mode: ${isEditMode ? 'Edit (ID: ' + commandId + ')' : 'Add'}`);
+         formMessage.textContent = ''; formMessage.className = 'message';
+
+         const formData = new FormData(addCommandForm);
+         const commandText = formData.get('command').trim();
+         const descriptionText = formData.get('description').trim();
+
+         const getActiveButtonValues = (containerDiv) => Array.from(containerDiv.querySelectorAll('.filter-button.active')).map(btn => btn.dataset.value);
+         const selectedOS = getActiveButtonValues(formOSButtonGroupDiv);
+         const selectedItems = getActiveButtonValues(formItemsButtonGroupDiv);
+         const selectedServiceFilters = getActiveButtonValues(formServicesButtonGroupDiv);
+         const selectedAttackFilters = getActiveButtonValues(formAttackTypeButtonGroupDiv);
+         const selectedFilters = [...new Set([...selectedServiceFilters, ...selectedAttackFilters])];
+
+         const data = { os: selectedOS, items: selectedItems, command: commandText, description: descriptionText, filters: selectedFilters };
+
+         if (!data.command) { formMessage.textContent = 'Cmd text missing.'; formMessage.className = 'message error visible'; return; }
+
+         const url = isEditMode ? `/api/commands/${commandId}` : '/api/commands';
+         const method = isEditMode ? 'PUT' : 'POST';
+         formSubmitBtn.disabled = true; formSubmitBtn.textContent = isEditMode ? 'Updating...' : 'Adding...';
+
+         try {
+             const response = await fetch(url, { method: method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+             const result = await response.json();
+
+             if (response.ok) {
+                 console.log(`Cmd ${isEditMode ? 'updated' : 'added'}:`, result);
+                 formMessage.textContent = result.message || `Cmd ${isEditMode ? 'updated' : 'added'} OK!`;
+                 formMessage.className = 'message success visible';
+                 setFormMode('add');
+                 await fetchCommands();
+             } else {
+                 console.error(`Fail ${isEditMode ? 'update' : 'add'}:`, result);
+                 let errorMsg = `Error: ${result.error || response.statusText || 'Op failed.'}`;
+                 if (result.details) { try { errorMsg += ` Details: ${JSON.stringify(result.details)}`; } catch (e) {} }
+                 formMessage.textContent = errorMsg;
+                 formMessage.className = 'message error visible';
+             }
+         } catch (error) {
+             console.error("Net err submit:", error);
+             formMessage.textContent = `Net err: ${error.message}`;
+             formMessage.className = 'message error visible';
+         } finally {
+             formSubmitBtn.disabled = false;
+             if (formMessage.classList.contains('error')) {
+                 formSubmitBtn.textContent = isEditMode ? 'Update Command' : 'Add Command';
+             }
+             setTimeout(() => { if (formMessage.classList.contains('visible')) { formMessage.className = 'message'; formMessage.textContent = ''; } }, 7000);
+         }
+     }
+    function handleFilterButtonClick(event) {
+         const button = event.target;
+         if (!button.classList.contains('filter-button') || !button.closest('#filter-controls-section')) return;
+
+         button.classList.toggle('active');
+         const container = button.closest('.filter-button-container');
+         if (!container) return;
+
+         const activeValues = Array.from(container.querySelectorAll('.filter-button.active')).map(btn => btn.dataset.value);
+
+         switch (container.id) {
+             case 'filter-os-button-group': currentFilterOS = activeValues; break;
+             case 'filter-items-button-group': currentFilterItems = activeValues; break;
+             case 'filter-services-button-group': case 'filter-attacktype-button-group':
+                 const serviceTags = Array.from(filterServicesButtonGroupDiv.querySelectorAll('.filter-button.active')).map(btn => btn.dataset.value);
+                 const attackTags = Array.from(filterAttackTypeButtonGroupDiv.querySelectorAll('.filter-button.active')).map(btn => btn.dataset.value);
+                 currentFilterTags = [...new Set([...serviceTags, ...attackTags])];
+                 break;
+         }
+         applyFilters();
+     }
+    function handleFormButtonClick(event) {
+         const button = event.target;
+         if (button.classList.contains('filter-button') && button.closest('#add-command-section')) {
+             button.classList.toggle('active');
+         }
+     }
+    function handleSearchInputChange(event) { currentSearchTerm = event.target.value.toLowerCase().trim(); applyFilters(); }
+    function handleToggleSection(controllerElement, sectionElement) {
+        if (!controllerElement || !sectionElement) { console.warn("Missing controller or section for toggle"); return; }
+        const isExpanded = sectionElement.classList.toggle('expanded');
+        controllerElement.setAttribute('aria-expanded', isExpanded);
+        if (sectionElement.id === 'add-command-section' && !isExpanded && isEditMode) { setFormMode('add'); }
+    }
+    function handleVariableInputChange(event) { const inputId = event.target.id; if (VARIABLE_MAP[inputId]) { const stateKey = VARIABLE_MAP[inputId].stateKey; const value = event.target.value; if (!terminalVariablesState[activeTerminalId]) { terminalVariablesState[activeTerminalId] = { ...DEFAULT_VARIABLES }; } terminalVariablesState[activeTerminalId][stateKey] = value; applyFilters(); } }
+
+    // --- Command List Action Handlers ---
+    async function handleCopyCommand(button) { const commandToCopy = button.dataset.commandSubstituted; if (typeof commandToCopy !== 'string' || !navigator.clipboard) { showIoMessage("Clipboard copy fail.", "error"); const originalText = button.textContent; button.textContent = 'Fail'; button.disabled = true; setTimeout(() => { button.textContent = originalText; button.disabled = false; }, 1500); return; } try { await navigator.clipboard.writeText(commandToCopy); showIoMessage("Copied OK!", "success", 3000); const originalText = button.textContent; button.textContent = 'Copied!'; button.disabled = true; setTimeout(() => { button.textContent = originalText; button.disabled = false; }, 1500); } catch (err) { console.error("Clipboard fail:", err); showIoMessage(`Copy Err: ${err.message}`, "error"); const originalText = button.textContent; button.textContent = 'Error!'; button.disabled = true; setTimeout(() => { button.textContent = originalText; button.disabled = false; }, 2000); } }
+    function handleEditClick(button) { const commandId = button.dataset.commandId; const commandToEdit = allCommands.find(cmd => cmd.id == commandId); if (commandToEdit) { setFormMode('edit', commandToEdit); } else { console.error(`Cmd ID ${commandId} not found.`); showIoMessage("Err: Cmd data missing.", "error"); } }
+    async function handleDeleteClick(button) { const commandId = button.dataset.commandId; const commandToDelete = allCommands.find(cmd => cmd.id == commandId); const commandText = commandToDelete ? `"${commandToDelete.command.substring(0, 50)}${commandToDelete.command.length > 50 ? '...' : ''}"` : `ID ${commandId}`; if (confirm(`Delete command ${commandText}?`)) { button.disabled = true; button.textContent = 'Deleting...'; try { const response = await fetch(`/api/commands/${commandId}`, { method: 'DELETE' }); const result = await response.json().catch(() => ({ message: response.statusText, error: null })); if (response.ok) { showIoMessage(result.message || "Cmd deleted.", 'success'); await fetchCommands(); } else { console.error("Delete fail:", result); showIoMessage(`Delete Err: ${result.error || result.message || response.statusText}`, 'error'); button.disabled = false; button.textContent = 'Delete'; } } catch (error) { console.error("Net err delete:", error); showIoMessage(`Net err: ${error.message}`, 'error'); button.disabled = false; button.textContent = 'Delete'; } } }
+    function handleCancelEdit() { setFormMode('add'); }
+    function handleToggleEditMode() { globalEditModeEnabled = !globalEditModeEnabled; toggleEditModeBtn.setAttribute('aria-pressed', globalEditModeEnabled); const textNode = Array.from(toggleEditModeBtn.childNodes).find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim().startsWith('Edit Mode')); if (textNode) { textNode.textContent = globalEditModeEnabled ? ' Edit Mode ON' : ' Edit Mode'; } commandListDiv.querySelectorAll('.command-edit-delete-btn').forEach(btn => { btn.classList.toggle('hidden', !globalEditModeEnabled); }); if (!globalEditModeEnabled && isEditMode) { setFormMode('add'); } }
+    function handleToggleExecuteMode() { globalExecuteModeEnabled = !globalExecuteModeEnabled; toggleExecuteModeBtn.setAttribute('aria-pressed', globalExecuteModeEnabled); const textNode = Array.from(toggleExecuteModeBtn.childNodes).find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim().startsWith('Execute Mode')); if (textNode) { textNode.textContent = globalExecuteModeEnabled ? ' Execute Mode ON' : ' Execute Mode'; } commandListDiv.querySelectorAll('.execute-btn').forEach(btn => { btn.classList.toggle('hidden', !globalExecuteModeEnabled); }); if (globalExecuteModeEnabled) { showIoMessage("Execute Mode ON: Cmds -> Terminals.", "warning", 5000); } }
+    async function handleExecuteCommand(button) { const commandToSend = button.dataset.commandSubstituted?.trim(); if (!commandToSend) { showIoMessage("Cannot exec empty cmd.", "warning"); return; } const activeTab = terminalTabsContainer?.querySelector('.terminal-tab.active'); const terminalId = activeTab?.dataset.terminalId; if (!terminalId) { showIoMessage("No active terminal.", "error"); return; } let targetPort; if (terminalId === 'term-main') { targetPort = initialTerminalPort; if (isNaN(targetPort)) { showIoMessage("Initial port unknown.", "error"); return; } } else { const portMatch = terminalId.match(/^term-(\d+)$/); if (portMatch && portMatch[1]) { targetPort = parseInt(portMatch[1], 10); } else { showIoMessage(`Invalid term ID: ${terminalId}`, "error"); return; } } if (isNaN(targetPort)) { showIoMessage("Cannot find target port.", "error"); return; } console.log(`Executing on port ${targetPort}: ${commandToSend}`); showIoMessage(`Sending to Port ${targetPort}...`, 'info', 2000); button.disabled = true; const originalText = button.textContent; button.textContent = 'Executing...'; try { const response = await fetch('/api/terminals/sendkeys', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ port: targetPort, command: commandToSend }) }); const result = await response.json(); if (response.ok && result.success) { showIoMessage(result.message || "Cmd sent.", 'success', 3000); button.textContent = 'Sent!'; button.classList.add('sent'); setTimeout(() => { button.textContent = originalText; button.classList.remove('sent'); button.disabled = false; }, 1500); } else { console.error("Exec fail:", result); showIoMessage(`Exec Err: ${result.error || response.statusText}`, 'error'); button.textContent = 'Error!'; setTimeout(() => { button.textContent = originalText; button.disabled = false; }, 2000); } } catch (error) { console.error("Net err exec:", error); showIoMessage(`Net Err: ${error.message}`, 'error'); button.textContent = 'Error!'; setTimeout(() => { button.textContent = originalText; button.disabled = false; }, 2000); } }
+
+    // --- Add Option Handler ---
+    async function handleAddOption(optionType, inputElement, buttonElement, category = null) {
+        if (!inputElement || !buttonElement) { console.error("Missing input or button element for adding option."); return; }
+        const name = inputElement.value.trim();
+        if (!name) { showIoMessage("Option name cannot be empty.", "warning"); inputElement.focus(); return; }
+
+        let apiUrl = ''; const requestBody = { name: name };
+        switch(optionType) {
+            case 'os': apiUrl = '/api/options/os'; break;
+            case 'item': apiUrl = '/api/options/item'; break;
+            case 'filter':
+                if (!category) { showIoMessage("Category required for filters.", "error"); return; }
+                apiUrl = '/api/options/filter'; requestBody.category = category; break;
+            default: showIoMessage("Invalid option type.", "error"); return;
+        }
+
+        console.log(`Adding option: Type=${optionType}, Name=${name}, Category=${category || 'N/A'}`);
+        buttonElement.disabled = true; buttonElement.textContent = 'Adding...';
+        try {
+            const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) });
+            const result = await response.json().catch(() => ({ message: response.statusText, error: null }));
+            if (response.status === 201) { // Created
+                showIoMessage(result.message || `${optionType} option "${name}" added.`, 'success');
+                inputElement.value = '';
+                switch(optionType) { // Refresh relevant button lists
+                    case 'os': await fetchOsOptions(); break;
+                    case 'item': await fetchItemOptions(); break;
+                    case 'filter': await fetchFilterTags(); break;
+                }
+            } else if (response.status === 409) { // Conflict
+                showIoMessage(result.error || `Option "${name}" already exists.`, 'warning'); inputElement.select();
+            } else { // Other errors
+                 console.error("Add option failed:", result); showIoMessage(`Error adding option: ${result.error || result.message || `HTTP ${response.status}`}`, 'error');
+            }
+        } catch (error) { console.error(`Network error adding ${optionType} option:`, error); showIoMessage(`Network error: ${error.message}`, 'error');
+        } finally { buttonElement.disabled = false; buttonElement.textContent = 'Add'; }
+    }
+
+    // --- Backup/Import Event Handlers ---
+    function handleExport(format) { showIoMessage(`Exporting ${format}...`, 'info', 3000); window.location.href = `/api/commands/export?format=${format}`; }
+    async function handleImport() { const file = modalImportFileInp.files[0]; if (!file) { showIoMessage('Select .json/.csv file.', 'warning'); return; } showIoMessage(`Importing ${file.name}...`, 'info'); modalImportBtn.disabled = true; modalImportBtn.textContent = 'Importing...'; const formData = new FormData(); formData.append('importFile', file); try { const response = await fetch('/api/commands/import', { method: 'POST', body: formData }); const result = await response.json(); if (response.ok) { let message = result.message || `Import OK. Added: ${result.success_count || 0}, Skip: ${result.fail_count || 0}.`; showIoMessage(message, 'success', result.errors?.length > 0 ? 10000 : 5000); if (result.errors?.length > 0) console.warn("Import errs:", result.errors.slice(0, 20)); await fetchCommands(); closeBackupImportModal(); } else { console.error("Import fail:", result); showIoMessage(`Import Err: ${result.error || 'Unknown.'}`, 'error'); } } catch (error) { console.error("Net err import:", error); showIoMessage(`Net err: ${error.message}`, 'error'); } finally { modalImportBtn.disabled = false; modalImportBtn.textContent = 'Upload & Import'; modalImportFileInp.value = ''; } }
+
+    // --- Terminal Tab Handling ---
+     function handleTerminalTabClick(event) {
+        const clickedTab = event.target.closest('.terminal-tab');
+        const clickedCloseButton = event.target.closest('.close-tab-btn');
+        if (clickedCloseButton) { handleDeleteTerminalTab(clickedCloseButton); }
+        else if (clickedTab && !clickedTab.classList.contains('active')) {
+            if (clickedTab !== addTerminalTabBtn && clickedTab.dataset.terminalId) {
+                switchActiveTerminalTab(clickedTab, clickedTab.dataset.terminalId);
+            }
+        }
+    }
+    function handleTerminalTabDoubleClick(event) {
+        const clickedTab = event.target.closest('.terminal-tab');
+        if (!clickedTab || event.target.closest('.close-tab-btn') || clickedTab === addTerminalTabBtn || !clickedTab.dataset.terminalId) return;
+        renameTerminalTab(clickedTab);
+    }
+    function switchActiveTerminalTab(tabElement, terminalId) {
+        if (!document.body.contains(tabElement) || !terminalId || activeTerminalId === terminalId) {
+            console.log("Switch aborted: Target tab doesn't exist or already active.", terminalId);
+             if (activeTerminalId === terminalId && !document.body.contains(tabElement)) {
+                  const mainTabEl = terminalTabsContainer?.querySelector('.terminal-tab[data-terminal-id="term-main"]');
+                  if (mainTabEl) { console.log("Falling back to main tab."); switchActiveTerminalTab(mainTabEl, 'term-main'); return; }
+             }
+            return;
+        }
+        console.log(`Switching active tab from ${activeTerminalId} to ${terminalId}`);
+        terminalTabsContainer?.querySelectorAll('.terminal-tab').forEach(tab => tab.classList.remove('active'));
+        terminalIframesContainer?.querySelectorAll('.terminal-iframe').forEach(iframe => iframe.classList.remove('active'));
+        tabElement.classList.add('active');
+        const iframeToShow = terminalIframesContainer?.querySelector(`#${terminalId}`);
+        if (iframeToShow) {
+            iframeToShow.classList.add('active');
+            setTimeout(() => { try { iframeToShow.contentWindow?.focus(); } catch (e) { console.warn("Cannot focus iframe:", e.message); } }, 0);
+        } else {
+            console.error(`Iframe missing: ${terminalId}`);
+            showIoMessage(`Err: Cannot find term content ${terminalId}`, 'error');
+            const mainTabEl = terminalTabsContainer?.querySelector('.terminal-tab[data-terminal-id="term-main"]');
+             if (mainTabEl && terminalId !== 'term-main') { switchActiveTerminalTab(mainTabEl, 'term-main'); }
+        }
+        activeTerminalId = terminalId;
+        updateVariableInputsUI(activeTerminalId);
+        applyFilters();
+    }
+    function renameTerminalTab(tabElement) {
+         const textSpan = tabElement.querySelector('.tab-text');
+         if (!textSpan) return;
+         const currentName = textSpan.textContent;
+         const terminalId = tabElement.dataset.terminalId;
+         const iframe = terminalIframesContainer?.querySelector(`#${terminalId}`);
+         const newName = prompt(`New name for "${currentName}":`, currentName);
+         if (newName && newName.trim() !== '' && newName.trim() !== currentName) {
+             const sanitizedName = escapeHtml(newName.trim());
+             textSpan.textContent = sanitizedName;
+             let portInfo = tabElement.title.match(/\(Port \d+\)/)?.[0] || '';
+             tabElement.title = `Terminal: ${sanitizedName} ${portInfo}. Double-click rename.`;
+             if (iframe) iframe.title = `${sanitizedName} ttyd terminal`;
+             showIoMessage(`Renamed tab to "${sanitizedName}"`, 'info', 3000);
+         } else if (newName !== null && newName.trim() === '') {
+             showIoMessage("Tab name empty.", 'warning');
+         }
+    }
+     async function handleAddTerminalTab() {
+        if (!addTerminalTabBtn) return;
+        addTerminalTabBtn.disabled = true; addTerminalTabBtn.textContent = '...';
+        try {
+            const response = await fetch('/api/terminals/new', { method: 'POST' });
+            const result = await response.json();
+            if (response.ok && result.success) {
+                const newPort = result.port; const newUrl = result.url; const newTerminalId = `term-${newPort}`; const defaultTabName = `Terminal ${newPort}`;
+                const newTabButton = document.createElement('button');
+                newTabButton.className = 'terminal-tab'; newTabButton.dataset.terminalId = newTerminalId; newTabButton.title = `Term port ${newPort}. Double-click rename.`;
+                const textSpan = document.createElement('span'); textSpan.className = 'tab-text'; textSpan.textContent = defaultTabName;
+                const closeSpan = document.createElement('span'); closeSpan.className = 'close-tab-btn'; closeSpan.innerHTML = '&times;'; closeSpan.setAttribute('aria-label', 'Close Tab'); closeSpan.title = 'Close Tab';
+                newTabButton.appendChild(textSpan); newTabButton.appendChild(closeSpan);
+                terminalTabsContainer?.insertBefore(newTabButton, addTerminalTabBtn);
+                const newIframe = document.createElement('iframe');
+                newIframe.id = newTerminalId; newIframe.className = 'terminal-iframe'; newIframe.src = newUrl; newIframe.title = `${defaultTabName} ttyd terminal`;
+                newIframe.onload = () => console.log(`Iframe ${newTerminalId} loaded OK from ${newUrl}.`);
+                newIframe.onerror = () => { console.error(`Iframe ${newTerminalId} failed load: ${newUrl}`); showIoMessage(`Err load term Port ${newPort}`, 'error'); try { newIframe.contentDocument.body.innerHTML = `<p style='color:red; padding: 10px;'>Error loading terminal.</p>`; } catch(e) {} };
+                terminalIframesContainer?.appendChild(newIframe);
+                terminalVariablesState[newTerminalId] = { ...DEFAULT_VARIABLES };
+                console.log(`Init vars for new term: ${newTerminalId}`);
+                switchActiveTerminalTab(newTabButton, newTerminalId);
+            } else {
+                const errorMsg = result.error || `Server error ${response.status}`; console.error("Fail create term:", result); showIoMessage(`Create term err: ${errorMsg}`, 'error');
+            }
+        } catch (error) { console.error("Net err create term:", error); showIoMessage(`Net err: ${error.message}`, 'error');
+        } finally { addTerminalTabBtn.disabled = false; addTerminalTabBtn.textContent = '+'; }
+     }
+    async function handleDeleteTerminalTab(closeButton) {
+        const tabToDelete = closeButton.closest('.terminal-tab'); if (!tabToDelete) return;
+        const terminalId = tabToDelete.dataset.terminalId; const portMatch = terminalId.match(/^term-(\d+)$/);
+        if (!portMatch || !portMatch[1] || terminalId === 'term-main') { if (terminalId === 'term-main') { showIoMessage("Main cannot be closed.", "warning"); } else { console.error(`Invalid ID format: ${terminalId}`); } return; }
+        const port = parseInt(portMatch[1], 10); const tabName = tabToDelete.querySelector('.tab-text')?.textContent || `port ${port}`;
+        if (!confirm(`Close terminal "${tabName}"?`)) { return; }
+        console.log(`Deleting tab: ${terminalId} (Port: ${port})`); tabToDelete.style.opacity = '0.5'; tabToDelete.style.pointerEvents = 'none';
+        try {
+            const response = await fetch(`/api/terminals/${port}`, { method: 'DELETE' });
+            const result = response.status === 200 ? (await response.json().catch(() => ({ success: true, message: `Closed port ${port}.` }))) : await response.json();
+            if (response.ok && result.success) {
+                showIoMessage(result.message || `Term "${tabName}" closed.`, 'success', 3000);
+                const iframeToRemove = terminalIframesContainer?.querySelector(`#${terminalId}`); iframeToRemove?.remove();
+                let nextActiveTabElement = null; const allTabs = Array.from(terminalTabsContainer?.querySelectorAll('.terminal-tab:not(#add-terminal-tab-btn)') || []); const currentIndex = allTabs.indexOf(tabToDelete);
+                if (currentIndex > 0) { nextActiveTabElement = allTabs[currentIndex - 1]; }
+                else if (allTabs.length > 1) { nextActiveTabElement = allTabs[1]; }
+                else { nextActiveTabElement = terminalTabsContainer?.querySelector('.terminal-tab[data-terminal-id="term-main"]'); }
+                if (!nextActiveTabElement) { nextActiveTabElement = terminalTabsContainer?.querySelector('.terminal-tab[data-terminal-id="term-main"]'); }
+                tabToDelete.remove(); delete terminalVariablesState[terminalId];
+                if (nextActiveTabElement && nextActiveTabElement.dataset.terminalId) { if (activeTerminalId === terminalId) { switchActiveTerminalTab(nextActiveTabElement, nextActiveTabElement.dataset.terminalId); } }
+                else { console.error("No valid next tab."); const mainTabEl = terminalTabsContainer?.querySelector('.terminal-tab[data-terminal-id="term-main"]'); if(mainTabEl) switchActiveTerminalTab(mainTabEl, 'term-main'); }
+            } else { showIoMessage(`Err closing "${tabName}": ${result.error || 'Unknown'}`, 'error'); tabToDelete.style.opacity = ''; tabToDelete.style.pointerEvents = ''; }
+        } catch (error) { console.error("Net err delete term:", error); showIoMessage(`Net err closing "${tabName}": ${error.message}`, 'error'); tabToDelete.style.opacity = ''; tabToDelete.style.pointerEvents = ''; }
+    }
+
+    // --- Setup Event Listeners ---
+    function setupEventListeners() {
+        console.log("Setting up listeners...");
+
+        // Core UI & Forms
+        addCommandForm?.addEventListener('submit', handleAddCommandSubmit);
+        searchInput?.addEventListener('input', handleSearchInputChange);
+        cancelEditBtn?.addEventListener('click', handleCancelEdit);
+        toggleEditModeBtn?.addEventListener('click', handleToggleEditMode);
+        toggleExecuteModeBtn?.addEventListener('click', handleToggleExecuteMode);
+
+        // Collapsible Section Titles
+        addSectionToggle?.addEventListener('click', () => handleToggleSection(addSectionToggle, addCommandSection));
+        addSectionToggle?.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); handleToggleSection(addSectionToggle, addCommandSection); } });
+        filterSectionToggle?.addEventListener('click', () => handleToggleSection(filterSectionToggle, filterControlsSection));
+        filterSectionToggle?.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); handleToggleSection(filterSectionToggle, filterControlsSection); } });
+
+        // Filter Buttons (Delegation in Filter Section)
+        filterControlsSection?.addEventListener('click', handleFilterButtonClick);
+        // Form Buttons (Delegation in Add/Edit Section - Only for toggling active state)
+        addCommandSection?.addEventListener('click', handleFormButtonClick);
+
+        // Add Option Buttons
+        addOsBtn?.addEventListener('click', () => handleAddOption('os', addOsInput, addOsBtn));
+        addItemBtn?.addEventListener('click', () => handleAddOption('item', addItemInput, addItemBtn));
+        addServiceBtn?.addEventListener('click', () => handleAddOption('filter', addServiceInput, addServiceBtn, 'Service'));
+        addAttackTypeBtn?.addEventListener('click', () => handleAddOption('filter', addAttackTypeInput, addAttackTypeBtn, 'Attack Type'));
+
+        // Command List Actions (Delegation - Handles Buttons AND Description Toggle)
+        commandListDiv?.addEventListener('click', (event) => {
+            const targetButton = event.target.closest('button'); // Check if a button was clicked first
+            const targetListItem = event.target.closest('li.command-item-clickable'); // Find the clickable li
+
+            if (targetButton && targetListItem) { // Click was on a button *inside* a list item
+                // Handle button clicks (Copy, Execute, Edit, Delete)
+                if (targetButton.classList.contains('copy-btn')) handleCopyCommand(targetButton);
+                else if (targetButton.classList.contains('execute-btn') && !targetButton.classList.contains('hidden')) handleExecuteCommand(targetButton);
+                else if (targetButton.classList.contains('edit-btn') && !targetButton.classList.contains('hidden')) handleEditClick(targetButton);
+                else if (targetButton.classList.contains('delete-btn') && !targetButton.classList.contains('hidden')) handleDeleteClick(targetButton);
+                // Do not toggle description if a button was clicked
+            } else if (targetListItem) { // Click was somewhere else *inside* a list item
+                 // Check if the click was directly on interactive elements that shouldn't trigger toggle
+                 const clickedOnInteractiveChild = event.target.closest('button, a, input, code, .substituted-var');
+                 if (!clickedOnInteractiveChild) {
+                      // Toggle the 'expanded' class on the list item
+                      targetListItem.classList.toggle('expanded');
+                 }
+            }
+        });
+
+
+        // Variable Inputs (Delegation)
+        const variableSection = document.getElementById('variable-input-section');
+        variableSection?.addEventListener('input', (event) => { if (event.target.matches('.variable-item input[type="text"]')) { handleVariableInputChange(event); } });
+
+        // Modal
+        toggleBackupImportModalBtn?.addEventListener('click', openBackupImportModal);
+        modalCloseBtn?.addEventListener('click', closeBackupImportModal);
+        backupImportModal?.addEventListener('click', (event) => { if (event.target === backupImportModal) closeBackupImportModal(); });
+        modalExportJsonBtn?.addEventListener('click', () => handleExport('json'));
+        modalExportCsvBtn?.addEventListener('click', () => handleExport('csv'));
+        modalImportBtn?.addEventListener('click', handleImport);
+
+        // Terminal Tabs
+        terminalTabsContainer?.addEventListener('click', handleTerminalTabClick);
+        terminalTabsContainer?.addEventListener('dblclick', handleTerminalTabDoubleClick);
+        addTerminalTabBtn?.addEventListener('click', handleAddTerminalTab);
+
+        console.log("Listeners setup OK.");
+    }
+
+    // --- Start ---
+    initializeApp(); // Call the main initialization function
+
+}); // End DOMContentLoaded
