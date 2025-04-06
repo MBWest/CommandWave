@@ -1,1 +1,90 @@
-# CommandWave
+# Command Wave
+
+Command Wave is a web-based interface designed to manage, filter, and execute commands, featuring integrated terminal sessions. It provides a centralized location to store frequently used commands, substitute variables, and send them directly to interactive terminal windows within the browser.
+
+![image](https://github.com/user-attachments/assets/88733535-6344-4cbb-be09-d6c15445ce08)
+
+* **Command Management:** Add, edit, delete, and view commands through the web UI.
+* **Filtering & Searching:**
+    * Filter commands by target Operating System (Linux, Windows).
+    * Filter by required 'Items' (Username, Password, Hash, IP addresses, etc.).
+    * Filter by categorized tags (Services like SMB, WMI, Kerberos; Attack Types like Enumeration, Exploitation).
+    * Live search across command text, descriptions, and tags.
+* **Variable Substitution:** Define variables (like Target IP, Port, DC IP, file paths) in the UI, and have them automatically substituted into commands using placeholders (e.g., `$TargetIP`). Variables are maintained per terminal tab.
+* **Integrated Terminals:**
+    * Embeds terminals directly into the web UI using `ttyd` and `tmux`.
+    * Supports multiple terminal tabs.
+    * Rename or close dynamically added tabs.
+    * Execute commands directly from the command list into the active terminal tab ("Execute Mode").
+* **Import/Export:** Backup and restore your command database in JSON or CSV format.
+* **Modes:**
+    * **Edit Mode:** Toggle visibility of edit/delete buttons for commands.
+    * **Execute Mode:** Toggle visibility of the 'Execute' button to send commands to terminals.
+* **Responsive UI:** Adapts layout for different screen sizes with a cyberpunk/neon aesthetic.
+
+## Technology Stack
+
+* **Backend:** Python 3, Flask
+* **Database:** SQLite
+* **Frontend:** HTML5, CSS3, JavaScript (Vanilla)
+* **Terminal Emulation:** [ttyd](https://github.com/tsl0922/ttyd), [tmux](https://github.com/tmux/tmux)
+
+## Setup & Installation
+
+1.  **Prerequisites:**
+    * Python 3
+    * `pip` (Python package installer)
+    * `ttyd` (Must be installed and available in your system's PATH)
+    * `tmux` (Must be installed and available in your system's PATH)
+
+2.  **Clone the Repository:**
+    ```bash
+    git clone https://github.com/MBWest/CommandWave.git
+    cd CommandWave
+    ```
+
+3.  **Install Python Dependencies:**
+    * (Optional) Create a virtual environment:
+        ```bash
+        python -m venv venv
+        source venv/bin/activate
+        ```
+    * Install required libraries:
+        ```bash
+        pip install -r requirements.txt
+        ```
+
+4.  **Database Initialization:** The `database.db` file and the `commands` table will be created automatically when you first run the application.
+
+5.  **Run the Application:**
+    ```bash
+    python main.py
+    ```
+    The application should now be running (by default) at `http://0.0.0.0:5000/`.
+
+## Usage
+
+1.  Open your web browser and navigate to the application URL (e.g., `http://localhost:5000`).
+2.  **Add Commands:** Click the "Add New Command" title to expand the form. Fill in the details, select relevant OS/Items/Tags, and click "Add Command". Use placeholders like `$TargetIP`, `$Port` in the command text where you want variables substituted.
+3.  **Filter/Search:** Click the "Filter Commands" title to expand the filter options. Select tags or type in the search bar to narrow down the command list.
+4.  **Use Variables:** Fill in the variable fields at the top. These values will be substituted into the command previews and used when copying or executing. Variable values are specific to the currently active terminal tab.
+5.  **Terminals:**
+    * The "Main" terminal tab is loaded by default.
+    * Click the "+" button in the terminal tabs area to open additional terminals.
+    * Double-click a tab name to rename it.
+    * Click the 'x' on a dynamic tab to close it.
+    * Click a tab to switch focus.
+6.  **Copy Commands:** Click the "Copy" button on a command entry to copy the command text (with variables substituted) to your clipboard.
+7.  **Execute Commands:**
+    * Enable "Execute Mode" using the toggle button above the command list.
+    * Click the "Execute" button (now visible) on a command entry to send the command (with variables substituted) directly to the *active* terminal tab.
+8.  **Edit/Delete:** Enable "Edit Mode" to show the "Edit" and "Delete" buttons for each command.
+9.  **Backup/Import:** Use the "Backup/Import" button to open a modal window for exporting your command database to JSON/CSV or importing from a previous backup.
+
+## Inspiration
+
+The initial concept and inspiration for some of the features in Command Wave came from [wadcoms.github.io](https://wadcoms.github.io/). Their work provided a valuable starting point and motivation for this project.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit pull requests or open issues for bugs, feature requests, or improvements.
