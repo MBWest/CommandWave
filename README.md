@@ -69,7 +69,7 @@ Command Wave is a web-based interface for managing multiple terminal sessions an
     ```bash
     python main.py
     ```
-    The application should now be running (by default) at `http://0.0.0.0:5000/`. The main terminal will use port 7681 by default.
+    The application should now be running (by default) at `http://127.0.0.1:5000/`. The main terminal will use port 7681 by default.
 
 ## Usage
 
