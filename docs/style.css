@@ -1,0 +1,801 @@
+/* projects/static/css/style.css - Modified for Playbook Feature & Floating Notes */
+
+/* ==========================================================================
+   Base Styles, Variables, and Resets
+   ========================================================================== */
+:root {
+    /* Color Palette (Mostly Unchanged) */
+    --bg-color: #1a0a2e;
+    --bg-color-trans: rgba(26, 10, 46, 0.85);
+    --text-color: #f0f0f0;
+    --primary-neon: #ff00ff; /* Magenta */
+    --secondary-neon: #00ffff; /* Cyan */
+    --accent-neon: #ffff00; /* Yellow */
+    --success-neon: #39ff14; /* Bright green */
+    --error-color: #ff4d4d; /* Red */
+    --danger-color: var(--error-color); /* Alias for Execute button */
+    --success-color: var(--success-neon);
+    --info-color: var(--secondary-neon);
+
+    /* Keep Tag Specific Colors - Might be reused or adapted for playbooks */
+    --tag-color-item: var(--primary-neon);
+    --tag-color-filter: var(--secondary-neon);
+    --tag-color-os: var(--accent-neon);
+    --tag-bg-color: var(--bg-color); /* Background for tags */
+
+    /* Effects (Unchanged) */
+    --border-glow-primary: 0 0 3px var(--primary-neon), 0 0 6px var(--primary-neon);
+    --border-glow-secondary: 0 0 4px var(--secondary-neon), 0 0 8px var(--secondary-neon);
+    --border-glow-accent: 0 0 4px var(--accent-neon), 0 0 8px var(--accent-neon);
+    --border-glow-danger: 0 0 4px var(--danger-color), 0 0 8px var(--danger-color);
+    --border-glow-success: 0 0 4px var(--success-neon), 0 0 8px var(--success-neon);
+    --text-glow-primary: 0 0 2px var(--primary-neon);
+    --text-glow-secondary: 0 0 2px var(--secondary-neon);
+    --text-glow-accent: 0 0 2px var(--accent-neon);
+    --text-glow-danger: 0 0 3px var(--danger-color);
+    --text-glow-success: 0 0 3px var(--success-neon);
+
+    /* Typography (Unchanged) */
+    --font-main: 'Roboto', sans-serif;
+    --font-display: 'Orbitron', sans-serif; /* For titles, prominent text */
+    --font-code: monospace; /* Keep for code blocks */
+}
+
+/* Basic reset (Unchanged) */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-main);
+    line-height: 1.6;
+    /* Subtle grid background (Unchanged) */
+    background-image: linear-gradient(rgba(0, 255, 255, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 255, 0.07) 1px, transparent 1px);
+    background-size: 30px 30px;
+    padding-bottom: 80px; /* Space for potential fixed elements or just breathing room */
+}
+
+/* ==========================================================================
+   Layout & Structure (Mostly Unchanged)
+   ========================================================================== */
+header {
+    position: relative;
+    max-width: 950px;
+    margin: 20px auto;
+    padding: 25px;
+    background: var(--bg-color-trans);
+    border: 1px solid var(--secondary-neon);
+    box-shadow: var(--border-glow-secondary), inset 0 0 10px rgba(0, 255, 255, 0.1);
+    border-radius: 6px;
+    text-align: center;
+    border-bottom: 2px solid var(--primary-neon);
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+}
+
+.main-wrapper {
+    display: flex;
+    width: 100%;
+    align-items: flex-start; /* Align items to the top */
+    padding: 0 15px;
+    margin-top: 20px;
+    gap: 20px;
+}
+
+.content-area {
+    flex: 1; /* Takes up available space */
+    margin: 0;
+    min-width: 0; /* Important for flex items containing long content */
+}
+
+.terminal-area {
+    flex: 1; /* Takes up available space */
+    position: sticky; /* Sticks to the top when scrolling */
+    top: 20px;
+    height: calc(100vh - 40px); /* Full viewport height minus some padding */
+    background: var(--bg-color-trans);
+    border: 1px solid var(--secondary-neon);
+    box-shadow: var(--border-glow-secondary), inset 0 0 10px rgba(0, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 0; /* Padding handled by inner elements */
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Important for flex items */
+}
+
+/* Applied to variable section and playbook section */
+main.content-area > section {
+    padding: 25px;
+    background: var(--bg-color-trans);
+    border: 1px solid var(--secondary-neon);
+    box-shadow: var(--border-glow-secondary), inset 0 0 10px rgba(0, 255, 255, 0.1);
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+/* Special handling for variable section border (Unchanged) */
+#variable-input-section {
+    border-color: var(--accent-neon); /* Yellow border */
+    box-shadow: var(--border-glow-accent), inset 0 0 10px rgba(255, 255, 0, 0.1);
+}
+
+/* ASCII Title Styling (Unchanged) */
+#ascii-title {
+    font-family: figlet, Consolas, Monaco, 'Courier New', Courier, monospace;
+    color: var(--primary-neon);
+    text-shadow: var(--text-glow-primary), 0 0 4px var(--primary-neon), 0 0 7px var(--primary-neon);
+    font-size: 1em;
+    line-height: 1.2;
+    text-align: center;
+    margin-bottom: 20px;
+    white-space: pre;
+    overflow-x: auto;
+}
+
+/* General H2 Styling (Applies to Variables, Playbook titles) */
+h2 {
+    font-family: var(--font-display);
+    color: var(--secondary-neon);
+    text-shadow: var(--text-glow-secondary);
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.5);
+    padding-bottom: 8px;
+    font-size: 1.8em;
+    font-weight: 700;
+}
+
+
+/* ==========================================================================
+   Header Controls (Search input remains)
+   ========================================================================== */
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    justify-content: center; /* Center remaining items */
+}
+
+#searchInput {
+    flex-grow: 1;
+    margin: 0 10px;
+    min-width: 200px;
+    width: auto; /* Allow flexible width */
+    padding: 10px 12px;
+    font-size: 1em;
+    /* Inherits general input styles defined later */
+}
+
+/* General style for text inputs, selects (Used by search, variables, playbook selector) */
+input[type="text"], select, textarea { /* Textarea kept for potential future use */
+    width: 100%;
+    padding: 12px;
+    /* MODIFIED: Slightly darker background for better contrast, especially for select */
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid var(--secondary-neon);
+    /* MODIFIED: Ensure high contrast text color */
+    color: var(--text-color); /* Should be light (#f0f0f0) */
+    border-radius: 4px;
+    font-family: var(--font-main);
+    font-size: 1em;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--primary-neon); /* Magenta focus */
+    box-shadow: var(--border-glow-primary);
+}
+
+textarea { resize: vertical; min-height: 60px; } /* Keep textarea style */
+
+/* General Button Style (Used by Terminal Add, Playbook Upload Label etc.) */
+.header-toggle-btn {
+    background-color: rgba(0, 255, 255, 0.1);
+    border: 1px solid var(--secondary-neon);
+    color: var(--secondary-neon);
+    padding: 8px 12px;
+    font-family: var(--font-display);
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+    display: inline-flex; /* Align icon and text */
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0; /* Prevent shrinking */
+    white-space: nowrap; /* Prevent text wrapping */
+    text-transform: none; /* Override potential uppercase */
+    letter-spacing: normal; /* Override potential letter spacing */
+}
+
+.header-toggle-btn:hover,
+.header-toggle-btn:focus {
+    background-color: rgba(0, 255, 255, 0.2);
+    box-shadow: var(--border-glow-secondary);
+    outline: none;
+}
+
+.header-toggle-btn .icon { /* If icons are used */
+    font-weight: bold;
+    font-size: 1.1em;
+    display: inline-block;
+    text-align: center;
+    min-width: 1em;
+}
+
+/* Style for the playbook upload button (label) */
+#playbook-upload-btn {
+    /* Inherits styles from .header-toggle-btn */
+    cursor: pointer;
+    /* Add any specific overrides if needed */
+    min-width: 150px;
+}
+
+
+/* ==========================================================================
+   Variable Input Section (Unchanged)
+   ========================================================================== */
+.variable-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px 20px; /* Row and column gap */
+}
+.variable-item label {
+    display: block; margin-bottom: 5px; font-size: 0.9em;
+    color: var(--accent-neon); opacity: 0.9;
+}
+.variable-item input[type="text"] {
+    font-size: 0.95em; padding: 8px 10px; border-color: var(--accent-neon);
+    width: 100%;
+}
+.variable-item input[type="text"]:focus {
+    border-color: var(--primary-neon); box-shadow: var(--border-glow-primary);
+}
+.variable-item input[type="text"]:not(:placeholder-shown) {
+    background-color: rgba(0, 255, 255, 0.1); border-color: var(--secondary-neon);
+    box-shadow: inset 0 0 5px rgba(0, 255, 255, 0.2);
+}
+
+/* ==========================================================================
+   Collapsible Sections & Forms (REMOVED)
+   ========================================================================== */
+/* Styles for .collapsible, .collapsible-title, form elements, fieldset, legend, */
+/* .form-group, button[type="submit"], .secondary-btn, .danger-btn */
+/* (except those reused like .header-toggle-btn or input[type=text]), */
+/* .message area styles (kept below), .add-option-container etc. are removed. */
+
+/* --- Message Area Styles (Used for IO messages - Kept) --- */
+.message {
+    padding: 12px 15px; border-radius: 4px; font-weight: bold;
+    border: 1px solid transparent; text-align: center; opacity: 0;
+    max-height: 0; overflow: hidden;
+    transition: opacity 0.5s ease, max-height 0.5s ease, padding 0.5s ease, margin 0.5s ease;
+    margin: 0 auto; /* Center message horizontally */
+}
+.message.visible {
+    opacity: 1; max-height: 100px; margin: 15px auto; padding: 12px 15px;
+}
+.message.success { background-color: rgba(57, 255, 20, 0.15); border-color: var(--success-color); color: var(--success-color); text-shadow: var(--text-glow-success); }
+.message.error   { background-color: rgba(255, 77, 77, 0.15); border-color: var(--error-color); color: var(--error-color); text-shadow: 0 0 3px var(--error-color); }
+.message.info    { background-color: rgba(0, 255, 255, 0.15); border-color: var(--info-color); color: var(--info-color); text-shadow: var(--text-glow-secondary); }
+.message.warning { background-color: rgba(255, 255, 0, 0.15); border-color: var(--accent-neon); color: var(--accent-neon); text-shadow: var(--text-glow-accent); }
+
+
+/* ==========================================================================
+   Playbook Section Styles (NEW / Modified for Multiple Collapsible Playbooks)
+   ========================================================================== */
+#playbook-section {
+    /* Inherits general section styles */
+    padding: 25px;
+    background: var(--bg-color-trans);
+    border: 1px solid var(--secondary-neon);
+    box-shadow: var(--border-glow-secondary), inset 0 0 10px rgba(0, 255, 255, 0.1);
+    border-radius: 6px;
+    margin-bottom: 20px;
+    margin-top: 20px; /* Ensure spacing above */
+}
+
+/* Header for the main playbook section (Title + Upload Button) */
+.section-header-with-buttons {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px; border-bottom: 1px solid rgba(0, 255, 255, 0.5);
+    padding-bottom: 8px; flex-wrap: wrap; gap: 10px;
+}
+.section-header-with-buttons h2 { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
+/* Ensure actions align vertically and have spacing */
+.section-header-actions {
+    display: flex; /* Use flexbox */
+    gap: 10px; /* Space between items if more are added */
+    flex-shrink: 0; /* Prevent shrinking */
+    align-items: center; /* Vertically align items */
+}
+/* Ensure button aligns if needed */
+.section-header-actions #playbook-upload-btn { margin-top: 0; }
+
+
+/* Container for ALL loaded playbook containers */
+#playbook-content {
+    margin-top: 15px;
+}
+
+/* NEW: Styles for individual playbook container */
+.playbook-container {
+    border: 1px solid rgba(0, 255, 255, 0.4); /* Cyan border */
+    border-radius: 4px;
+    margin-bottom: 15px;
+    background-color: rgba(0, 0, 0, 0.2); /* Slightly different background */
+    overflow: hidden; /* Contain header/body borders and transitions */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+/* NEW: Styles for individual playbook header */
+.playbook-header {
+    display: flex;
+    justify-content: space-between; /* Pushes title left, buttons right */
+    align-items: center;
+    padding: 8px 10px 8px 15px; /* Adjusted padding-right */
+    background-color: rgba(0, 255, 255, 0.1); /* Header background */
+    color: var(--secondary-neon);
+    font-family: var(--font-display);
+    font-weight: bold;
+    font-size: 1.1em;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.2); /* Separator */
+    transition: background-color 0.2s ease;
+}
+.playbook-header:hover {
+    background-color: rgba(0, 255, 255, 0.2);
+}
+
+/* Ensure title doesn't overlap buttons */
+.playbook-header span.playbook-title {
+    flex-grow: 1; /* Allow title to take space */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: 10px; /* Space between title and buttons */
+}
+
+/* Toggle indicator icon (using pseudo-element on header) - MODIFIED TO HIDE */
+.playbook-header::after {
+    content: '+'; /* Default: collapsed */
+    font-weight: bold;
+    font-size: 1.2em;
+    padding-left: 10px;
+    transition: transform 0.3s ease;
+    display: none; /* <<< MODIFIED: HIDE THE SYMBOL */
+    flex-shrink: 0; /* Prevent shrinking */
+    /* margin-left: auto; /* Pushes toggle icon to the very right, after remove btn */
+}
+
+/* Change icon when expanded (based on parent container class) */
+/* This rule may no longer be needed as the element is hidden */
+.playbook-container:not(.collapsed) .playbook-header::after {
+    /* content: '−'; /* Use minus for expanded */
+    transform: rotate(45deg); /* Rotate plus into an X */
+}
+
+/* NEW: Style for the remove playbook button */
+.playbook-header .remove-playbook-btn {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    opacity: 0.6;
+    font-size: 1.3em; /* Slightly larger 'x' */
+    line-height: 1;
+    padding: 0 4px;
+    margin-left: 10px; /* Space from title */
+    cursor: pointer;
+    border-radius: 3px;
+    transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    flex-shrink: 0; /* Prevent shrinking */
+    order: 1; /* Place remove button before the toggle icon if using ::after */
+}
+
+.playbook-header:hover .remove-playbook-btn {
+    opacity: 1; /* Show clearly on header hover */
+}
+
+.playbook-header .remove-playbook-btn:hover {
+    background-color: rgba(255, 77, 77, 0.5); /* Reddish background on hover */
+    color: #fff;
+    opacity: 1;
+}
+
+
+/* NEW: Styles for individual playbook body (content area) */
+.playbook-body {
+    padding: 15px; /* Padding when expanded */
+    /* Smooth transition for expand/collapse */
+    transition: max-height 0.4s ease-out, padding 0.4s ease-out, opacity 0.3s ease-out 0.1s;
+    max-height: 5000px; /* Set a large max-height for expanded state */
+    opacity: 1;
+    overflow: hidden;
+    border-top: none;
+    background-color: rgba(0, 0, 0, 0.1); /* Slightly different background for content */
+}
+/* Collapsed state for the body */
+.playbook-container.collapsed .playbook-body {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+    transition-delay: 0s; /* Apply collapse styles immediately */
+    border-top: none; /* Ensure no top border when collapsed */
+}
+
+
+/* --- Styles for content INSIDE playbook-body --- */
+
+/* Style for rendered text blocks from Markdown (Now inside playbook-body) */
+.playbook-body .playbook-text-block {
+    margin-bottom: 20px;
+    line-height: 1.7;
+}
+.playbook-body .playbook-text-block p { margin-bottom: 1em; }
+.playbook-body .playbook-text-block strong { color: var(--primary-neon); font-weight: bold; }
+.playbook-body .playbook-text-block em { color: var(--secondary-neon); font-style: italic; }
+.playbook-body .playbook-text-block a { color: var(--accent-neon); text-decoration: none; border-bottom: 1px dotted var(--accent-neon); }
+.playbook-body .playbook-text-block a:hover { color: var(--primary-neon); border-bottom-style: solid; }
+.playbook-body .playbook-text-block ul,
+.playbook-body .playbook-text-block ol { margin-left: 25px; margin-bottom: 1em; }
+.playbook-body .playbook-text-block li { margin-bottom: 0.5em; }
+
+/* Note: Add Prism.js theme CSS here for syntax highlighting. */
+/* You might need to adjust the styles below to integrate with your chosen Prism theme. */
+
+/* Style for rendered code block containers from Markdown (Now inside playbook-body) */
+.playbook-body .playbook-code-block {
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-left: 4px solid var(--primary-neon);
+    border-radius: 0 4px 4px 0;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    position: relative; /* For positioning buttons */
+    overflow-x: auto; /* Keep as fallback for extremely long non-breaking strings */
+}
+
+/* Style for the <pre><code> elements inside code blocks */
+.playbook-body .playbook-code-block pre {
+    margin: 0;
+    padding: 0;
+    white-space: pre-wrap; /* <<< CHANGED: Allows wrapping */
+    word-wrap: break-word; /* <<< ADDED: Helps break long words */
+    overflow: visible; /* Let container handle scrolling if absolutely needed */
+    background: none !important; /* Override syntax highlighter bg if needed */
+    padding: 0 !important; /* Override syntax highlighter padding if needed */
+}
+.playbook-body .playbook-code-block code {
+    display: block; font-family: var(--font-code); font-size: 1.1em;
+    line-height: 1.4; color: var(--accent-neon); background: none; padding: 0;
+    word-break: normal; /* Prefer word-wrap on pre */
+    white-space: inherit; /* Inherit pre-wrap */
+    text-shadow: none !important;
+}
+/* Style for substituted variables within the code */
+.playbook-body .playbook-code-block code .substituted-var {
+    color: var(--primary-neon) !important; padding: 1px 3px; margin: 0 1px;
+    border-radius: 3px; font-weight: bold; text-shadow: var(--text-glow-primary);
+    background-color: rgba(255, 0, 255, 0.15) !important; display: inline;
+}
+/* Container for buttons inside the code block */
+.playbook-body .playbook-code-block .code-block-buttons {
+    position: absolute; top: 8px; right: 10px; display: flex; gap: 8px;
+    opacity: 0.7; transition: opacity 0.3s ease; z-index: 1;
+}
+.playbook-body .playbook-code-block:hover .code-block-buttons { opacity: 1; }
+
+/* Base style for Copy/Execute buttons within code blocks */
+.playbook-body .code-block-buttons .copy-btn,
+.playbook-body .code-block-buttons .execute-btn {
+    padding: 3px 10px; font-family: var(--font-display); font-weight: bold;
+    cursor: pointer; border-radius: 4px; transition: all 0.3s ease;
+    text-transform: none; letter-spacing: normal; font-size: 0.85em;
+    margin-top: 0; flex-shrink: 0; border: 1px solid;
+}
+/* Copy Button Specifics */
+.playbook-body .code-block-buttons .copy-btn { border-color: var(--secondary-neon); background-color: rgba(0, 255, 255, 0.15); color: var(--secondary-neon); box-shadow: 0 0 4px var(--secondary-neon); text-shadow: 0 0 2px var(--secondary-neon); }
+.playbook-body .code-block-buttons .copy-btn:hover,
+.playbook-body .code-block-buttons .copy-btn:focus { background-color: rgba(0, 255, 255, 0.3); box-shadow: 0 0 6px var(--secondary-neon), 0 0 10px var(--secondary-neon); transform: translateY(-1px); outline: none; }
+.playbook-body .code-block-buttons .copy-btn:disabled { background-color: rgba(57, 255, 20, 0.2); border-color: var(--success-color); color: var(--success-color); text-shadow: var(--text-glow-success); box-shadow: 0 0 4px var(--success-color); cursor: default; transform: translateY(0); }
+/* Execute Button Specifics (RED) */
+.playbook-body .code-block-buttons .execute-btn { border-color: var(--danger-color); background-color: rgba(255, 77, 77, 0.15); color: var(--danger-color); box-shadow: 0 0 3px var(--danger-color); text-shadow: var(--text-glow-danger); }
+.playbook-body .code-block-buttons .execute-btn:hover,
+.playbook-body .code-block-buttons .execute-btn:focus { background-color: rgba(255, 77, 77, 0.3); box-shadow: var(--border-glow-danger), 0 0 9px var(--danger-color); transform: translateY(-1px); outline: none; }
+.playbook-body .code-block-buttons .execute-btn:disabled { background-color: rgba(180, 180, 180, 0.1); border-color: #aaa; color: #aaa; cursor: default; transform: translateY(0); box-shadow: none; text-shadow: none; }
+.playbook-body .code-block-buttons .execute-btn.sent { background-color: rgba(57, 255, 20, 0.2); border-color: var(--success-color); color: var(--success-color); text-shadow: var(--text-glow-success); box-shadow: 0 0 4px var(--success-color); }
+
+/* ==========================================================================
+   Tag Styling (OS, Item, Filter) - KEPT for potential future use
+   ========================================================================== */
+.item-tag, .os-tag, .filter-tag { display: inline-block; padding: 3px 9px; border-radius: 4px; font-size: 0.8em; font-weight: bold; margin: 2px; line-height: 1.4; border: 1px solid rgba(0,0,0,0.2); }
+.item-tag, .filter-tag { font-family: var(--font-main); text-transform: none; }
+.os-tag { font-family: var(--font-display); text-transform: uppercase; }
+.item-tag { background-color: var(--tag-color-item); color: var(--tag-bg-color); }
+.os-tag { background-color: var(--tag-color-os); color: var(--tag-bg-color); font-size: 0.75em; }
+.filter-tag { background-color: var(--tag-color-filter); color: var(--tag-bg-color); font-size: 0.75em; }
+/* Style for placeholder tags when no tags are assigned */
+.item-tag.placeholder, .filter-tag.placeholder, .os-tag.placeholder { background-color: transparent; color: rgba(255, 255, 255, 0.5); font-style: italic; text-transform: none; border: 1px dashed rgba(255, 255, 255, 0.2); padding: 2px 7px; font-weight: normal; font-size: 0.75em; }
+
+
+/* ==========================================================================
+   Obsolete Styles (REMOVED)
+   ========================================================================== */
+/* Styles for #commandList, li (old), .command-header/body/footer (old), */
+/* .command-line, .command-actions, .filter-button-container, .filter-button, */
+/* mode toggles, modal etc. are removed. */
+
+
+/* ==========================================================================
+   Terminal Tabs Styling (Unchanged)
+   ========================================================================== */
+.terminal-tabs {
+    display: flex; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden;
+    background-color: rgba(0, 0, 0, 0.3); border-bottom: 1px solid var(--secondary-neon);
+    flex-shrink: 0; padding: 5px 10px 0 10px; align-items: flex-end;
+}
+.terminal-tab {
+    background-color: transparent; border: 1px solid transparent; border-bottom: none;
+    color: var(--text-color); opacity: 0.7; padding: 8px 15px; padding-right: 28px;
+    font-family: var(--font-display); font-size: 0.9em; cursor: pointer;
+    border-radius: 4px 4px 0 0; transition: all 0.3s ease; margin-right: 4px;
+    white-space: nowrap; user-select: none; position: relative;
+    display: inline-flex; align-items: center;
+}
+.terminal-tab .tab-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-grow: 1; }
+.terminal-tab:hover { background-color: rgba(255, 255, 255, 0.1); opacity: 1; }
+.terminal-tab.active {
+    background-color: var(--bg-color-trans); border-color: var(--secondary-neon); opacity: 1;
+    border-bottom: 1px solid var(--bg-color-trans); margin-bottom: -1px;
+}
+.close-tab-btn {
+    position: absolute; top: 50%; right: 8px; transform: translateY(-50%);
+    background: none; border: none; color: var(--text-color); opacity: 0.6;
+    font-size: 1.2em; line-height: 1; padding: 0 2px; cursor: pointer;
+    border-radius: 3px; transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    flex-shrink: 0;
+}
+.terminal-tab:hover .close-tab-btn { opacity: 1; }
+.close-tab-btn:hover { background-color: rgba(255, 77, 77, 0.5); color: #fff; opacity: 1; }
+.terminal-tab[data-terminal-id="term-main"] .close-tab-btn { display: none; }
+.terminal-tab[data-terminal-id="term-main"] { padding-right: 15px; }
+#add-terminal-tab-btn {
+    background-color: rgba(0, 255, 255, 0.1); border: 1px dashed var(--secondary-neon);
+    color: var(--secondary-neon); padding: 6px 10px; font-size: 1.2em;
+    line-height: 1; border-radius: 4px; cursor: pointer; margin-left: 10px;
+    margin-bottom: 0; opacity: 0.7; transition: all 0.3s ease; flex-shrink: 0;
+}
+#add-terminal-tab-btn:hover { background-color: rgba(0, 255, 255, 0.2); opacity: 1; box-shadow: var(--border-glow-secondary); }
+.terminal-iframes { flex-grow: 1; position: relative; background-color: var(--bg-color-trans); padding: 0; border-radius: 0 0 6px 6px; overflow: hidden; }
+.terminal-iframe { display: none; width: 100%; height: 100%; border: none; background-color: transparent; }
+.terminal-iframe.active { display: block; }
+
+
+/* ==========================================================================
+   NEW: Floating Notes Styles (Updated Synthwave Buttons & Visibility Fix)
+   ========================================================================== */
+
+/* --- Floating Notes Buttons (Synthwave Style) --- */
+.floating-notes-btn {
+    position: fixed;
+    left: 15px;
+    /* Adjust shape to rounded rectangle */
+    width: 50px;  /* Slightly wider */
+    height: 40px; /* Slightly shorter */
+    border-radius: 6px; /* Match other elements */
+
+    /* Synthwave Colors & Effects */
+    background-color: rgba(0, 0, 0, 0.6); /* Dark background */
+    border: 1px solid var(--secondary-neon); /* Neon border */
+    color: var(--secondary-neon); /* Neon text */
+    box-shadow: var(--border-glow-secondary), 2px 2px 8px rgba(0, 0, 0, 0.5); /* Neon glow + subtle drop shadow */
+    text-shadow: var(--text-glow-secondary); /* Neon text glow */
+
+    /* Font and Layout */
+    font-size: 0.9em;
+    font-weight: bold;
+    font-family: var(--font-display); /* Use display font */
+    cursor: pointer;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease; /* Smooth transitions */
+}
+
+.floating-notes-btn:hover {
+    transform: scale(1.05); /* Slightly larger scale */
+    background-color: rgba(0, 0, 0, 0.75); /* Slightly darker on hover */
+    border-color: var(--primary-neon); /* Change border to magenta */
+    color: var(--primary-neon); /* Change text to magenta */
+    /* Intensify glow */
+    box-shadow: var(--border-glow-primary), 0 0 10px var(--primary-neon), 2px 2px 8px rgba(0, 0, 0, 0.5);
+    text-shadow: var(--text-glow-primary);
+}
+
+/* Positioning remains the same */
+#tab-notes-toggle-btn {
+    top: 20px;
+}
+
+#global-notes-toggle-btn {
+    top: 75px; /* Adjusted slightly due to button height change */
+}
+
+/* --- Notes Panels (With Visibility Fix) --- */
+.notes-panel {
+    position: fixed;
+    top: 10px; /* Adjust as needed */
+    left: 70px; /* Position next to buttons */
+    width: 900px; /* Or desired width */
+    height: calc(100vh - 20px); /* Adjust height as needed */
+    max-height: 95vh;
+    background-color: var(--bg-color-trans);
+    border: 1px solid var(--secondary-neon);
+    box-shadow: var(--border-glow-secondary), 5px 5px 15px rgba(0,0,0,0.6);
+    border-radius: 6px;
+    z-index: 999; /* Below buttons if needed, or higher */
+    display: flex;
+    flex-direction: column;
+
+    /* --- MODIFIED: Hide completely --- */
+    transform: translateX(-110%); /* Keep pushing it way off-screen */
+    visibility: hidden;          /* Make it truly invisible and non-interactable */
+    /* Adjust transition: Hide visibility AFTER transform completes */
+    transition: transform 0.4s ease-out, visibility 0s linear 0.4s;
+    /* --- END MODIFICATION --- */
+}
+
+/* --- MODIFIED: Visible State --- */
+ .notes-panel.visible {
+    transform: translateX(0);
+    visibility: visible; /* Make it visible */
+    /* Adjust transition: Make visible IMMEDIATELY when class is added */
+    transition: transform 0.4s ease-out, visibility 0s linear 0s;
+ }
+ /* --- END MODIFICATION --- */
+
+
+.notes-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+    background-color: rgba(0, 255, 255, 0.1);
+    border-bottom: 1px solid var(--secondary-neon);
+    flex-shrink: 0;
+}
+
+.notes-panel-header h3 {
+    margin: 0;
+    font-family: var(--font-display);
+    color: var(--secondary-neon);
+    font-size: 1.1em;
+}
+/* Style for the specific tab label inside the H3 */
+#tab-notes-panel-label {
+    color: var(--primary-neon);
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+
+.close-notes-panel-btn {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    opacity: 0.7;
+    font-size: 1.5em;
+    line-height: 1;
+    padding: 0 5px;
+    cursor: pointer;
+}
+.close-notes-panel-btn:hover {
+    opacity: 1;
+    color: var(--danger-color);
+}
+
+/* Text Area Styling (within panel) */
+.notes-panel textarea {
+    flex-grow: 1; /* Take remaining space */
+    width: calc(100% - 0px); /* Adjust if padding added */
+    margin: 0; /* Remove margin if any */
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border: none; /* Remove default border */
+    border-top: 1px solid rgba(0, 255, 255, 0.2); /* Optional separator */
+    color: var(--text-color);
+    border-radius: 0 0 6px 6px; /* Match panel bottom radius */
+    font-family: var(--font-main);
+    font-size: 0.95em;
+    resize: none; /* Disable resizing */
+    outline: none;
+}
+.notes-panel textarea:focus {
+     /* Optional focus style */
+     box-shadow: inset 0 0 5px var(--primary-neon);
+}
+
+
+/* ==========================================================================
+   Media Queries (Responsive Design)
+   ========================================================================== */
+@media (max-width: 1024px) {
+    /* Stack content and terminal vertically (Unchanged) */
+    .main-wrapper { flex-direction: column; width: auto; margin-left: 15px; margin-right: 15px; padding: 0; gap: 20px; }
+    .terminal-area { position: static; height: 60vh; width: 100%; margin-top: 0; margin-left: 0; flex: none; padding: 0; }
+    .content-area { flex: none; padding-right: 0; width: 100%; }
+    header { max-width: none; margin-left: 0; margin-right: 0; }
+    /* Adjust playbook section header layout */
+    .section-header-with-buttons { flex-direction: column; align-items: flex-start; margin-bottom: 15px; border-bottom: none; padding-bottom: 0; gap: 15px; }
+    .section-header-with-buttons h2 { border-bottom: 1px solid rgba(0, 255, 255, 0.5); padding-bottom: 8px; margin-bottom: 0; width: 100%; }
+    .section-header-actions { gap: 10px; margin-top: 10px; flex-wrap: wrap;}
+
+    /* Adjust notes panel positioning for smaller screens if needed */
+    /* Example: Reduce width or change positioning */
+    /* .notes-panel { width: 280px; left: 60px; } */
+}
+@media (max-width: 768px) {
+    /* Stack header controls vertically (Unchanged) */
+    .header-controls { flex-direction: column; gap: 10px; align-items: stretch; }
+    #searchInput { order: 1; min-width: unset; margin: 0; max-width: none; } /* Search first */
+
+    /* Make notes panels potentially narrower */
+    .notes-panel { width: 300px; }
+}
+@media (max-width: 600px) {
+    main.content-area > section { padding: 15px; } /* Adjust section padding */
+    header { padding: 15px; }
+    #ascii-title { font-size: 0.8em; line-height: 1.2; } /* Reduce ASCII title size */
+    h2 { font-size: 1.5em; } /* Reduce section titles */
+    #searchInput { width: 100%; }
+    .playbook-body .playbook-code-block code { font-size: 1em; } /* Adjust code font size */
+    header { padding-left: 10px; padding-right: 10px; }
+    .section-header-actions .header-toggle-btn { font-size: 0.8em; padding: 6px 10px; }
+    /* .section-header-actions #playbook-selector { font-size: 0.8em; padding: 6px 10px; padding-right: 30px; } */ /* Selector removed */
+    /* Adjust individual playbook headers */
+    .playbook-header { padding: 6px 10px; font-size: 1em; }
+    .playbook-header::after { font-size: 1em; } /* Though hidden, keep consistent */
+    .playbook-body { padding: 10px; }
+    .playbook-body .playbook-code-block { padding: 10px 15px; }
+
+    .main-wrapper { margin-left: 5px; margin-right: 5px; }
+    body { padding-bottom: 60px; }
+    /* Terminal tab adjustments (Unchanged) */
+    .terminal-tabs { padding: 3px 5px 0 5px;}
+    .terminal-tab { padding: 6px 10px; padding-right: 24px; font-size: 0.8em;}
+    .close-tab-btn { right: 5px; font-size: 1em; }
+    .terminal-tab[data-terminal-id="term-main"] { padding-right: 10px; }
+    #add-terminal-tab-btn { padding: 4px 8px; font-size: 1em;}
+
+    /* --- Adjust Floating Notes for Small Screens --- */
+    .floating-notes-btn {
+        left: 10px;
+        width: 40px; /* Make slightly smaller */
+        height: 35px; /* Make slightly smaller */
+        font-size: 0.8em;
+    }
+     #tab-notes-toggle-btn { top: 15px; }
+     #global-notes-toggle-btn { top: 60px; } /* Adjusted slightly closer */
+
+    .notes-panel {
+        left: 0; /* Attach to left edge */
+        width: calc(100% - 20px); /* Almost full width */
+        max-width: 300px; /* Limit max width */
+        top: 5px;
+        height: calc(100vh - 10px);
+        max-height: 98vh;
+        border-radius: 0 6px 6px 0; /* Adjust radius */
+        /* Ensure transform starts fully off-screen */
+         transform: translateX(-105%);
+    }
+    .notes-panel.visible {
+         transform: translateX(0);
+    }
+     .notes-panel-header h3 { font-size: 1em; }
+
+}
