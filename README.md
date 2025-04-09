@@ -1,6 +1,6 @@
 # Command Wave - Terminal & Playbook Interface
 
-Command Wave is a web-based interface for managing multiple terminal sessions and executing commands from Markdown-based playbooks, featuring integrated, persistent notes.
+Command Wave is a web-based interface for managing multiple terminal sessions and executing commands from Markdown-based playbooks, featuring integrated, persistent notes and a pre-configured terminal theme.
 
 ![CommandWave](https://github.com/user-attachments/assets/f46072c4-537d-4476-8507-dcdd51375605)
 
@@ -28,14 +28,18 @@ Command Wave is a web-based interface for managing multiple terminal sessions an
     * Persistent "Global Notes" panel accessible across all tabs.
     * Persistent "Tab Notes" panel specific to each terminal tab.
     * Notes are saved automatically via backend API calls.
+* **Included Tmux Theme:**
+    * Includes a `commandwave_theme.tmux.conf` file that provides a default theme matching the web UI for the `tmux` sessions.
+    * This theme is applied automatically unless disabled via a command-line option.
 * **Responsive UI:** Adapts layout for different screen sizes with a cyberpunk/neon aesthetic.
 
 ## Technology Stack
 
-* **Backend:** Python 3, Flask
+* **Backend:** Python 3, Flask, argparse
 * **Frontend:** HTML5, CSS3, JavaScript (Vanilla), marked.js (for Markdown parsing), Prism.js (for syntax highlighting)
 * **Terminal Emulation:** [ttyd](https://github.com/tsl0922/ttyd), [tmux](https://github.com/tmux/tmux) (External Dependencies)
 * **Notes Persistence:** Text files stored locally (`notes_data` directory).
+* **Tmux Theming:** Includes `commandwave_theme.tmux.conf` file.
 
 ## Setup & Installation
 
@@ -45,10 +49,10 @@ Command Wave is a web-based interface for managing multiple terminal sessions an
     * `ttyd` (Must be installed and available in your system's PATH)
     * `tmux` (Must be installed and available in your system's PATH)
 
-2.  **Clone the Repository (or use provided files):**
+2.  **Clone the Repository:**
     ```bash
     git clone https://github.com/Journey-West/CommandWave.git
-    cd CommandWave-main
+    cd CommandWave
     ```
 
 3.  **Install Python Dependencies:**
@@ -63,20 +67,28 @@ Command Wave is a web-based interface for managing multiple terminal sessions an
         ```
         *(Note: The requirements file primarily includes Flask and its dependencies)*
 
-4.  **Directory Setup:** The application will automatically create a `notes_data` directory to store notes files when first run.
+4.  **Directory Setup:**
+    * The application will automatically create a `notes_data` directory to store notes files when first run.
+    * You can customize the included `commandwave_theme.tmux.conf` file if you wish to modify the default terminal theme.
 
 5.  **Run the Application:**
-    ```bash
-    python main.py
-    ```
-    The application should now be running (by default) at `http://127.0.0.1:5000/`. The main terminal will use port 7681 by default.
+    * **Default (Use Included Custom Theme):**
+        ```bash
+        python main.py
+        ```
+        The application should now be running (by default) at `http://127.0.0.1:5000/`. It will automatically use the included `commandwave_theme.tmux.conf` file to theme the `tmux` terminals.
+    * **Use Default Tmux Theme (Ignore Included File):**
+        ```bash
+        python main.py --use-default-tmux-config
+        ```
+        This option forces `tmux` to ignore the included `commandwave_theme.tmux.conf` file and use its standard configuration (e.g., `~/.tmux.conf` or built-in defaults).
 
 ## Usage
 
 1.  Open your web browser and navigate to the application URL (e.g., `http://localhost:5000`).
 2.  **Use Terminals:**
-    * The "Main" terminal tab is loaded by default.
-    * Click the "+" button to add a new terminal tab. You will be prompted for a name.
+    * The "Main" terminal tab is loaded by default, themed according to the loaded configuration (included custom theme or default, based on how you ran `main.py`).
+    * Click the "+" button to add a new terminal tab. It will also use the same theme configuration.
     * Click a tab to switch focus. The content area (Variables, Playbooks, Tab Notes) updates to reflect the active tab.
     * Double-click a tab name (except "Main") to rename it.
     * Click the 'x' on a dynamic tab to close it and its associated processes.
