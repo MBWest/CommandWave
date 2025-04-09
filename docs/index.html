@@ -43,7 +43,7 @@
              box-sizing: border-box;
         }
 
-        /* UPDATED: Two-column layout styles (1/3 Left, 2/3 Right) */
+        /* Two-column layout styles (1/3 Left, 2/3 Right) */
         .layout-wrapper {
             display: flex;
             flex-wrap: wrap;
@@ -98,12 +98,12 @@
              text-shadow: 0 0 2px #00ffff;
              border-bottom: 1px solid rgba(0, 255, 255, 0.5);
              padding-bottom: 8px;
-             margin-top: 24px;
+             margin-top: 24px; /* Default top margin */
              margin-bottom: 16px;
         }
-        .gh-pages-container h1 {
-            margin-top: 0;
-        }
+        /* REMOVED specific margin-top: 0 for h1 - This ensures alignment */
+        /* .gh-pages-container h1 { } */
+
 
         .gh-pages-container a {
              color: #ffff00;
@@ -198,11 +198,16 @@
              padding-top: 20px;
              opacity: 0.7;
          }
+        /* Ensure content column uses flex for footer positioning */
+        .content-column {
+             display: flex;
+             flex-direction: column;
+        }
 
-        /* UPDATED: Styles for the image slider */
+        /* Styles for the image slider */
         .image-slider {
              position: relative;
-             margin-top: 15px; /* Align with content column heading */
+             /* margin-top: 15px; */ /* Removed to align heading using default margin */
              background-color: rgba(0, 0, 0, 0.3);
              padding: 15px;
              border-radius: 4px;
@@ -211,21 +216,18 @@
              flex-direction: column;
              align-items: center;
              box-sizing: border-box;
-             /* REMOVED: height: 100%; */ /* Let height be intrinsic */
-             /* REMOVED: justify-content: space-between; */
              flex-grow: 1; /* Allow slider box to grow vertically */
         }
         #slider-image {
              max-width: 100%;
-             /* REMOVED: max-height calculation */
-             height: auto; /* Allow natural height based on width */
+             height: auto;
              max-height: 70vh; /* Add a sensible max viewport height limit */
              display: block;
              margin: 0 auto 10px auto;
              border: 1px solid rgba(0, 255, 255, 0.5);
              border-radius: 3px;
              object-fit: contain;
-             flex-shrink: 1; /* Allow image to shrink */
+             flex-shrink: 1;
         }
         #slider-caption {
              margin: 10px 0;
@@ -237,11 +239,10 @@
              flex-shrink: 0;
         }
         .slider-controls {
-            /* REMOVED: margin-top: auto; */ /* Bring controls below caption */
             padding-top: 10px;
             text-align: center;
             width: 100%;
-            margin-top: auto; /* Push buttons to bottom of flex container */
+            margin-top: auto; /* Push buttons to bottom */
              flex-shrink: 0;
         }
         .slider-button {
