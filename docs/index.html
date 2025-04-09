@@ -9,16 +9,34 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* Add a little extra styling for the GH pages container to make it look better with the app theme */
+        /* Apply base theme styles to the whole page */
+        html {
+             height: 100%; /* Ensure html takes full height */
+        }
+        body {
+            /* --- Styles copied from main style.css body rule --- */
+            background-color: #1a0a2e; /* --bg-color */
+            color: #f0f0f0; /* --text-color */
+            font-family: 'Roboto', sans-serif; /* --font-main */
+            line-height: 1.6;
+            background-image: linear-gradient(rgba(0, 255, 255, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 255, 0.07) 1px, transparent 1px);
+            background-size: 30px 30px;
+            /* --- End copied styles --- */
+            margin: 0; /* Remove default body margin */
+            padding: 0; /* Remove default body padding */
+            min-height: 100%; /* Ensure body takes at least full height */
+        }
+
+        /* Styles for the main content container */
         .gh-pages-container {
              max-width: 950px;
-             margin: 30px auto;
+             margin: 30px auto; /* Center the container with margin */
              padding: 25px;
              background: rgba(26, 10, 46, 0.85); /* --bg-color-trans */
              border: 1px solid #00ffff; /* --secondary-neon */
              box-shadow: 0 0 4px #00ffff, 0 0 8px #00ffff, inset 0 0 10px rgba(0, 255, 255, 0.1); /* --border-glow-secondary */
              border-radius: 6px;
-             color: #f0f0f0; /* --text-color */
+             color: #f0f0f0; /* --text-color (redundant if body color is set, but safe) */
         }
         .gh-pages-container h1, .gh-pages-container h2 {
              font-family: 'Orbitron', sans-serif; /* --font-display */
@@ -26,6 +44,8 @@
              text-shadow: 0 0 2px #00ffff; /* --text-glow-secondary */
              border-bottom: 1px solid rgba(0, 255, 255, 0.5);
              padding-bottom: 8px;
+             margin-top: 24px;
+             margin-bottom: 16px;
         }
         .gh-pages-container a {
              color: #ffff00; /* --accent-neon */
@@ -65,6 +85,7 @@
          .gh-pages-container ul {
              list-style-type: square;
              margin-left: 20px;
+             padding-left: 0; /* Adjust default padding */
          }
          .gh-pages-container hr {
              border: 0;
@@ -103,13 +124,20 @@
              text-shadow: 0 0 2px #00ffff; /* --text-glow-secondary */
              margin-right: 10px;
              margin-top: 10px;
+             border-bottom: none; /* Override default link border */
         }
         .button:hover {
              background-color: rgba(0, 255, 255, 0.2);
              box-shadow: 0 0 4px #00ffff, 0 0 8px #00ffff; /* --border-glow-secondary */
              color: #00ffff;
-             border-bottom: 1px solid #00ffff;
+             border-bottom: none; /* Override default link border */
         }
+        /* Ensure footer text is also themed */
+         footer {
+             text-align: center;
+             margin-top: 30px;
+             opacity: 0.7;
+         }
     </style>
 </head>
 <body>
