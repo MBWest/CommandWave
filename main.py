@@ -382,7 +382,7 @@ if __name__ == '__main__':
     try:
         # WARNING: Running on 0.0.0.0 makes the app accessible from your network.
         # use_reloader=False is strongly recommended. debug=False for production.
-        app.run(debug=False, host='0.0.0.0', port=5000, use_reloader=False)
+        app.run(debug=False, host='127.0.0.1', port=5000, use_reloader=False)
     except Exception as e:
          app.logger.error(f"Flask app run failed: {e}", exc_info=True)
          cleanup_processes() # Attempt cleanup on failure
