@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Wave - Project Information</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            line-height: 1.6;
+            color: #24292e;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            background-color: #f6f8fa;
+        }
+        h1, h2 {
+            border-bottom: 1px solid #eaecef;
+            padding-bottom: 0.3em;
+            margin-top: 24px;
+            margin-bottom: 16px;
+        }
+        a {
+            color: #0366d6;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            padding: 0.2em 0.4em;
+            margin: 0;
+            font-size: 85%;
+            background-color: rgba(27,31,35,0.05);
+            border-radius: 3px;
+        }
+        pre {
+            padding: 16px;
+            overflow: auto;
+            font-size: 85%;
+            line-height: 1.45;
+            background-color: #f6f8fa;
+            border-radius: 3px;
+            border: 1px solid #e1e4e8;
+        }
+        pre code {
+            display: inline;
+            padding: 0;
+            margin: 0;
+            overflow: visible;
+            line-height: inherit;
+            word-wrap: normal;
+            background-color: transparent;
+            border: 0;
+        }
+        .note {
+            padding: 10px 15px;
+            margin: 20px 0;
+            border: 1px solid #e1e4e8;
+            border-left-width: 5px;
+            border-left-color: #ffab0f; /* Warning color */
+            background-color: #fffbdd;
+            border-radius: 3px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 20px;
+            white-space: nowrap;
+            vertical-align: middle;
+            cursor: pointer;
+            user-select: none;
+            border: 1px solid rgba(27,31,35,0.2);
+            border-radius: 6px;
+            background-color: #eff3f6;
+            background-image: linear-gradient(-180deg, #fafbfc, #eff3f6 90%);
+            color: #24292e;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+        .button:hover {
+            background-color: #e6ebf1;
+            background-image: linear-gradient(-180deg, #f0f3f6, #e6ebf1 90%);
+            border-color: rgba(27,31,35,0.35);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Command Wave</h1>
+
+    <p>
+        Command Wave is a web-based interface featuring integrated multi-tab terminals (powered by <code>ttyd</code> and <code>tmux</code>). It allows users to load Markdown playbooks, substitute variables dynamically per tab, and execute commands directly within the embedded terminals. The application also includes persistent global and tab-specific notes for efficient workflow management.
+    </p>
+
+    <a href="https://github.com/YOUR_USERNAME/CommandWave-main" class="button">View on GitHub</a> 
+    <h2>Key Features</h2>
+    <ul>
+        <li>Integrated multi-tab terminals (ttyd + tmux)</li>
+        <li>Load and display Markdown (<code>.md</code>) playbooks</li>
+        <li>Execute code blocks from playbooks directly into the active terminal</li>
+        <li>Per-tab variable substitution (e.g., <code>$TargetIP</code>)</li>
+        <li>Persistent floating notes panels (Global and Tab-specific)</li>
+        <li>Web-based UI with a cyberpunk/neon aesthetic</li>
+    </ul>
+
+    <div class="note">
+        <strong>Important Note:</strong> This is a static information page for the Command Wave project. The actual application is built using Python and Flask and requires a backend server to run. It <strong>cannot</strong> be run directly from GitHub Pages. Please refer to the main repository for setup and usage instructions to run the application locally.
+    </div>
+
+    <h2>Getting Started</h2>
+    <p>
+        To use Command Wave, you need to clone the repository and run the application locally on your machine. Please ensure you have the prerequisites (Python 3, pip, ttyd, tmux) installed.
+    </p>
+    <p>
+        Visit the main GitHub repository for detailed setup instructions:
+    </p>
+    <p>
+        <a href="https://github.com/YOUR_USERNAME/CommandWave-main" class="button">Go to Repository & Setup Guide</a>
+         </p>
+
+    <hr>
+    <footer>
+        <p><small>Command Wave Project | <a href="https://github.com/YOUR_USERNAME/CommandWave-main">View Repository</a></small></p> 
+        </footer>
+
+</body>
+</html>
