@@ -11,93 +11,108 @@
     <style>
         /* Apply base theme styles to the whole page */
         html {
-             height: 100%; /* Ensure html takes full height */
+             height: 100%;
         }
         body {
-            /* --- Styles copied from main style.css body rule --- */
+            /* Base theme styles */
             background-color: #1a0a2e; /* --bg-color */
             color: #f0f0f0; /* --text-color */
             font-family: 'Roboto', sans-serif; /* --font-main */
             line-height: 1.6;
             background-image: linear-gradient(rgba(0, 255, 255, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 255, 0.07) 1px, transparent 1px);
             background-size: 30px 30px;
-            /* --- End copied styles --- */
-            margin: 0; /* Remove default body margin */
-            padding: 0; /* Remove default body padding */
-            min-height: 100%; /* Ensure body takes at least full height */
+            /* Ensure body fills height and has no margin */
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+            display: flex; /* Use flex to make container fill height */
+            flex-direction: column;
         }
 
-        /* Styles for the main content container */
+        /* UPDATED: Styles for the main container - NOW FULL SCREEN */
         .gh-pages-container {
-             max-width: 1200px; /* Increased max-width for two columns */
-             margin: 30px auto; /* Center the container with margin */
-             padding: 25px;
+             /* REMOVED: max-width: 1200px; */
+             /* REMOVED: margin: 30px auto; */
+             padding: 25px; /* Keep padding for inner content */
              background: rgba(26, 10, 46, 0.85); /* --bg-color-trans */
              border: 1px solid #00ffff; /* --secondary-neon */
              box-shadow: 0 0 4px #00ffff, 0 0 8px #00ffff, inset 0 0 10px rgba(0, 255, 255, 0.1); /* --border-glow-secondary */
-             border-radius: 6px;
-             color: #f0f0f0; /* --text-color */
+             border-radius: 6px; /* Keep radius or remove if you want sharp corners */
+             color: #f0f0f0;
+             flex-grow: 1; /* Allow container to grow to fill body flex */
+             display: flex; /* Use flexbox to manage inner layout-wrapper height */
+             min-height: calc(100vh - 50px); /* Fill viewport height minus padding */
+             box-sizing: border-box; /* Include padding in height calculation */
         }
 
-        /* NEW: Two-column layout styles */
+        /* UPDATED: Two-column layout styles */
         .layout-wrapper {
             display: flex;
             flex-wrap: wrap; /* Allow wrapping on smaller screens */
             gap: 30px; /* Space between columns */
+            width: 100%; /* Ensure wrapper takes full width of container */
+            flex-grow: 1; /* Allow wrapper to grow within container */
         }
         .layout-column {
             flex: 1; /* Allow columns to grow */
             min-width: 300px; /* Minimum width before wrapping */
+            /* UPDATED: Set basis closer to 50% */
+            flex-basis: calc(50% - 15px); /* 50% minus half the gap */
+            box-sizing: border-box;
         }
-        .content-column {
-             flex-basis: 55%; /* Give slightly more space to content */
-        }
+        /* Remove specific basis for content/slider unless needed */
+        /* .content-column { flex-basis: 55%; } */
+        /* .slider-column { flex-basis: 40%; } */
+
         .slider-column {
-             flex-basis: 40%; /* Adjust as needed */
-             text-align: center;
+            text-align: center;
         }
         /* Responsive stacking */
         @media (max-width: 768px) {
             .layout-wrapper {
                  flex-direction: column;
             }
-            .content-column, .slider-column {
+            .layout-column {
                 flex-basis: auto; /* Reset basis when stacked */
+                min-width: auto; /* Reset min-width */
             }
+             .gh-pages-container {
+                 padding: 15px; /* Reduce padding on smaller screens */
+                 min-height: calc(100vh - 30px);
+             }
         }
         /* End Two-column layout styles */
 
         .gh-pages-container h1, .gh-pages-container h2 {
-             font-family: 'Orbitron', sans-serif; /* --font-display */
-             color: #00ffff; /* --secondary-neon */
-             text-shadow: 0 0 2px #00ffff; /* --text-glow-secondary */
+             font-family: 'Orbitron', sans-serif;
+             color: #00ffff;
+             text-shadow: 0 0 2px #00ffff;
              border-bottom: 1px solid rgba(0, 255, 255, 0.5);
              padding-bottom: 8px;
              margin-top: 24px;
              margin-bottom: 16px;
         }
-        /* Adjust h1 margin for better spacing in layout */
         .gh-pages-container h1 {
             margin-top: 0;
         }
 
         .gh-pages-container a {
-             color: #ffff00; /* --accent-neon */
+             color: #ffff00;
              text-decoration: none;
              border-bottom: 1px dotted #ffff00;
         }
         .gh-pages-container a:hover {
-             color: #ff00ff; /* --primary-neon */
+             color: #ff00ff;
              border-bottom-style: solid;
         }
          .gh-pages-container code {
-             font-family: monospace; /* --font-code */
+             font-family: monospace;
              padding: 0.2em 0.4em;
              margin: 0;
              font-size: 85%;
              background-color: rgba(0, 0, 0, 0.5);
              border-radius: 3px;
-             color: #ffff00; /* --accent-neon */
+             color: #ffff00;
              border: 1px solid rgba(0, 255, 255, 0.3);
          }
          .gh-pages-container pre {
@@ -108,7 +123,7 @@
              background-color: rgba(0, 0, 0, 0.5);
              border-radius: 3px;
              border: 1px solid rgba(0, 255, 255, 0.3);
-             color: #ffff00; /* --accent-neon */
+             color: #ffff00;
          }
          .gh-pages-container pre code {
               background-color: transparent;
@@ -119,7 +134,7 @@
          .gh-pages-container ul {
              list-style-type: square;
              margin-left: 20px;
-             padding-left: 0; /* Adjust default padding */
+             padding-left: 0;
          }
          .gh-pages-container hr {
              border: 0;
@@ -131,87 +146,107 @@
         .note {
             padding: 10px 15px;
             margin: 20px 0;
-            border: 1px solid #ffff00; /* --accent-neon */
+            border: 1px solid #ffff00;
             border-left-width: 5px;
-            background-color: rgba(255, 255, 0, 0.1); /* Transparent yellow */
+            background-color: rgba(255, 255, 0, 0.1);
             border-radius: 3px;
-            color: #ffff00; /* --accent-neon */
+            color: #ffff00;
         }
         .note strong {
-             color: #ff00ff; /* --primary-neon */
+             color: #ff00ff;
         }
         /* Basic button style adapted from app */
-        .button, .slider-button { /* Apply same base style to slider buttons */
+        .button, .slider-button {
              display: inline-block;
              padding: 8px 12px;
-             font-family: 'Orbitron', sans-serif; /* --font-display */
+             font-family: 'Orbitron', sans-serif;
              cursor: pointer;
              border-radius: 4px;
              font-size: 0.9em;
              transition: all 0.3s ease;
              text-transform: none;
              letter-spacing: normal;
-             background-color: rgba(0, 255, 255, 0.1); /* --secondary-neon transparent */
-             border: 1px solid #00ffff; /* --secondary-neon */
-             color: #00ffff; /* --secondary-neon */
+             background-color: rgba(0, 255, 255, 0.1);
+             border: 1px solid #00ffff;
+             color: #00ffff;
              text-decoration: none;
-             text-shadow: 0 0 2px #00ffff; /* --text-glow-secondary */
+             text-shadow: 0 0 2px #00ffff;
              margin-right: 10px;
              margin-top: 10px;
-             border-bottom: none; /* Override default link border */
-             vertical-align: middle; /* Align buttons nicely */
+             border-bottom: none;
+             vertical-align: middle;
         }
         .button:hover, .slider-button:hover {
              background-color: rgba(0, 255, 255, 0.2);
-             box-shadow: 0 0 4px #00ffff, 0 0 8px #00ffff; /* --border-glow-secondary */
+             box-shadow: 0 0 4px #00ffff, 0 0 8px #00ffff;
              color: #00ffff;
-             border-bottom: none; /* Override default link border */
+             border-bottom: none;
         }
         /* Ensure footer text is also themed */
          footer {
+             /* Move footer styling inside content column if needed, or keep general */
              text-align: center;
-             margin-top: 30px;
+             margin-top: auto; /* Push footer to bottom of content column */
+             padding-top: 20px; /* Add space above footer */
              opacity: 0.7;
          }
+        /* Ensure content column uses flex for footer positioning */
+        .content-column {
+             display: flex;
+             flex-direction: column;
+             height: 100%; /* Make content column take full height */
+        }
 
-        /* NEW: Styles for the basic image slider */
+        /* Styles for the basic image slider */
         .image-slider {
-             position: relative; /* For potential absolute positioning of buttons if needed */
+             position: relative;
              margin-top: 15px;
              background-color: rgba(0, 0, 0, 0.3);
              padding: 15px;
              border-radius: 4px;
              border: 1px solid rgba(0, 255, 255, 0.2);
+             display: flex; /* Use flex for easier centering */
+             flex-direction: column;
+             align-items: center;
+             justify-content: space-between; /* Distribute space */
+             box-sizing: border-box;
+             height: 100%; /* Try to make slider fill column height */
         }
         #slider-image {
              max-width: 100%;
-             height: auto;
-             display: block; /* Prevents extra space below image */
-             margin: 0 auto 10px auto; /* Center image and add space below */
+             /* Limit height based on available space */
+             max-height: calc(100% - 100px); /* Adjust 100px based on caption/button space */
+             height: auto; /* Maintain aspect ratio */
+             display: block;
+             margin: 0 auto 10px auto;
              border: 1px solid rgba(0, 255, 255, 0.5);
              border-radius: 3px;
+             object-fit: contain; /* Prevent image distortion */
+             flex-shrink: 1; /* Allow image to shrink if needed */
         }
         #slider-caption {
              margin: 10px 0;
              font-size: 0.9em;
-             color: #00ffff; /* --secondary-neon */
+             color: #00ffff;
              font-family: 'Orbitron', sans-serif;
-             min-height: 1.2em; /* Reserve space for caption */
+             min-height: 1.2em;
+             flex-shrink: 0; /* Prevent caption from shrinking */
+             text-align: center; /* Center caption */
         }
         .slider-controls {
-            margin-top: 10px;
+            margin-top: 10px; /* Space above buttons */
+            padding-top: 10px;
+             flex-shrink: 0; /* Prevent controls from shrinking */
+             text-align: center; /* Center buttons */
+             width: 100%;
         }
         .slider-button {
-             /* Inherits base button style */
-             font-size: 1.1em; /* Make Prev/Next slightly bigger */
+             font-size: 1.1em;
              padding: 5px 10px;
         }
         #prev-button {
-            margin-right: 15px; /* Space between buttons */
+            margin-right: 15px;
         }
-
-        /* Removed old gallery styles as they are replaced by the slider */
-        /* .screenshot-gallery, .screenshot-item { ... } */
 
     </style>
 </head>
@@ -254,25 +289,20 @@
                     <a href="https://github.com/Journey-West/CommandWave" class="button">Go to Repository & Setup Guide</a>
                 </p>
 
-                <hr>
                 <footer>
+                    <hr>
                     <p><small>Command Wave Project | <a href="https://github.com/Journey-West/CommandWave">View Repository</a></small></p>
                 </footer>
             </div><div class="layout-column slider-column">
                 <h2>Screenshots</h2>
                 <div class="image-slider">
-                    <img id="slider-image" src="images/CommandWave.png" alt="Command Wave Screenshot">
+                    <img id="slider-image" src="images/CommandWave.png" alt="Main Interface">
                     <p id="slider-caption">Main Interface</p>
                     <div class="slider-controls">
                         <button id="prev-button" class="slider-button">&lt; Prev</button>
                         <button id="next-button" class="slider-button">Next &gt;</button>
                     </div>
                 </div>
-
-                 <p style="font-size: 0.8em; opacity: 0.7; margin-top: 15px;">
-                     (Use JavaScript to make slider buttons functional)
-                 </p>
-
             </div></div> </div> <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- Elements ---
@@ -281,7 +311,7 @@
             const prevButton = document.getElementById('prev-button');
             const nextButton = document.getElementById('next-button');
 
-            // --- Image Data (Update with your actual images and captions) ---
+            // --- Image Data ---
             const images = [
                 { src: 'images/CommandWave.png',       caption: 'Main Interface' },
                 { src: 'images/Import Playbook.png',   caption: 'Importing a Playbook' },
@@ -295,20 +325,27 @@
 
             // --- Function to update slider display ---
             function updateSlider() {
-                if (!sliderImage || !sliderCaption) return; // Safety check
+                // Safety check if elements don't exist
+                if (!sliderImage || !sliderCaption || !images || images.length === 0) return;
+
+                // Ensure index is within bounds (useful if images array is modified)
+                if (currentImageIndex < 0) {
+                    currentImageIndex = images.length - 1;
+                } else if (currentImageIndex >= images.length) {
+                    currentImageIndex = 0;
+                }
+
                 const currentImage = images[currentImageIndex];
                 sliderImage.src = currentImage.src;
                 sliderImage.alt = currentImage.caption; // Update alt text too
                 sliderCaption.textContent = currentImage.caption;
             }
 
-            // --- Event Listeners (Basic Implementation) ---
+            // --- Event Listeners ---
             if (nextButton) {
                 nextButton.addEventListener('click', () => {
                     currentImageIndex++;
-                    if (currentImageIndex >= images.length) {
-                        currentImageIndex = 0; // Wrap around to the first image
-                    }
+                    // No need to check upper bound here, updateSlider handles wrap-around
                     updateSlider();
                 });
             }
@@ -316,19 +353,16 @@
             if (prevButton) {
                 prevButton.addEventListener('click', () => {
                     currentImageIndex--;
-                    if (currentImageIndex < 0) {
-                        currentImageIndex = images.length - 1; // Wrap around to the last image
-                    }
+                     // No need to check lower bound here, updateSlider handles wrap-around
                     updateSlider();
                 });
             }
 
             // --- Initial setup ---
-            // The first image is already set in the HTML, but you could call updateSlider()
-            // here if you prefer to load it dynamically.
-            // updateSlider();
+            // Update the slider initially in case the first image details need setting
+            updateSlider();
 
-            console.log("Basic slider script loaded. Features like transitions are not included.");
+            console.log("Basic slider script loaded.");
         });
     </script>
     </body>
