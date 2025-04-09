@@ -2,7 +2,7 @@
 
 Command Wave is a web-based interface for managing multiple terminal sessions and executing commands from Markdown-based playbooks, featuring integrated, persistent notes and a pre-configured terminal theme.
 
-![CommandWave](https://github.com/user-attachments/assets/f46072c4-537d-4476-8507-dcdd51375605)
+![MultiplePlaybooks](https://github.com/user-attachments/assets/87d5d725-1c72-4494-98ca-fae96e7ae2ab)
 
 ## Core Features
 
