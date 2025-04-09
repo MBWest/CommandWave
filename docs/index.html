@@ -29,15 +29,44 @@
 
         /* Styles for the main content container */
         .gh-pages-container {
-             max-width: 950px;
+             max-width: 1200px; /* Increased max-width for two columns */
              margin: 30px auto; /* Center the container with margin */
              padding: 25px;
              background: rgba(26, 10, 46, 0.85); /* --bg-color-trans */
              border: 1px solid #00ffff; /* --secondary-neon */
              box-shadow: 0 0 4px #00ffff, 0 0 8px #00ffff, inset 0 0 10px rgba(0, 255, 255, 0.1); /* --border-glow-secondary */
              border-radius: 6px;
-             color: #f0f0f0; /* --text-color (redundant if body color is set, but safe) */
+             color: #f0f0f0; /* --text-color */
         }
+
+        /* NEW: Two-column layout styles */
+        .layout-wrapper {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            gap: 30px; /* Space between columns */
+        }
+        .layout-column {
+            flex: 1; /* Allow columns to grow */
+            min-width: 300px; /* Minimum width before wrapping */
+        }
+        .content-column {
+             flex-basis: 55%; /* Give slightly more space to content */
+        }
+        .slider-column {
+             flex-basis: 40%; /* Adjust as needed */
+             text-align: center;
+        }
+        /* Responsive stacking */
+        @media (max-width: 768px) {
+            .layout-wrapper {
+                 flex-direction: column;
+            }
+            .content-column, .slider-column {
+                flex-basis: auto; /* Reset basis when stacked */
+            }
+        }
+        /* End Two-column layout styles */
+
         .gh-pages-container h1, .gh-pages-container h2 {
              font-family: 'Orbitron', sans-serif; /* --font-display */
              color: #00ffff; /* --secondary-neon */
@@ -47,6 +76,11 @@
              margin-top: 24px;
              margin-bottom: 16px;
         }
+        /* Adjust h1 margin for better spacing in layout */
+        .gh-pages-container h1 {
+            margin-top: 0;
+        }
+
         .gh-pages-container a {
              color: #ffff00; /* --accent-neon */
              text-decoration: none;
@@ -107,7 +141,7 @@
              color: #ff00ff; /* --primary-neon */
         }
         /* Basic button style adapted from app */
-        .button {
+        .button, .slider-button { /* Apply same base style to slider buttons */
              display: inline-block;
              padding: 8px 12px;
              font-family: 'Orbitron', sans-serif; /* --font-display */
@@ -125,8 +159,9 @@
              margin-right: 10px;
              margin-top: 10px;
              border-bottom: none; /* Override default link border */
+             vertical-align: middle; /* Align buttons nicely */
         }
-        .button:hover {
+        .button:hover, .slider-button:hover {
              background-color: rgba(0, 255, 255, 0.2);
              box-shadow: 0 0 4px #00ffff, 0 0 8px #00ffff; /* --border-glow-secondary */
              color: #00ffff;
@@ -138,107 +173,163 @@
              margin-top: 30px;
              opacity: 0.7;
          }
-        /* Styles for the screenshot gallery */
-        .screenshot-gallery {
-            display: flex;
-            flex-wrap: wrap; /* Allow items to wrap to next line */
-            gap: 20px; /* Space between items */
-            margin-top: 15px;
-            justify-content: center; /* Center items horizontally */
+
+        /* NEW: Styles for the basic image slider */
+        .image-slider {
+             position: relative; /* For potential absolute positioning of buttons if needed */
+             margin-top: 15px;
+             background-color: rgba(0, 0, 0, 0.3);
+             padding: 15px;
+             border-radius: 4px;
+             border: 1px solid rgba(0, 255, 255, 0.2);
         }
-        .screenshot-item {
-            flex: 1 1 250px; /* Flex grow, shrink, basis (adjust basis for min width) */
-            max-width: 300px; /* Max width for each item */
-            text-align: center;
-            background-color: rgba(0, 0, 0, 0.3); /* Slightly darker background for item */
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid rgba(0, 255, 255, 0.2);
+        #slider-image {
+             max-width: 100%;
+             height: auto;
+             display: block; /* Prevents extra space below image */
+             margin: 0 auto 10px auto; /* Center image and add space below */
+             border: 1px solid rgba(0, 255, 255, 0.5);
+             border-radius: 3px;
         }
-        .screenshot-item img {
-            max-width: 100%; /* Make images responsive */
-            height: auto;
-            border-radius: 3px;
-            border: 1px solid rgba(0, 255, 255, 0.5); /* Neon border for image */
-            margin-bottom: 8px;
+        #slider-caption {
+             margin: 10px 0;
+             font-size: 0.9em;
+             color: #00ffff; /* --secondary-neon */
+             font-family: 'Orbitron', sans-serif;
+             min-height: 1.2em; /* Reserve space for caption */
         }
-        .screenshot-item p {
-            margin: 0;
-            font-size: 0.9em;
-            color: #00ffff; /* --secondary-neon */
-            font-family: 'Orbitron', sans-serif; /* --font-display */
+        .slider-controls {
+            margin-top: 10px;
         }
+        .slider-button {
+             /* Inherits base button style */
+             font-size: 1.1em; /* Make Prev/Next slightly bigger */
+             padding: 5px 10px;
+        }
+        #prev-button {
+            margin-right: 15px; /* Space between buttons */
+        }
+
+        /* Removed old gallery styles as they are replaced by the slider */
+        /* .screenshot-gallery, .screenshot-item { ... } */
+
     </style>
 </head>
 <body>
 
     <div class="gh-pages-container">
+        <div class="layout-wrapper">
 
-        <h1>Command Wave</h1>
+            <div class="layout-column content-column">
+                <h1>Command Wave</h1>
 
-        <p>
-            Command Wave is a web-based interface featuring integrated multi-tab terminals (powered by <code>ttyd</code> and <code>tmux</code>). It allows users to load Markdown playbooks, substitute variables dynamically per tab, and execute commands directly within the embedded terminals. The application also includes persistent global and tab-specific notes for efficient workflow management.
-        </p>
-        <a href="https://github.com/Journey-West/CommandWave" class="button">View on GitHub</a>
+                <p>
+                    Command Wave is a web-based interface featuring integrated multi-tab terminals (powered by <code>ttyd</code> and <code>tmux</code>). It allows users to load Markdown playbooks, substitute variables dynamically per tab, and execute commands directly within the embedded terminals. The application also includes persistent global and tab-specific notes for efficient workflow management.
+                </p>
+                <a href="https://github.com/Journey-West/CommandWave" class="button">View on GitHub</a>
 
 
-        <h2>Key Features</h2>
-        <ul>
-            <li>Integrated multi-tab terminals (ttyd + tmux)</li>
-            <li>Load and display Markdown (<code>.md</code>) playbooks</li>
-            <li>Execute code blocks from playbooks directly into the active terminal</li>
-            <li>Per-tab variable substitution (e.g., <code>$TargetIP</code>)</li>
-            <li>Persistent floating notes panels (Global and Tab-specific)</li>
-            <li>Web-based UI with a cyberpunk/neon aesthetic</li>
-        </ul>
+                <h2>Key Features</h2>
+                <ul>
+                    <li>Integrated multi-tab terminals (ttyd + tmux)</li>
+                    <li>Load and display Markdown (<code>.md</code>) playbooks</li>
+                    <li>Execute code blocks from playbooks directly into the active terminal</li>
+                    <li>Per-tab variable substitution (e.g., <code>$TargetIP</code>)</li>
+                    <li>Persistent floating notes panels (Global and Tab-specific)</li>
+                    <li>Web-based UI with a cyberpunk/neon aesthetic</li>
+                </ul>
 
-        <h2>Screenshots</h2>
-        <div class="screenshot-gallery">
-            <div class="screenshot-item">
-                <img src="images/CommandWave.png" alt="Command Wave main interface">
-                <p>Main Interface</p>
-            </div>
-            <div class="screenshot-item">
-                <img src="images/Import Playbook.png" alt="Importing a playbook">
-                <p>Importing a Playbook</p>
-            </div>
-            <div class="screenshot-item">
-                <img src="images/MultiplePlaybooks.png" alt="Displaying multiple playbooks">
-                <p>Multiple Loaded Playbooks</p>
-            </div>
-            <div class="screenshot-item">
-                <img src="images/ExecuteCommand.png" alt="Executing a command from a playbook">
-                <p>Executing Playbook Commands</p>
-            </div>
-            <div class="screenshot-item">
-                <img src="images/TabNotes.png" alt="Tab Notes panel">
-                <p>Tab-Specific Notes</p>
-            </div>
-            <div class="screenshot-item">
-                <img src="images/Global Notes.png" alt="Global Notes panel">
-                <p>Global Notes</p>
-            </div>
-        </div>
-        <div class="note">
-            <strong>Important Note:</strong> This is a static information page for the Command Wave project. The actual application is built using Python and Flask and requires a backend server to run. It <strong>cannot</strong> be run directly from GitHub Pages. Please refer to the main repository for setup and usage instructions to run the application locally.
-        </div>
+                <div class="note">
+                    <strong>Important Note:</strong> This is a static information page for the Command Wave project. The actual application is built using Python and Flask and requires a backend server to run. It <strong>cannot</strong> be run directly from GitHub Pages. Please refer to the main repository for setup and usage instructions to run the application locally.
+                </div>
 
-        <h2>Getting Started</h2>
-        <p>
-            To use Command Wave, you need to clone the repository and run the application locally on your machine. Please ensure you have the prerequisites (Python 3, pip, ttyd, tmux) installed.
-        </p>
-        <p>
-            Visit the main GitHub repository for detailed setup instructions:
-        </p>
-        <p>
-            <a href="https://github.com/Journey-West/CommandWave" class="button">Go to Repository & Setup Guide</a>
+                <h2>Getting Started</h2>
+                <p>
+                    To use Command Wave, you need to clone the repository and run the application locally on your machine. Please ensure you have the prerequisites (Python 3, pip, ttyd, tmux) installed.
+                </p>
+                <p>
+                    Visit the main GitHub repository for detailed setup instructions:
+                </p>
+                <p>
+                    <a href="https://github.com/Journey-West/CommandWave" class="button">Go to Repository & Setup Guide</a>
+                </p>
 
-        </p>
+                <hr>
+                <footer>
+                    <p><small>Command Wave Project | <a href="https://github.com/Journey-West/CommandWave">View Repository</a></small></p>
+                </footer>
+            </div><div class="layout-column slider-column">
+                <h2>Screenshots</h2>
+                <div class="image-slider">
+                    <img id="slider-image" src="images/CommandWave.png" alt="Command Wave Screenshot">
+                    <p id="slider-caption">Main Interface</p>
+                    <div class="slider-controls">
+                        <button id="prev-button" class="slider-button">&lt; Prev</button>
+                        <button id="next-button" class="slider-button">Next &gt;</button>
+                    </div>
+                </div>
 
-        <hr>
-        <footer>
-            <p><small>Command Wave Project | <a href="https://github.com/Journey-West/CommandWave">View Repository</a></small></p>
+                 <p style="font-size: 0.8em; opacity: 0.7; margin-top: 15px;">
+                     (Use JavaScript to make slider buttons functional)
+                 </p>
 
-        </footer>
-    </div> </body>
+            </div></div> </div> <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Elements ---
+            const sliderImage = document.getElementById('slider-image');
+            const sliderCaption = document.getElementById('slider-caption');
+            const prevButton = document.getElementById('prev-button');
+            const nextButton = document.getElementById('next-button');
+
+            // --- Image Data (Update with your actual images and captions) ---
+            const images = [
+                { src: 'images/CommandWave.png',       caption: 'Main Interface' },
+                { src: 'images/Import Playbook.png',   caption: 'Importing a Playbook' },
+                { src: 'images/MultiplePlaybooks.png', caption: 'Multiple Loaded Playbooks' },
+                { src: 'images/ExecuteCommand.png',    caption: 'Executing Playbook Commands' },
+                { src: 'images/TabNotes.png',          caption: 'Tab-Specific Notes' },
+                { src: 'images/Global Notes.png',      caption: 'Global Notes' }
+                // Add more images here if needed
+            ];
+            let currentImageIndex = 0; // Start with the first image
+
+            // --- Function to update slider display ---
+            function updateSlider() {
+                if (!sliderImage || !sliderCaption) return; // Safety check
+                const currentImage = images[currentImageIndex];
+                sliderImage.src = currentImage.src;
+                sliderImage.alt = currentImage.caption; // Update alt text too
+                sliderCaption.textContent = currentImage.caption;
+            }
+
+            // --- Event Listeners (Basic Implementation) ---
+            if (nextButton) {
+                nextButton.addEventListener('click', () => {
+                    currentImageIndex++;
+                    if (currentImageIndex >= images.length) {
+                        currentImageIndex = 0; // Wrap around to the first image
+                    }
+                    updateSlider();
+                });
+            }
+
+            if (prevButton) {
+                prevButton.addEventListener('click', () => {
+                    currentImageIndex--;
+                    if (currentImageIndex < 0) {
+                        currentImageIndex = images.length - 1; // Wrap around to the last image
+                    }
+                    updateSlider();
+                });
+            }
+
+            // --- Initial setup ---
+            // The first image is already set in the HTML, but you could call updateSlider()
+            // here if you prefer to load it dynamically.
+            // updateSlider();
+
+            console.log("Basic slider script loaded. Features like transitions are not included.");
+        });
+    </script>
+    </body>
 </html>
