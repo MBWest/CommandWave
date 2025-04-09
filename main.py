@@ -1,4 +1,4 @@
-# projects/app.py - Modified for Notes File Persistence & No Deletion
+# projects/app.py - Modified for Notes File Persistence, Custom Tmux Config, and Command-Line Option
 
 # Standard library imports
 import logging
@@ -11,8 +11,7 @@ import atexit
 import sys
 import signal
 import shlex
-# import glob # No longer needed
-# import markdown # No longer needed
+import argparse # <<< Added for command-line arguments
 
 # Third-party imports
 from flask import (
@@ -24,6 +23,7 @@ from flask import (
 # --- Configuration ---
 UPLOAD_FOLDER = 'uploads' # Kept for potential future use
 NOTES_DIR = 'notes_data' # Directory for notes files
+TMUX_CONFIG_FILE = 'commandwave_theme.tmux.conf' # Name of the custom tmux config file
 
 # Initial port for the main terminal
 _initial_ttyd_port = 7681
@@ -33,6 +33,10 @@ _max_ttyd_port = 7781
 # External dependencies
 TTYD_COMMAND = 'ttyd'
 TMUX_COMMAND = 'tmux'
+
+# --- Global variable to store command-line arg setting ---
+# <<< Added global variable
+USE_DEFAULT_TMUX_CONFIG_FLAG = False 
 
 # --- Flask App Setup ---
 app = Flask(__name__)
@@ -73,8 +77,12 @@ def find_available_port(start_port, max_port):
     app.logger.error(f"No available port found in range {start_port}-{max_port}")
     return None
 
-def start_ttyd_process(port, initial_terminal=False):
-    """Starts a ttyd process attached to a new tmux session."""
+# <<< Modified function signature and logic >>>
+def start_ttyd_process(port, initial_terminal=False, use_default_config=False):
+    """
+    Starts a ttyd process attached to a new tmux session.
+    Uses custom config file unless use_default_config is True.
+    """
     if port in _running_ttyd_processes:
         app.logger.warning(f"ttyd already tracked for port {port}. Aborting start.")
         return None
@@ -83,9 +91,29 @@ def start_ttyd_process(port, initial_terminal=False):
         return None
 
     session_name = f'cmd_wave_term_{port}'
-    ttyd_cmd = [TTYD_COMMAND, '-p', str(port), '-W', TMUX_COMMAND, 'new', '-s', session_name]
+    
+    # Base command parts for tmux
+    tmux_base_cmd = [TMUX_COMMAND]
+    
+    # Conditionally add the -f flag based on the parameter and file existence
+    if not use_default_config and os.path.exists(TMUX_CONFIG_FILE):
+        app.logger.info(f"Using custom tmux config: {TMUX_CONFIG_FILE}")
+        tmux_base_cmd.extend(['-f', TMUX_CONFIG_FILE])
+    elif not use_default_config:
+        app.logger.warning(f"Custom tmux config '{TMUX_CONFIG_FILE}' not found. Using default.")
+        # No -f flag needed, tmux uses default
+    else:
+         app.logger.info("Using default tmux configuration (command-line option specified).")
+         # No -f flag needed, tmux uses default
+
+    # Add the rest of the tmux command
+    tmux_base_cmd.extend(['new', '-s', session_name])
+    
+    # Construct the full ttyd command
+    ttyd_cmd = [TTYD_COMMAND, '-p', str(port), '-W'] + tmux_base_cmd
+    
     try:
-        app.logger.info(f"Attempting: {' '.join(ttyd_cmd)}")
+        app.logger.info(f"Attempting: {' '.join(shlex.quote(arg) for arg in ttyd_cmd)}")
         process = subprocess.Popen(ttyd_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         _running_ttyd_processes[port] = process
         _running_tmux_sessions[port] = session_name
@@ -248,7 +276,8 @@ def save_tab_notes(terminal_id):
 @app.route('/api/terminals/new', methods=['POST'])
 def new_terminal():
     """API endpoint to start a new ttyd/tmux terminal instance."""
-    global _next_ttyd_port
+    global _next_ttyd_port, USE_DEFAULT_TMUX_CONFIG_FLAG # <<< Need global flag here
+    
     found_port = find_available_port(_next_ttyd_port, _max_ttyd_port)
     if found_port is None:
         return jsonify({'success': False, 'error': 'No available ports found.'}), 503
@@ -257,7 +286,8 @@ def new_terminal():
     _next_ttyd_port = found_port + 1
     if _next_ttyd_port > _max_ttyd_port: _next_ttyd_port = 7682 # Wrap around
 
-    process = start_ttyd_process(found_port)
+    # <<< Pass the global flag to the start function >>>
+    process = start_ttyd_process(found_port, use_default_config=USE_DEFAULT_TMUX_CONFIG_FLAG)
     if process:
         try:
             process.wait(timeout=0.5)
@@ -355,12 +385,17 @@ def index():
     """Serves the main HTML page."""
     return render_template('index.html', _initial_ttyd_port=_initial_ttyd_port)
 
-# --- Initial Terminal Startup (Unchanged) ---
-def start_initial_ttyd():
-    """Starts the initial ttyd instance on the predefined port."""
+# --- Initial Terminal Startup ---
+# <<< Modified function signature >>>
+def start_initial_ttyd(use_default_config=False):
+    """
+    Starts the initial ttyd instance on the predefined port.
+    Passes config flag to start_ttyd_process.
+    """
     if not os.environ.get('WERKZEUG_RUN_MAIN'):
         app.logger.info(f"Attempting to start initial ttyd on port {_initial_ttyd_port}...")
-        process = start_ttyd_process(_initial_ttyd_port, initial_terminal=True)
+        # <<< Pass the flag here >>>
+        process = start_ttyd_process(_initial_ttyd_port, initial_terminal=True, use_default_config=use_default_config)
         if not process:
             app.logger.critical(f"CRITICAL: Failed start initial ttyd on port {_initial_ttyd_port}.")
         else:
@@ -377,7 +412,24 @@ def start_initial_ttyd():
 
 # --- Run Application ---
 if __name__ == '__main__':
-    start_initial_ttyd()
+    # <<< Argument Parsing Added >>>
+    parser = argparse.ArgumentParser(description="Command Wave - Terminal & Playbook Interface")
+    parser.add_argument(
+        '--use-default-tmux-config',
+        action='store_true',
+        help="Ignore the local commandwave_theme.tmux.conf and use tmux's default configuration."
+    )
+    args = parser.parse_args()
+    
+    # <<< Store parsed argument in global variable >>>
+    USE_DEFAULT_TMUX_CONFIG_FLAG = args.use_default_tmux_config
+    
+    if USE_DEFAULT_TMUX_CONFIG_FLAG:
+        app.logger.info("Command-line option --use-default-tmux-config detected.")
+
+    # <<< Pass the flag to the initial start function >>>
+    start_initial_ttyd(use_default_config=USE_DEFAULT_TMUX_CONFIG_FLAG)
+    
     app.logger.info("Starting Flask application server...")
     try:
         # WARNING: Running on 0.0.0.0 makes the app accessible from your network.
