@@ -3,36 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Command Wave</title>
+    <title>Command Wave - Playbooks</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        /* Basic styling for the new add option elements */
-        .add-option-container {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-            align-items: center;
-        }
-        .add-option-container input[type="text"] {
-            flex-grow: 1; /* Take available space */
-            padding: 6px 10px; /* Slightly smaller padding */
-            font-size: 0.9em;
-            /* Inherit general input styles but override width if needed */
-            width: auto;
-            min-width: 150px;
-        }
-        .add-option-container button {
-            padding: 6px 12px; /* Match input padding */
-            font-size: 0.9em;
-            margin-top: 0; /* Remove default button margin */
-            flex-shrink: 0; /* Prevent button from shrinking */
-        }
-    </style>
 </head>
 <body>
+    <button id="tab-notes-toggle-btn" class="floating-notes-btn" title="Toggle Tab Notes">TN</button> <button id="global-notes-toggle-btn" class="floating-notes-btn" title="Toggle Global Notes">GN</button> <div id="tab-notes-panel" class="notes-panel">
+        <div class="notes-panel-header">
+            <h3>Tab Notes (<span id="tab-notes-panel-label">Main</span>)</h3>
+            <button class="close-notes-panel-btn" data-panel="tab-notes-panel" title="Close Tab Notes">&times;</button>
+        </div>
+        <textarea id="tab-notes-area" placeholder="Notes for the active tab..."></textarea>
+    </div>
+
+    <div id="global-notes-panel" class="notes-panel">
+         <div class="notes-panel-header">
+             <h3>Global Notes</h3>
+             <button class="close-notes-panel-btn" data-panel="global-notes-panel" title="Close Global Notes">&times;</button>
+         </div>
+        <textarea id="global-notes-area" placeholder="Scratchpad for all tabs..."></textarea>
+    </div>
     <header>
         <pre id="ascii-title">
    __________  __  _____  ______    _   ______     _       _____ _    ________
@@ -42,7 +34,7 @@
 \____/\____/_/  /_/_/  /_/_/  |_/_/ |_/_____/     |__/|__/_/  |_|___/_____/   
 	</pre>
         <div class="header-controls">
-            <input type="text" id="searchInput" placeholder="Search commands...">
+            <input type="text" id="searchInput" placeholder="Search playbook content...">
         </div>
 
         <div id="io-message" class="message" style="margin: 15px auto; max-width: 950px; display: none; opacity: 0;"></div>
@@ -78,111 +70,20 @@
                  </div>
             </section>
 
-            <h2 id="add-section-toggle" class="collapsible-title" tabindex="0" aria-controls="add-command-section" aria-expanded="false">Add New Command</h2>
-            <section id="add-command-section" class="collapsible">
-                 <form id="addCommandForm">
-                     <input type="hidden" id="edit-command-id" name="edit_command_id" value="">
-                     <div class="form-group">
-                         <fieldset>
-                             <legend>OS:</legend>
-                             <div id="form-os-button-group" class="filter-button-container"></div>
-                             <div class="add-option-container">
-                                 <input type="text" id="add-os-input" placeholder="Add new OS...">
-                                 <button type="button" id="add-os-btn" class="secondary-btn">Add</button>
-                             </div>
-                         </fieldset>
-                     </div>
-                     <div class="form-group">
-                         <fieldset>
-                             <legend>What you have:</legend>
-                             <div id="form-items-button-group" class="filter-button-container"></div>
-                             <div class="add-option-container">
-                                 <input type="text" id="add-item-input" placeholder="Add new item...">
-                                 <button type="button" id="add-item-btn" class="secondary-btn">Add</button>
-                             </div>
-                         </fieldset>
-                     </div>
-                     <div class="form-group"><label for="command">Command:</label><input type="text" id="command" name="command" required></div>
-                     <div class="form-group"><label for="description">Description:</label><textarea id="description" name="description" rows="3"></textarea></div>
-                     <div class="form-group">
-                         <fieldset>
-                             <legend>Services:</legend>
-                             <div id="form-services-button-group" class="filter-button-container"></div>
-                             <div class="add-option-container">
-                                 <input type="text" id="add-service-input" placeholder="Add new service...">
-                                 <button type="button" id="add-service-btn" class="secondary-btn">Add</button>
-                             </div>
-                         </fieldset>
-                     </div>
-                     <div class="form-group">
-                         <fieldset>
-                             <legend>Attack Type:</legend>
-                             <div id="form-attacktype-button-group" class="filter-button-container"></div>
-                              <div class="add-option-container">
-                                 <input type="text" id="add-attacktype-input" placeholder="Add new attack type...">
-                                 <button type="button" id="add-attacktype-btn" class="secondary-btn">Add</button>
-                             </div>
-                         </fieldset>
-                     </div>
-                     <button type="submit" id="form-submit-btn">Add Command</button>
-                     <span id="cancel-edit-container" style="display: none; margin-left: 10px;"><button type="button" id="cancel-edit-btn" class="secondary-btn">Cancel Edit</button></span>
-                     <p id="form-message" class="message"></p>
-                 </form>
+            <section id="playbook-section">
+                <div class="section-header-with-buttons">
+                    <h2>Playbook</h2>
+                    <div class="section-header-actions">
+                        <input type="file" id="playbook-upload-input" accept=".md" style="display: none;">
+                        <label for="playbook-upload-input" id="playbook-upload-btn" class="header-toggle-btn">
+                            Upload Playbook
+                        </label>
+                    </div>
+                    </div>
+                <div id="playbook-content">
+                    <p>Upload a playbook using the button above.</p> </div>
             </section>
 
-            <h2 id="filter-section-toggle" class="collapsible-title" tabindex="0" aria-controls="filter-controls-section" aria-expanded="false">Filter Commands</h2>
-            <section id="filter-controls-section" class="collapsible">
-                 <div class="filter-group"><fieldset><legend>OS:</legend><div id="filter-os-button-group" class="filter-button-container"></div></fieldset></div>
-                 <div class="filter-group"><fieldset><legend>What you have:</legend><div id="filter-items-button-group" class="filter-button-container"></div></fieldset></div>
-                 <div class="filter-group"><fieldset><legend>Services:</legend><div id="filter-services-button-group" class="filter-button-container"></div></fieldset></div>
-                 <div class="filter-group"><fieldset><legend>Attack Type:</legend><div id="filter-attacktype-button-group" class="filter-button-container"></div></fieldset></div>
-                 </section>
-
-            <section id="command-list-section">
-                <div class="section-header-with-buttons">
-                    <h2>Command List</h2>
-                    <div class="section-header-actions">
-                        <div id="backup-import-toggle-container">
-                            <button id="toggle-backup-import-modal-btn" class="header-toggle-btn" type="button">
-                                Backup/Import
-                            </button>
-                        </div>
-                        <div id="edit-mode-toggle-container">
-                            <button id="toggle-edit-mode-btn" class="header-toggle-btn" type="button" aria-pressed="false">
-                                 Edit Mode </button>
-                        </div>
-                         <div id="execute-mode-toggle-container">
-                             <button id="toggle-execute-mode-btn" class="header-toggle-btn execute-mode-btn" type="button" aria-pressed="false">
-                                  Execute Mode </button>
-                         </div>
-                    </div>
-                </div>
-                <div id="commandList"><p>Loading commands...</p></div>
-
-                <template id="command-item-template">
-                    <li class="command-item-clickable"> <div class="command-header">
-                            <div class="command-header-tags">
-                                <span class="tags-items"></span> <span class="tags-os"></span>
-                            </div>
-                            <div class="command-header-buttons">
-                                <button class="execute-btn hidden" type="button" title="Execute Command in Active Terminal">Execute</button>
-                                <button class="copy-btn" type="button" title="Copy Command with Variables" data-command-substituted="">Copy</button>
-                            </div>
-                        </div>
-                        <div class="command-body">
-                            <div class="command-line">
-                                 <strong><code></code></strong>
-                                <div class="command-actions">
-                                    <button class="edit-btn secondary-btn command-edit-delete-btn hidden" type="button" title="Edit Command" data-command-id="">Edit</button>
-                                    <button class="delete-btn danger-btn command-edit-delete-btn hidden" type="button" title="Delete Command" data-command-id="">Delete</button>
-                                </div>
-                            </div>
-                            <p class="command-description"></p> </div>
-                        <div class="command-footer">
-                            <span class="tags-filters"></span> </div>
-                    </li>
-                </template>
-                </section>
         </main>
 
         <aside class="terminal-area">
@@ -204,29 +105,14 @@
                 </div>
          </aside>
 
-    </div> <div id="backup-import-modal" class="modal-overlay" style="display: none;">
-         <div class="modal-content">
-            <button class="modal-close-btn" type="button" aria-label="Close">&times;</button>
-            <h2>Backup / Import Commands</h2>
-            <div class="modal-section">
-                <h3>Export Commands</h3>
-                <div class="modal-controls">
-                     <button id="modal-export-json-btn" type="button" class="secondary-btn">Export as JSON</button>
-                     <button id="modal-export-csv-btn" type="button" class="secondary-btn">Export as CSV</button>
-                </div>
-            </div>
-            <div class="modal-section">
-                <h3>Import Commands</h3>
-                 <p>Select a .json or .csv file previously exported.</p>
-                <div class="modal-controls">
-                     <label for="modal-importFile" class="sr-only">Choose file:</label>
-                    <input type="file" id="modal-importFile" name="importFile" accept=".json,.csv">
-                    <button id="modal-import-btn" type="button" class="secondary-btn">Upload & Import</button>
-                </div>
-            </div>
-         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" integrity="sha512-9khQRAUBYEJDCDVP2ywQrHxrFREEp3sMn/QGpaBI3U7ydG7Qu5axXaWkM3+L9Vj0SFhQVLJ9b04p7rBdWlk6PA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js" integrity="sha512-SkmBfuA2hqjzEVpmnMt/LINrj Cody/l8XxDdRcIY6cA2IPWSe9x+WmH+wO4Q1ES3jMAwLtlVgvWP9IO9gqBtdWw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
 </body>
 </html>
