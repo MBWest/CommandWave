@@ -4,131 +4,153 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Command Wave - Project Information</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-            line-height: 1.6;
-            color: #24292e;
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 20px;
-            border: 1px solid #e1e4e8;
-            border-radius: 6px;
-            background-color: #f6f8fa;
+        /* Add a little extra styling for the GH pages container to make it look better with the app theme */
+        .gh-pages-container {
+             max-width: 950px;
+             margin: 30px auto;
+             padding: 25px;
+             background: rgba(26, 10, 46, 0.85); /* --bg-color-trans */
+             border: 1px solid #00ffff; /* --secondary-neon */
+             box-shadow: 0 0 4px #00ffff, 0 0 8px #00ffff, inset 0 0 10px rgba(0, 255, 255, 0.1); /* --border-glow-secondary */
+             border-radius: 6px;
+             color: #f0f0f0; /* --text-color */
         }
-        h1, h2 {
-            border-bottom: 1px solid #eaecef;
-            padding-bottom: 0.3em;
-            margin-top: 24px;
-            margin-bottom: 16px;
+        .gh-pages-container h1, .gh-pages-container h2 {
+             font-family: 'Orbitron', sans-serif; /* --font-display */
+             color: #00ffff; /* --secondary-neon */
+             text-shadow: 0 0 2px #00ffff; /* --text-glow-secondary */
+             border-bottom: 1px solid rgba(0, 255, 255, 0.5);
+             padding-bottom: 8px;
         }
-        a {
-            color: #0366d6;
-            text-decoration: none;
+        .gh-pages-container a {
+             color: #ffff00; /* --accent-neon */
+             text-decoration: none;
+             border-bottom: 1px dotted #ffff00;
         }
-        a:hover {
-            text-decoration: underline;
+        .gh-pages-container a:hover {
+             color: #ff00ff; /* --primary-neon */
+             border-bottom-style: solid;
         }
-        code {
-            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
-            padding: 0.2em 0.4em;
-            margin: 0;
-            font-size: 85%;
-            background-color: rgba(27,31,35,0.05);
-            border-radius: 3px;
-        }
-        pre {
-            padding: 16px;
-            overflow: auto;
-            font-size: 85%;
-            line-height: 1.45;
-            background-color: #f6f8fa;
-            border-radius: 3px;
-            border: 1px solid #e1e4e8;
-        }
-        pre code {
-            display: inline;
-            padding: 0;
-            margin: 0;
-            overflow: visible;
-            line-height: inherit;
-            word-wrap: normal;
-            background-color: transparent;
-            border: 0;
-        }
+         .gh-pages-container code {
+             font-family: monospace; /* --font-code */
+             padding: 0.2em 0.4em;
+             margin: 0;
+             font-size: 85%;
+             background-color: rgba(0, 0, 0, 0.5);
+             border-radius: 3px;
+             color: #ffff00; /* --accent-neon */
+             border: 1px solid rgba(0, 255, 255, 0.3);
+         }
+         .gh-pages-container pre {
+             padding: 16px;
+             overflow: auto;
+             font-size: 85%;
+             line-height: 1.45;
+             background-color: rgba(0, 0, 0, 0.5);
+             border-radius: 3px;
+             border: 1px solid rgba(0, 255, 255, 0.3);
+             color: #ffff00; /* --accent-neon */
+         }
+         .gh-pages-container pre code {
+              background-color: transparent;
+              border: none;
+              padding: 0;
+              margin: 0;
+         }
+         .gh-pages-container ul {
+             list-style-type: square;
+             margin-left: 20px;
+         }
+         .gh-pages-container hr {
+             border: 0;
+             height: 1px;
+             background-image: linear-gradient(to right, rgba(0, 255, 255, 0), rgba(0, 255, 255, 0.75), rgba(0, 255, 255, 0));
+             margin: 20px 0;
+         }
+        /* Style the note box */
         .note {
             padding: 10px 15px;
             margin: 20px 0;
-            border: 1px solid #e1e4e8;
+            border: 1px solid #ffff00; /* --accent-neon */
             border-left-width: 5px;
-            border-left-color: #ffab0f; /* Warning color */
-            background-color: #fffbdd;
+            background-color: rgba(255, 255, 0, 0.1); /* Transparent yellow */
             border-radius: 3px;
+            color: #ffff00; /* --accent-neon */
         }
+        .note strong {
+             color: #ff00ff; /* --primary-neon */
+        }
+        /* Basic button style adapted from app */
         .button {
-            display: inline-block;
-            padding: 10px 16px;
-            font-size: 14px;
-            font-weight: 600;
-            line-height: 20px;
-            white-space: nowrap;
-            vertical-align: middle;
-            cursor: pointer;
-            user-select: none;
-            border: 1px solid rgba(27,31,35,0.2);
-            border-radius: 6px;
-            background-color: #eff3f6;
-            background-image: linear-gradient(-180deg, #fafbfc, #eff3f6 90%);
-            color: #24292e;
-            text-decoration: none;
-            margin-right: 10px;
+             display: inline-block;
+             padding: 8px 12px;
+             font-family: 'Orbitron', sans-serif; /* --font-display */
+             cursor: pointer;
+             border-radius: 4px;
+             font-size: 0.9em;
+             transition: all 0.3s ease;
+             text-transform: none;
+             letter-spacing: normal;
+             background-color: rgba(0, 255, 255, 0.1); /* --secondary-neon transparent */
+             border: 1px solid #00ffff; /* --secondary-neon */
+             color: #00ffff; /* --secondary-neon */
+             text-decoration: none;
+             text-shadow: 0 0 2px #00ffff; /* --text-glow-secondary */
+             margin-right: 10px;
+             margin-top: 10px;
         }
         .button:hover {
-            background-color: #e6ebf1;
-            background-image: linear-gradient(-180deg, #f0f3f6, #e6ebf1 90%);
-            border-color: rgba(27,31,35,0.35);
-            text-decoration: none;
+             background-color: rgba(0, 255, 255, 0.2);
+             box-shadow: 0 0 4px #00ffff, 0 0 8px #00ffff; /* --border-glow-secondary */
+             color: #00ffff;
+             border-bottom: 1px solid #00ffff;
         }
     </style>
 </head>
 <body>
 
-    <h1>Command Wave</h1>
+    <div class="gh-pages-container">
 
-    <p>
-        Command Wave is a web-based interface featuring integrated multi-tab terminals (powered by <code>ttyd</code> and <code>tmux</code>). It allows users to load Markdown playbooks, substitute variables dynamically per tab, and execute commands directly within the embedded terminals. The application also includes persistent global and tab-specific notes for efficient workflow management.
-    </p>
+        <h1>Command Wave</h1>
 
-    <a href="https://github.com/YOUR_USERNAME/CommandWave-main" class="button">View on GitHub</a> 
-    <h2>Key Features</h2>
-    <ul>
-        <li>Integrated multi-tab terminals (ttyd + tmux)</li>
-        <li>Load and display Markdown (<code>.md</code>) playbooks</li>
-        <li>Execute code blocks from playbooks directly into the active terminal</li>
-        <li>Per-tab variable substitution (e.g., <code>$TargetIP</code>)</li>
-        <li>Persistent floating notes panels (Global and Tab-specific)</li>
-        <li>Web-based UI with a cyberpunk/neon aesthetic</li>
-    </ul>
+        <p>
+            Command Wave is a web-based interface featuring integrated multi-tab terminals (powered by <code>ttyd</code> and <code>tmux</code>). It allows users to load Markdown playbooks, substitute variables dynamically per tab, and execute commands directly within the embedded terminals. The application also includes persistent global and tab-specific notes for efficient workflow management.
+        </p>
 
-    <div class="note">
-        <strong>Important Note:</strong> This is a static information page for the Command Wave project. The actual application is built using Python and Flask and requires a backend server to run. It <strong>cannot</strong> be run directly from GitHub Pages. Please refer to the main repository for setup and usage instructions to run the application locally.
-    </div>
+        <a href="https://github.com/YOUR_USERNAME/CommandWave-main" class="button">View on GitHub</a>
+        <h2>Key Features</h2>
+        <ul>
+            <li>Integrated multi-tab terminals (ttyd + tmux)</li>
+            <li>Load and display Markdown (<code>.md</code>) playbooks</li>
+            <li>Execute code blocks from playbooks directly into the active terminal</li>
+            <li>Per-tab variable substitution (e.g., <code>$TargetIP</code>)</li>
+            <li>Persistent floating notes panels (Global and Tab-specific)</li>
+            <li>Web-based UI with a cyberpunk/neon aesthetic</li>
+        </ul>
 
-    <h2>Getting Started</h2>
-    <p>
-        To use Command Wave, you need to clone the repository and run the application locally on your machine. Please ensure you have the prerequisites (Python 3, pip, ttyd, tmux) installed.
-    </p>
-    <p>
-        Visit the main GitHub repository for detailed setup instructions:
-    </p>
-    <p>
-        <a href="https://github.com/YOUR_USERNAME/CommandWave-main" class="button">Go to Repository & Setup Guide</a>
-         </p>
+        <div class="note">
+            <strong>Important Note:</strong> This is a static information page for the Command Wave project. The actual application is built using Python and Flask and requires a backend server to run. It <strong>cannot</strong> be run directly from GitHub Pages. Please refer to the main repository for setup and usage instructions to run the application locally.
+        </div>
 
-    <hr>
-    <footer>
-        <p><small>Command Wave Project | <a href="https://github.com/YOUR_USERNAME/CommandWave-main">View Repository</a></small></p> 
-        </footer>
+        <h2>Getting Started</h2>
+        <p>
+            To use Command Wave, you need to clone the repository and run the application locally on your machine. Please ensure you have the prerequisites (Python 3, pip, ttyd, tmux) installed.
+        </p>
+        <p>
+            Visit the main GitHub repository for detailed setup instructions:
+        </p>
+        <p>
+            <a href="https://github.com/YOUR_USERNAME/CommandWave-main" class="button">Go to Repository & Setup Guide</a>
+             </p>
 
-</body>
+        <hr>
+        <footer>
+            <p><small>Command Wave Project | <a href="https://github.com/YOUR_USERNAME/CommandWave-main">View Repository</a></small></p>
+            </footer>
+    </div> </body>
 </html>
