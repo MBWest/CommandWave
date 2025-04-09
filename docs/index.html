@@ -138,6 +138,36 @@
              margin-top: 30px;
              opacity: 0.7;
          }
+        /* Styles for the screenshot gallery */
+        .screenshot-gallery {
+            display: flex;
+            flex-wrap: wrap; /* Allow items to wrap to next line */
+            gap: 20px; /* Space between items */
+            margin-top: 15px;
+            justify-content: center; /* Center items horizontally */
+        }
+        .screenshot-item {
+            flex: 1 1 250px; /* Flex grow, shrink, basis (adjust basis for min width) */
+            max-width: 300px; /* Max width for each item */
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.3); /* Slightly darker background for item */
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+        .screenshot-item img {
+            max-width: 100%; /* Make images responsive */
+            height: auto;
+            border-radius: 3px;
+            border: 1px solid rgba(0, 255, 255, 0.5); /* Neon border for image */
+            margin-bottom: 8px;
+        }
+        .screenshot-item p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #00ffff; /* --secondary-neon */
+            font-family: 'Orbitron', sans-serif; /* --font-display */
+        }
     </style>
 </head>
 <body>
@@ -150,7 +180,7 @@
             Command Wave is a web-based interface featuring integrated multi-tab terminals (powered by <code>ttyd</code> and <code>tmux</code>). It allows users to load Markdown playbooks, substitute variables dynamically per tab, and execute commands directly within the embedded terminals. The application also includes persistent global and tab-specific notes for efficient workflow management.
         </p>
 
-        <a href="https://github.com/Journey-West/CommandWave" class="button">View on GitHub</a>
+        <a href="https://github.com/YOUR_USERNAME/CommandWave-main" class="button">View on GitHub</a>
         <h2>Key Features</h2>
         <ul>
             <li>Integrated multi-tab terminals (ttyd + tmux)</li>
@@ -161,6 +191,33 @@
             <li>Web-based UI with a cyberpunk/neon aesthetic</li>
         </ul>
 
+        <h2>Screenshots</h2>
+        <div class="screenshot-gallery">
+            <div class="screenshot-item">
+                <img src="images/CommandWave.png" alt="Command Wave main interface">
+                <p>Main Interface</p>
+            </div>
+            <div class="screenshot-item">
+                <img src="images/Import Playbook.png" alt="Importing a playbook">
+                <p>Importing a Playbook</p>
+            </div>
+            <div class="screenshot-item">
+                <img src="images/MultiplePlaybooks.png" alt="Displaying multiple playbooks">
+                <p>Multiple Loaded Playbooks</p>
+            </div>
+            <div class="screenshot-item">
+                <img src="images/ExecuteCommand.png" alt="Executing a command from a playbook">
+                <p>Executing Playbook Commands</p>
+            </div>
+            <div class="screenshot-item">
+                <img src="images/TabNotes.png" alt="Tab Notes panel">
+                <p>Tab-Specific Notes</p>
+            </div>
+            <div class="screenshot-item">
+                <img src="images/Global Notes.png" alt="Global Notes panel">
+                <p>Global Notes</p>
+            </div>
+        </div>
         <div class="note">
             <strong>Important Note:</strong> This is a static information page for the Command Wave project. The actual application is built using Python and Flask and requires a backend server to run. It <strong>cannot</strong> be run directly from GitHub Pages. Please refer to the main repository for setup and usage instructions to run the application locally.
         </div>
@@ -173,12 +230,12 @@
             Visit the main GitHub repository for detailed setup instructions:
         </p>
         <p>
-            <a href="https://github.com/Journey-West/CommandWave" class="button">Go to Repository & Setup Guide</a>
+            <a href="https://github.com/YOUR_USERNAME/CommandWave-main" class="button">Go to Repository & Setup Guide</a>
              </p>
 
         <hr>
         <footer>
-            <p><small>Command Wave Project | <a href="https://github.com/Journey-West/CommandWave">View Repository</a></small></p>
+            <p><small>Command Wave Project | <a href="https://github.com/YOUR_USERNAME/CommandWave-main">View Repository</a></small></p>
             </footer>
     </div> </body>
 </html>
