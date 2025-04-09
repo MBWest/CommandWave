@@ -50,7 +50,9 @@
             gap: 30px; /* Space between columns */
             width: 100%;
             flex-grow: 1;
-            align-items: flex-start; /* Align items to the top of the wrapper */
+            /* UPDATED: Align based on text baseline */
+            align-items: baseline;
+            /* REMOVED: align-items: flex-start; */
         }
         .layout-column {
             flex: 1;
@@ -74,7 +76,7 @@
         @media (max-width: 900px) { /* Adjust breakpoint if needed */
             .layout-wrapper {
                  flex-direction: column;
-                 align-items: stretch;
+                 align-items: stretch; /* Reset alignment when stacked */
             }
             .layout-column { flex-basis: auto; min-width: auto; }
              .gh-pages-container { padding: 15px; min-height: calc(100vh - 30px); }
@@ -83,45 +85,28 @@
         }
         /* End Two-column layout styles */
 
-        /* UPDATED: General heading styles - REMOVED padding-bottom */
+        /* UPDATED: Restore general padding-bottom, use margin-top: 0 for first */
         .gh-pages-container h1, .gh-pages-container h2 {
              font-family: 'Orbitron', sans-serif;
              color: #00ffff;
              text-shadow: 0 0 2px #00ffff;
              border-bottom: 1px solid rgba(0, 255, 255, 0.5);
-             /* REMOVED: padding-bottom: 8px; */
+             padding-bottom: 8px; /* Restore general padding */
              margin-bottom: 16px;
+             margin-top: 24px; /* Use default top margin again for spacing */
         }
-        /* UPDATED: Align top headings AND adjust padding-bottom */
-        .content-column > h1:first-child,
-        .slider-column > h2:first-child {
-            margin-top: 0;
-        }
-        /* Add padding back specifically */
-        .content-column > h1:first-child {
-             padding-bottom: 8px; /* Standard padding for H1 */
-        }
+        /* Ensure first headings don't have extra top margin beyond baseline alignment */
+         .content-column > h1:first-child,
          .slider-column > h2:first-child {
-              padding-bottom: 7px; /* Slightly less padding for H2 - ADJUST AS NEEDED */
+              margin-top: 0; /* Keep this for consistent starting point */
          }
-
-        /* Add back default top margin & padding for subsequent headings */
-        .layout-column h1:not(:first-child),
-        .layout-column h2:not(:first-child) {
-             margin-top: 24px;
-             padding-bottom: 8px; /* Add padding back to other headings too */
-        }
+        /* REMOVED specific padding rules for first children */
 
 
         .gh-pages-container a {
-             color: #ffff00;
-             text-decoration: none;
-             border-bottom: 1px dotted #ffff00;
+             color: #ffff00; text-decoration: none; border-bottom: 1px dotted #ffff00;
         }
-        .gh-pages-container a:hover {
-             color: #ff00ff;
-             border-bottom-style: solid;
-        }
+        .gh-pages-container a:hover { color: #ff00ff; border-bottom-style: solid; }
          .gh-pages-container code {
              font-family: monospace; padding: 0.2em 0.4em; margin: 0; font-size: 85%;
              background-color: rgba(0, 0, 0, 0.5); border-radius: 3px; color: #ffff00;
@@ -132,9 +117,7 @@
              background-color: rgba(0, 0, 0, 0.5); border-radius: 3px;
              border: 1px solid rgba(0, 255, 255, 0.3); color: #ffff00;
          }
-         .gh-pages-container pre code {
-              background-color: transparent; border: none; padding: 0; margin: 0;
-         }
+         .gh-pages-container pre code { background-color: transparent; border: none; padding: 0; margin: 0; }
          .gh-pages-container ul { list-style-type: square; margin-left: 20px; padding-left: 0; }
          .gh-pages-container hr {
              border: 0; height: 1px; margin: 20px 0;
