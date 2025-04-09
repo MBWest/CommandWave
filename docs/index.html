@@ -29,56 +29,65 @@
             flex-direction: column;
         }
 
-        /* UPDATED: Styles for the main container - NOW FULL SCREEN */
+        /* Styles for the main container - Full Screen */
         .gh-pages-container {
-             /* REMOVED: max-width: 1200px; */
-             /* REMOVED: margin: 30px auto; */
-             padding: 25px; /* Keep padding for inner content */
-             background: rgba(26, 10, 46, 0.85); /* --bg-color-trans */
-             border: 1px solid #00ffff; /* --secondary-neon */
-             box-shadow: 0 0 4px #00ffff, 0 0 8px #00ffff, inset 0 0 10px rgba(0, 255, 255, 0.1); /* --border-glow-secondary */
-             border-radius: 6px; /* Keep radius or remove if you want sharp corners */
+             padding: 25px;
+             background: rgba(26, 10, 46, 0.85);
+             border: 1px solid #00ffff;
+             box-shadow: 0 0 4px #00ffff, 0 0 8px #00ffff, inset 0 0 10px rgba(0, 255, 255, 0.1);
+             border-radius: 6px;
              color: #f0f0f0;
-             flex-grow: 1; /* Allow container to grow to fill body flex */
-             display: flex; /* Use flexbox to manage inner layout-wrapper height */
-             min-height: calc(100vh - 50px); /* Fill viewport height minus padding */
-             box-sizing: border-box; /* Include padding in height calculation */
+             flex-grow: 1;
+             display: flex;
+             min-height: calc(100vh - 50px);
+             box-sizing: border-box;
         }
 
-        /* UPDATED: Two-column layout styles */
+        /* UPDATED: Two-column layout styles (1/3 Left, 2/3 Right) */
         .layout-wrapper {
             display: flex;
-            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            flex-wrap: wrap;
             gap: 30px; /* Space between columns */
-            width: 100%; /* Ensure wrapper takes full width of container */
-            flex-grow: 1; /* Allow wrapper to grow within container */
+            width: 100%;
+            flex-grow: 1;
         }
         .layout-column {
-            flex: 1; /* Allow columns to grow */
-            min-width: 300px; /* Minimum width before wrapping */
-            /* UPDATED: Set basis closer to 50% */
-            flex-basis: calc(50% - 15px); /* 50% minus half the gap */
+            flex: 1;
+            min-width: 300px;
             box-sizing: border-box;
         }
-        /* Remove specific basis for content/slider unless needed */
-        /* .content-column { flex-basis: 55%; } */
-        /* .slider-column { flex-basis: 40%; } */
-
-        .slider-column {
-            text-align: center;
+        .content-column {
+            /* Approx 1/3 width */
+            flex-basis: calc(33.333% - 20px); /* Adjusted for gap */
+            display: flex;
+            flex-direction: column;
         }
+        .slider-column {
+            /* Approx 2/3 width */
+            flex-basis: calc(66.667% - 20px); /* Adjusted for gap */
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+        }
+
         /* Responsive stacking */
-        @media (max-width: 768px) {
+        @media (max-width: 900px) { /* Adjust breakpoint if needed */
             .layout-wrapper {
                  flex-direction: column;
             }
             .layout-column {
                 flex-basis: auto; /* Reset basis when stacked */
-                min-width: auto; /* Reset min-width */
+                min-width: auto;
             }
              .gh-pages-container {
-                 padding: 15px; /* Reduce padding on smaller screens */
+                 padding: 15px;
                  min-height: calc(100vh - 30px);
+             }
+             .content-column {
+                 order: 2; /* Optionally put content below slider on mobile */
+             }
+             .slider-column {
+                 order: 1;
              }
         }
         /* End Two-column layout styles */
@@ -182,47 +191,41 @@
              color: #00ffff;
              border-bottom: none;
         }
-        /* Ensure footer text is also themed */
+        /* Footer position */
          footer {
-             /* Move footer styling inside content column if needed, or keep general */
              text-align: center;
-             margin-top: auto; /* Push footer to bottom of content column */
-             padding-top: 20px; /* Add space above footer */
+             margin-top: auto; /* Push footer to bottom */
+             padding-top: 20px;
              opacity: 0.7;
          }
-        /* Ensure content column uses flex for footer positioning */
-        .content-column {
-             display: flex;
-             flex-direction: column;
-             height: 100%; /* Make content column take full height */
-        }
 
-        /* Styles for the basic image slider */
+        /* UPDATED: Styles for the image slider */
         .image-slider {
              position: relative;
-             margin-top: 15px;
+             margin-top: 15px; /* Align with content column heading */
              background-color: rgba(0, 0, 0, 0.3);
              padding: 15px;
              border-radius: 4px;
              border: 1px solid rgba(0, 255, 255, 0.2);
-             display: flex; /* Use flex for easier centering */
+             display: flex;
              flex-direction: column;
              align-items: center;
-             justify-content: space-between; /* Distribute space */
              box-sizing: border-box;
-             height: 100%; /* Try to make slider fill column height */
+             /* REMOVED: height: 100%; */ /* Let height be intrinsic */
+             /* REMOVED: justify-content: space-between; */
+             flex-grow: 1; /* Allow slider box to grow vertically */
         }
         #slider-image {
              max-width: 100%;
-             /* Limit height based on available space */
-             max-height: calc(100% - 100px); /* Adjust 100px based on caption/button space */
-             height: auto; /* Maintain aspect ratio */
+             /* REMOVED: max-height calculation */
+             height: auto; /* Allow natural height based on width */
+             max-height: 70vh; /* Add a sensible max viewport height limit */
              display: block;
              margin: 0 auto 10px auto;
              border: 1px solid rgba(0, 255, 255, 0.5);
              border-radius: 3px;
-             object-fit: contain; /* Prevent image distortion */
-             flex-shrink: 1; /* Allow image to shrink if needed */
+             object-fit: contain;
+             flex-shrink: 1; /* Allow image to shrink */
         }
         #slider-caption {
              margin: 10px 0;
@@ -230,15 +233,16 @@
              color: #00ffff;
              font-family: 'Orbitron', sans-serif;
              min-height: 1.2em;
-             flex-shrink: 0; /* Prevent caption from shrinking */
-             text-align: center; /* Center caption */
+             text-align: center;
+             flex-shrink: 0;
         }
         .slider-controls {
-            margin-top: 10px; /* Space above buttons */
+            /* REMOVED: margin-top: auto; */ /* Bring controls below caption */
             padding-top: 10px;
-             flex-shrink: 0; /* Prevent controls from shrinking */
-             text-align: center; /* Center buttons */
-             width: 100%;
+            text-align: center;
+            width: 100%;
+            margin-top: auto; /* Push buttons to bottom of flex container */
+             flex-shrink: 0;
         }
         .slider-button {
              font-size: 1.1em;
