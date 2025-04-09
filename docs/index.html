@@ -66,7 +66,6 @@
         .slider-column {
             /* Approx 2/3 width */
             flex-basis: calc(66.667% - 20px);
-            /* text-align: center; // Now handled by inner elements */
             display: flex;
             flex-direction: column;
         }
@@ -75,39 +74,42 @@
         @media (max-width: 900px) { /* Adjust breakpoint if needed */
             .layout-wrapper {
                  flex-direction: column;
-                 align-items: stretch; /* Stretch items when stacked */
+                 align-items: stretch;
             }
-            .layout-column {
-                flex-basis: auto;
-                min-width: auto;
-            }
-             .gh-pages-container {
-                 padding: 15px;
-                 min-height: calc(100vh - 30px);
-             }
+            .layout-column { flex-basis: auto; min-width: auto; }
+             .gh-pages-container { padding: 15px; min-height: calc(100vh - 30px); }
              .content-column { order: 2; }
              .slider-column { order: 1; }
         }
         /* End Two-column layout styles */
 
+        /* UPDATED: General heading styles - REMOVED padding-bottom */
         .gh-pages-container h1, .gh-pages-container h2 {
              font-family: 'Orbitron', sans-serif;
              color: #00ffff;
              text-shadow: 0 0 2px #00ffff;
              border-bottom: 1px solid rgba(0, 255, 255, 0.5);
-             padding-bottom: 8px;
-             /* REMOVED: margin-top: 24px; */ /* Use specific rule below */
+             /* REMOVED: padding-bottom: 8px; */
              margin-bottom: 16px;
         }
-        /* NEW: Align top headings in columns */
+        /* UPDATED: Align top headings AND adjust padding-bottom */
         .content-column > h1:first-child,
         .slider-column > h2:first-child {
             margin-top: 0;
         }
-        /* Add back default top margin for subsequent headings if needed */
+        /* Add padding back specifically */
+        .content-column > h1:first-child {
+             padding-bottom: 8px; /* Standard padding for H1 */
+        }
+         .slider-column > h2:first-child {
+              padding-bottom: 7px; /* Slightly less padding for H2 - ADJUST AS NEEDED */
+         }
+
+        /* Add back default top margin & padding for subsequent headings */
         .layout-column h1:not(:first-child),
         .layout-column h2:not(:first-child) {
              margin-top: 24px;
+             padding-bottom: 8px; /* Add padding back to other headings too */
         }
 
 
@@ -121,153 +123,70 @@
              border-bottom-style: solid;
         }
          .gh-pages-container code {
-             font-family: monospace;
-             padding: 0.2em 0.4em;
-             margin: 0;
-             font-size: 85%;
-             background-color: rgba(0, 0, 0, 0.5);
-             border-radius: 3px;
-             color: #ffff00;
+             font-family: monospace; padding: 0.2em 0.4em; margin: 0; font-size: 85%;
+             background-color: rgba(0, 0, 0, 0.5); border-radius: 3px; color: #ffff00;
              border: 1px solid rgba(0, 255, 255, 0.3);
          }
          .gh-pages-container pre {
-             padding: 16px;
-             overflow: auto;
-             font-size: 85%;
-             line-height: 1.45;
-             background-color: rgba(0, 0, 0, 0.5);
-             border-radius: 3px;
-             border: 1px solid rgba(0, 255, 255, 0.3);
-             color: #ffff00;
+             padding: 16px; overflow: auto; font-size: 85%; line-height: 1.45;
+             background-color: rgba(0, 0, 0, 0.5); border-radius: 3px;
+             border: 1px solid rgba(0, 255, 255, 0.3); color: #ffff00;
          }
          .gh-pages-container pre code {
-              background-color: transparent;
-              border: none;
-              padding: 0;
-              margin: 0;
+              background-color: transparent; border: none; padding: 0; margin: 0;
          }
-         .gh-pages-container ul {
-             list-style-type: square;
-             margin-left: 20px;
-             padding-left: 0;
-         }
+         .gh-pages-container ul { list-style-type: square; margin-left: 20px; padding-left: 0; }
          .gh-pages-container hr {
-             border: 0;
-             height: 1px;
+             border: 0; height: 1px; margin: 20px 0;
              background-image: linear-gradient(to right, rgba(0, 255, 255, 0), rgba(0, 255, 255, 0.75), rgba(0, 255, 255, 0));
-             margin: 20px 0;
          }
         /* Style the note box */
         .note {
-            padding: 10px 15px;
-            margin: 20px 0;
-            border: 1px solid #ffff00;
-            border-left-width: 5px;
-            background-color: rgba(255, 255, 0, 0.1);
-            border-radius: 3px;
-            color: #ffff00;
+            padding: 10px 15px; margin: 20px 0; border: 1px solid #ffff00; border-left-width: 5px;
+            background-color: rgba(255, 255, 0, 0.1); border-radius: 3px; color: #ffff00;
         }
-        .note strong {
-             color: #ff00ff;
-        }
-        /* Basic button style adapted from app */
+        .note strong { color: #ff00ff; }
+
+        /* Button styles */
         .button, .slider-button {
-             display: inline-block;
-             padding: 8px 12px;
-             font-family: 'Orbitron', sans-serif;
-             cursor: pointer;
-             border-radius: 4px;
-             font-size: 0.9em;
-             transition: all 0.3s ease;
-             text-transform: none;
-             letter-spacing: normal;
-             background-color: rgba(0, 255, 255, 0.1);
-             border: 1px solid #00ffff;
-             color: #00ffff;
-             text-decoration: none;
-             text-shadow: 0 0 2px #00ffff;
-             margin-right: 10px; /* Keep for View on GitHub button */
-             margin-top: 10px;
-             border-bottom: none;
-             vertical-align: middle;
+             display: inline-block; padding: 8px 12px; font-family: 'Orbitron', sans-serif; cursor: pointer;
+             border-radius: 4px; font-size: 0.9em; transition: all 0.3s ease; text-transform: none; letter-spacing: normal;
+             background-color: rgba(0, 255, 255, 0.1); border: 1px solid #00ffff; color: #00ffff;
+             text-decoration: none; text-shadow: 0 0 2px #00ffff; margin-right: 10px; margin-top: 10px;
+             border-bottom: none; vertical-align: middle;
         }
         .button:hover, .slider-button:hover {
-             background-color: rgba(0, 255, 255, 0.2);
-             box-shadow: 0 0 4px #00ffff, 0 0 8px #00ffff;
-             color: #00ffff;
-             border-bottom: none;
+             background-color: rgba(0, 255, 255, 0.2); box-shadow: 0 0 4px #00ffff, 0 0 8px #00ffff;
+             color: #00ffff; border-bottom: none;
         }
         /* Footer position */
-         footer {
-             text-align: center;
-             margin-top: auto; /* Push footer to bottom */
-             padding-top: 20px;
-             opacity: 0.7;
-         }
-        /* Ensure content column uses flex for footer positioning */
-        .content-column {
-             display: flex;
-             flex-direction: column;
-             /* height: 100%; */ /* Let flex-grow handle height */
-        }
+         footer { text-align: center; margin-top: auto; padding-top: 20px; opacity: 0.7; }
+        .content-column { display: flex; flex-direction: column; }
 
         /* Styles for the image slider */
         .image-slider {
-             position: relative;
-             /* margin-top: 15px; // Removed */
-             background-color: rgba(0, 0, 0, 0.3);
-             padding: 15px;
-             border-radius: 4px;
-             border: 1px solid rgba(0, 255, 255, 0.2);
-             display: flex;
-             flex-direction: column;
-             align-items: center;
-             box-sizing: border-box;
-             flex-grow: 1;
+             position: relative; background-color: rgba(0, 0, 0, 0.3); padding: 15px;
+             border-radius: 4px; border: 1px solid rgba(0, 255, 255, 0.2); display: flex;
+             flex-direction: column; align-items: center; box-sizing: border-box; flex-grow: 1;
         }
         #slider-image {
-             max-width: 100%;
-             height: auto;
-             max-height: 70vh;
-             display: block;
-             margin: 0 auto 10px auto;
-             border: 1px solid rgba(0, 255, 255, 0.5);
-             border-radius: 3px;
-             object-fit: contain;
-             flex-shrink: 1;
+             max-width: 100%; height: auto; max-height: 70vh; display: block; margin: 0 auto 10px auto;
+             border: 1px solid rgba(0, 255, 255, 0.5); border-radius: 3px; object-fit: contain; flex-shrink: 1;
         }
-
-        /* UPDATED: Styles for slider controls container */
+        /* Slider controls container */
         .slider-controls {
-            display: flex;            /* Use flexbox */
-            align-items: center;      /* Vertically center items */
-            justify-content: space-between; /* Push buttons to edges */
-            padding-top: 10px;
-            width: 100%;              /* Take full width */
-            margin-top: auto;         /* Push to bottom */
-             flex-shrink: 0;
+            display: flex; align-items: center; justify-content: space-between;
+            padding-top: 10px; width: 100%; margin-top: auto; flex-shrink: 0;
         }
-
-        /* UPDATED: Styles for caption within controls */
+        /* Caption within controls */
         #slider-caption {
-             /* REMOVED margin: 10px 0; */
-             margin: 0 10px; /* Add horizontal margin */
-             font-size: 0.9em;
-             color: #00ffff;
-             font-family: 'Orbitron', sans-serif;
-             text-align: center;
-             flex-grow: 1; /* Allow caption to take space */
-             flex-shrink: 1; /* Allow caption to shrink if needed */
+             margin: 0 10px; font-size: 0.9em; color: #00ffff; font-family: 'Orbitron', sans-serif;
+             text-align: center; flex-grow: 1; flex-shrink: 1;
         }
-
-        /* UPDATED: Slider button specific styles */
+        /* Slider button specific styles */
         .slider-button {
-             font-size: 1.1em;
-             padding: 5px 10px;
-             margin: 0; /* Remove default margins */
-             flex-shrink: 0; /* Prevent buttons from shrinking */
+             font-size: 1.1em; padding: 5px 10px; margin: 0; flex-shrink: 0;
         }
-        /* REMOVED #prev-button margin-right */
 
     </style>
 </head>
