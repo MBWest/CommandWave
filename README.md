@@ -109,7 +109,7 @@ Command Wave is a web-based interface for managing multiple terminal sessions an
     * Notes typed into the panels are automatically saved after a short delay. Global notes persist across all tabs; Tab notes are specific to the currently active terminal tab.
 
 ## Todo 
-- [ ] The ability to edit a codeblock after you have imported the playbook.
+- [X] The ability to edit a codeblock after you have imported the playbook.
 - [ ] Create/Modify/Save playbooks without leaving the application.
 - [ ] More rubust search options.
 - [ ] Command line argument to tell the application where you want it to search for your playbooks.
