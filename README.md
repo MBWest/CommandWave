@@ -108,6 +108,16 @@ Command Wave is a web-based interface for managing multiple terminal sessions an
     * Click the "GN" (Global Notes) or "TN" (Tab Notes) floating buttons on the left to toggle the respective notes panels.
     * Notes typed into the panels are automatically saved after a short delay. Global notes persist across all tabs; Tab notes are specific to the currently active terminal tab.
 
+## Todo 
+- [ ] The ability to edit a codeblock after you have imported the playbook.
+- [ ] Create/Modify/Save playbooks without leaving the application.
+- [ ] More rubust search options.
+- [ ] Command line argument to tell the application where you want it to search for your playbooks.
+- [ ] Restyle the look and behaviour of the search bar.
+- [ ] Docker.io expandable section to enable visual network map creation.
+- [ ] Code cleanup.
+- [ ] Update README/Webiste with current feature set. 
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit pull requests or open issues for bugs, feature requests, or improvements.
