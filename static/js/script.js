@@ -1,8 +1,10 @@
 /**
- * Filename: static/js/script.js - Modified for Playbook, Floating Notes, Upload & Prompt on Add
+ * Filename: static/js/script.js - Modified for Playbook, Floating Notes, Upload, Local Search & Import (with line context)
  * Description: Frontend JavaScript logic for the Command Wave application.
  * Handles:
  * - Reading Playbook file uploads from user's computer.
+ * - Searching local playbook files via backend API (with line context).
+ * - Importing selected playbooks from local search results.
  * - Loading selected Playbook content for the active terminal tab.
  * - Rendering multiple Playbook contents in collapsible containers with remove buttons.
  * - Real-time code block preview with variable substitution (tab-specific).
@@ -31,12 +33,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     let terminalVariablesState = {}; // { terminalId: { variables: {...}, loadedPlaybooks: { 'filename.md': {...} } } }
     let activeTerminalId = 'term-main';
     let initialTerminalPort = 7681; // Default, might be overwritten by HTML data attribute
-    // Debounce timer IDs for saving notes
+    // Debounce timer IDs
     let globalNotesSaveTimeout = null;
     let tabNotesSaveTimeout = null;
+    let searchDebounceTimeout = null; // For search debounce
 
     // --- DOM Element References ---
     const searchInput = document.getElementById('searchInput');
+    const searchResultsContainer = document.getElementById('search-results-container'); // For search results
+    const searchResultsList = document.getElementById('search-results-list'); // For search results list
     const ioMessageDiv = document.getElementById('io-message');
     // Playbook Elements
     const playbookSection = document.getElementById('playbook-section');
@@ -256,7 +261,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const currentVariables = terminalVariablesState[terminalId]?.variables || DEFAULT_VARIABLES;
 
         if (Object.keys(playbooksMap).length === 0) {
-            playbookContentDiv.innerHTML = '<p>No playbooks loaded. Upload one using the button above.</p>';
+            playbookContentDiv.innerHTML = '<p>No playbooks loaded. Upload one using the button above or search and import local playbooks.</p>';
             return;
         }
         Object.entries(playbooksMap).forEach(([filename, playbookData]) => {
@@ -336,29 +341,199 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-     function handleSearchInputChange(event) {
-        const searchTerm = event.target.value.toLowerCase().trim();
-        const contentNodes = playbookContentDiv?.querySelectorAll('.playbook-body .playbook-text-block, .playbook-body .playbook-code-block code');
+    // <<< MODIFIED: handleSearchInputChange for backend search >>>
+    function handleSearchInputChange(event) {
+        const searchTerm = event.target.value.trim();
 
-        contentNodes?.forEach(node => {
-             const originalHtml = node.dataset.originalHtml || node.innerHTML;
-             if (!node.dataset.originalHtml) { node.dataset.originalHtml = originalHtml; }
+        // Clear previous debounce timer
+        if (searchDebounceTimeout) clearTimeout(searchDebounceTimeout);
 
-            if (searchTerm) {
-                 const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-                 // More robust highlight logic needed here to avoid breaking HTML/spans
-                 // Placeholder: Simple replace, might break things
-                 node.innerHTML = originalHtml.replace(regex, `<mark>$1</mark>`);
-            } else {
-                if(node.dataset.originalHtml) node.innerHTML = node.dataset.originalHtml;
-                delete node.dataset.originalHtml;
-            }
-        });
-
-        if (window.Prism) {
-             Prism.highlightAllUnder(playbookContentDiv); // Re-highlight after search changes
+        // Hide results immediately if search is cleared
+        if (!searchTerm || searchTerm.length < 2) { // Optional: minimum length check
+            if(searchResultsContainer) searchResultsContainer.style.display = 'none';
+            if(searchResultsList) searchResultsList.innerHTML = '';
+            // If search term is present but too short, maybe show message?
+             if (searchTerm && searchResultsList) {
+                 searchResultsList.innerHTML = '<li><i>Please enter at least 2 characters to search.</i></li>';
+                 if(searchResultsContainer) searchResultsContainer.style.display = 'block';
+             }
+            return;
         }
-     }
+
+        // Set a new debounce timer (e.g., 300ms)
+        searchDebounceTimeout = setTimeout(async () => {
+            console.log(`Searching local playbooks for: ${searchTerm}`);
+            if (searchResultsList) searchResultsList.innerHTML = '<li><i>Searching...</i></li>'; // Indicate searching
+            if (searchResultsContainer) searchResultsContainer.style.display = 'block';
+
+            try {
+                // Fetch results from the new backend endpoint
+                const response = await fetch(`/api/playbooks/search?query=${encodeURIComponent(searchTerm)}`);
+                if (!response.ok) {
+                     // Try to get error message from JSON response body
+                     let errorMsg = `HTTP error! status: ${response.status}`;
+                     try {
+                         const errorData = await response.json();
+                         errorMsg = errorData.error || errorMsg;
+                     } catch (jsonError) { /* Ignore if body isn't JSON */ }
+                     throw new Error(errorMsg);
+                }
+                const results = await response.json();
+
+                if (results.success && searchResultsList) {
+                    displaySearchResults(results.matches || []);
+                } else if (!results.success) {
+                    console.error("Search API Error:", results.error);
+                    if(searchResultsList) searchResultsList.innerHTML = `<li><i>Error: ${escapeHtml(results.error || 'Unknown search error')}</i></li>`;
+                }
+
+            } catch (error) {
+                console.error("Fetch error during search:", error);
+                if(searchResultsList) searchResultsList.innerHTML = `<li><i>Error fetching search results: ${escapeHtml(error.message)}</i></li>`;
+            }
+        }, 300); // 300ms debounce delay
+    }
+
+    // <<< MODIFIED: displaySearchResults Function for line context >>>
+    function displaySearchResults(matches) {
+        if (!searchResultsList || !searchResultsContainer) return;
+
+        searchResultsList.innerHTML = ''; // Clear previous results or 'Searching...' message
+
+        if (matches.length === 0) {
+            searchResultsList.innerHTML = '<li><i>No matching lines found in local playbooks.</i></li>';
+        } else {
+            matches.forEach(match => {
+                const li = document.createElement('li');
+                li.classList.add('search-result-item'); // Add class for styling
+
+                // Container for filename and line info
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'search-result-info';
+
+                // Filename
+                const fileSpan = document.createElement('span');
+                fileSpan.className = 'search-result-filename';
+                fileSpan.textContent = match.filename;
+                
+                // Line number (optional display)
+                const lineNumSpan = document.createElement('span');
+                lineNumSpan.className = 'search-result-linenum';
+                lineNumSpan.textContent = ` (Line: ${match.line_number})`;
+
+                // Line content
+                const lineContentSpan = document.createElement('code'); // Use <code> for content
+                lineContentSpan.className = 'search-result-linecontent';
+                // Basic highlighting 
+                const searchTermRegex = new RegExp(`(${escapeHtml(searchInput.value.trim())})`, 'gi');
+                const highlightedContent = escapeHtml(match.line_content).replace(searchTermRegex, '<mark>$1</mark>');
+                lineContentSpan.innerHTML = highlightedContent; // Use innerHTML for highlighting
+
+                infoDiv.appendChild(fileSpan);
+                infoDiv.appendChild(lineNumSpan); // Add line number
+                infoDiv.appendChild(lineContentSpan); // Add line content
+
+                // Import button (still associated with filename)
+                const importBtn = document.createElement('button');
+                importBtn.textContent = 'Import';
+                importBtn.className = 'import-playbook-btn';
+                importBtn.dataset.filename = match.filename; // Store filename
+                importBtn.title = `Import ${match.filename} into current tab`;
+                importBtn.addEventListener('click', handleImportPlaybookClick); 
+                
+                li.appendChild(infoDiv); // Add the info container
+                li.appendChild(importBtn); // Add the button
+                searchResultsList.appendChild(li);
+            });
+        }
+        // Ensure container is visible if there are results or a "no matches" message
+        searchResultsContainer.style.display = 'block'; 
+    }
+
+
+    // <<< ADDED: handleImportPlaybookClick Function >>>
+    async function handleImportPlaybookClick(event) {
+        const button = event.currentTarget;
+        const filenameToImport = button.dataset.filename;
+
+        if (!filenameToImport) {
+            showIoMessage("Error: Filename missing from import button.", "error");
+            return;
+        }
+
+        // Disable button to prevent double clicks
+        button.disabled = true;
+        button.textContent = 'Importing...';
+        
+        console.log(`Attempting to import playbook: ${filenameToImport} into tab ${activeTerminalId}`);
+
+        try {
+            // Fetch playbook content from the backend
+            const response = await fetch(`/api/playbooks/load/${encodeURIComponent(filenameToImport)}`);
+            if (!response.ok) {
+                 const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+                 throw new Error(errorData.error || `Failed to load playbook (${response.status})`);
+            }
+            const data = await response.json();
+
+            if (data.success && data.content) {
+                // Use the same parsing logic as file upload
+                 if (typeof marked === 'undefined') throw new Error("Markdown library (marked.js) not loaded.");
+                 const tokens = marked.lexer(data.content);
+                 const parsedContent = [];
+                 let currentTextBlock = '';
+                 const addTextBlock = () => {
+                     if (currentTextBlock.trim()) {
+                         parsedContent.push({ type: 'text', content: marked.parse(currentTextBlock.trim()) });
+                     }
+                     currentTextBlock = '';
+                 };
+                 tokens.forEach(token => {
+                     if (token.type === 'code') {
+                         addTextBlock();
+                         parsedContent.push({ type: 'code', language: token.lang || 'plaintext', content: token.text });
+                     } else if (token.type === 'space') {
+                         currentTextBlock += token.raw;
+                     } else {
+                         currentTextBlock += token.raw + '\n';
+                     }
+                 });
+                 addTextBlock();
+
+                // Add to state for the active tab
+                ensureTerminalState(activeTerminalId);
+                 if (terminalVariablesState[activeTerminalId]?.loadedPlaybooks[data.filename]) {
+                      if (!confirm(`Playbook "${data.filename}" is already loaded. Replace it?`)) {
+                          // Re-enable button if cancelled
+                          button.disabled = false;
+                          button.textContent = 'Import';
+                          return; 
+                      }
+                 }
+                terminalVariablesState[activeTerminalId].loadedPlaybooks[data.filename] = { content: parsedContent, isExpanded: true };
+                console.log(`Parsed and added playbook "${data.filename}" from local search to state for ${activeTerminalId}`);
+                
+                displayPlaybooks(activeTerminalId); // Re-render display
+                showIoMessage(`Playbook "${data.filename}" imported successfully.`, 'success');
+                
+                // Optional: Hide search results after successful import
+                // if(searchResultsContainer) searchResultsContainer.style.display = 'none';
+
+            } else {
+                 throw new Error(data.error || "Failed to get playbook content from server.");
+            }
+
+        } catch (error) {
+            console.error("Error importing playbook:", error);
+            showIoMessage(`Import failed for ${filenameToImport}: ${error.message}`, 'error');
+        } finally {
+             // Re-enable button unless successfully imported and hidden
+             if (button.disabled) { // Check if still disabled
+                  button.disabled = false;
+                  button.textContent = 'Import';
+             }
+        }
+    }
 
     function handleRemovePlaybookClick(event) {
         event.stopPropagation();
@@ -752,7 +927,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function setupEventListeners() {
         console.log("Setting up App listeners...");
 
-        // Search, Variables, Upload, Terminals
+        // Search (Now debounced backend search), Variables, Upload, Terminals
         searchInput?.addEventListener('input', handleSearchInputChange);
         const variableSection = document.getElementById('variable-input-section');
         variableSection?.addEventListener('input', (event) => {
@@ -775,6 +950,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 panelToClose?.classList.remove('visible');
             });
         });
+        
+        // Add listener for clicks outside the search results to hide them
+        document.addEventListener('click', (event) => {
+            if (searchResultsContainer && searchResultsContainer.style.display !== 'none') {
+                 // Check if the click was outside the container AND not on the input itself
+                if (!searchResultsContainer.contains(event.target) && event.target !== searchInput) {
+                    searchResultsContainer.style.display = 'none';
+                }
+            }
+        });
+
 
         console.log("App Listeners setup OK.");
     }
