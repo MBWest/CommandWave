@@ -1,4 +1,4 @@
-# projects/app.py - Modified for Notes File Persistence, Custom Tmux Config, and Command-Line Option
+# projects/app.py - Modified for Notes File Persistence, Custom Tmux Config, Command-Line Option, and Playbook Search/Load API (with line context and space fix)
 
 # Standard library imports
 import logging
@@ -12,17 +12,21 @@ import sys
 import signal
 import shlex
 import argparse # <<< Added for command-line arguments
+import glob # <<< ADDED for playbook search
 
 # Third-party imports
 from flask import (
     Flask, render_template, request, jsonify, send_file,
     flash, redirect, url_for, Response
 )
-# from werkzeug.utils import secure_filename # Potentially unused
+# NOTE: secure_filename is removed from load_playbook_content but might be used elsewhere if needed.
+# from werkzeug.utils import secure_filename 
+from werkzeug.exceptions import NotFound # <<< ADDED to handle file not found
 
 # --- Configuration ---
 UPLOAD_FOLDER = 'uploads' # Kept for potential future use
 NOTES_DIR = 'notes_data' # Directory for notes files
+PLAYBOOKS_DIR = 'playbooks' # <<< ADDED Directory for local playbooks
 TMUX_CONFIG_FILE = 'commandwave_theme.tmux.conf' # Name of the custom tmux config file
 
 # Initial port for the main terminal
@@ -36,7 +40,7 @@ TMUX_COMMAND = 'tmux'
 
 # --- Global variable to store command-line arg setting ---
 # <<< Added global variable
-USE_DEFAULT_TMUX_CONFIG_FLAG = False 
+USE_DEFAULT_TMUX_CONFIG_FLAG = False
 
 # --- Flask App Setup ---
 app = Flask(__name__)
@@ -44,6 +48,7 @@ app.secret_key = 'your_strong_random_secret_key_here' # <<< MUST CHANGE FOR PROD
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(NOTES_DIR, exist_ok=True) # Ensure notes directory exists
+os.makedirs(PLAYBOOKS_DIR, exist_ok=True) # Ensure playbooks directory exists
 
 # Basic logging configuration
 logging.basicConfig(
@@ -91,10 +96,10 @@ def start_ttyd_process(port, initial_terminal=False, use_default_config=False):
         return None
 
     session_name = f'cmd_wave_term_{port}'
-    
+
     # Base command parts for tmux
     tmux_base_cmd = [TMUX_COMMAND]
-    
+
     # Conditionally add the -f flag based on the parameter and file existence
     if not use_default_config and os.path.exists(TMUX_CONFIG_FILE):
         app.logger.info(f"Using custom tmux config: {TMUX_CONFIG_FILE}")
@@ -108,10 +113,10 @@ def start_ttyd_process(port, initial_terminal=False, use_default_config=False):
 
     # Add the rest of the tmux command
     tmux_base_cmd.extend(['new', '-s', session_name])
-    
+
     # Construct the full ttyd command
     ttyd_cmd = [TTYD_COMMAND, '-p', str(port), '-W'] + tmux_base_cmd
-    
+
     try:
         app.logger.info(f"Attempting: {' '.join(shlex.quote(arg) for arg in ttyd_cmd)}")
         process = subprocess.Popen(ttyd_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -186,8 +191,6 @@ try:
 except (ValueError, AttributeError, OSError) as e:
     app.logger.warning(f"Could not set signal handlers: {e}. Cleanup might not run on Ctrl+C/kill.")
 
-
-# --- Playbook section removed (parsing/loading handled client-side) ---
 
 # --- Notes API Endpoints ---
 
@@ -271,13 +274,112 @@ def save_tab_notes(terminal_id):
 
 # --- END Notes API Endpoints ---
 
+# --- Playbook Search and Load API Endpoints ---
+
+# <<< search_playbooks function including line context >>>
+@app.route('/api/playbooks/search', methods=['GET'])
+def search_playbooks():
+    """API endpoint to search for keywords in local .md playbooks and return matching lines."""
+    query = request.args.get('query', '').strip()
+    if not query or len(query) < 2: # Optional: Add minimum query length
+        return jsonify({"success": True, "matches": []})
+
+    if not os.path.isdir(PLAYBOOKS_DIR):
+         app.logger.error(f"Playbooks directory not found: {PLAYBOOKS_DIR}")
+         return jsonify({"success": False, "error": "Playbooks directory not found on server."}), 500
+
+    matches = []
+    query_lower = query.lower()
+    try:
+        search_pattern = os.path.join(PLAYBOOKS_DIR, '*.md')
+        for filepath in glob.glob(search_pattern):
+            filename = os.path.basename(filepath)
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    # Read line by line
+                    for line_num, line in enumerate(f, 1):
+                         line_content = line.strip()
+                         # Check if query is in the line (case-insensitive)
+                         if query_lower in line_content.lower():
+                             # Add filename, line number, and content to matches
+                             matches.append({
+                                 "filename": filename,
+                                 "line_number": line_num,
+                                 "line_content": line_content
+                             })
+                             # Optional: Break after first match in a file to keep results shorter
+                             # break
+
+            except Exception as e:
+                app.logger.warning(f"Could not read or search file {filename}: {e}")
+
+        # Optional: Sort matches primarily by filename, then by line number
+        matches.sort(key=lambda x: (x['filename'], x['line_number']))
+
+        # Optional: Limit total number of matches returned
+        # MAX_MATCHES = 50
+        # matches = matches[:MAX_MATCHES]
+
+        return jsonify({"success": True, "matches": matches})
+    except Exception as e:
+        app.logger.error(f"Error during playbook search for query '{query}': {e}", exc_info=True)
+        return jsonify({"success": False, "error": "Server error during playbook search."}), 500
+
+# <<< CORRECTED load_playbook_content function >>>
+@app.route('/api/playbooks/load/<path:filename>', methods=['GET'])
+def load_playbook_content(filename):
+    """API endpoint to get the content of a specific playbook file."""
+    
+    # Basic validation - check for empty name or non-markdown extension after decoding
+    if not filename or not filename.endswith('.md'):
+        app.logger.warning(f"Attempt to load invalid playbook filename (empty or not .md): {filename}")
+        return jsonify({"success": False, "error": "Invalid filename format."}), 400
+        
+    # --- SECURITY CHECK: Prevent Directory Traversal ---
+    # Construct the full path *using the potentially space-containing filename*
+    requested_path = os.path.join(PLAYBOOKS_DIR, filename)
+    
+    # Get the absolute path of the requested file and the allowed directory
+    abs_requested_path = os.path.abspath(requested_path)
+    abs_playbooks_dir = os.path.abspath(PLAYBOOKS_DIR)
+    
+    # Check if the requested path is still within the allowed PLAYBOOKS_DIR
+    # os.path.commonpath is a good way to check this on POSIX/Windows
+    # Important: Ensure PLAYBOOKS_DIR exists for commonpath to work as expected
+    if not os.path.isdir(abs_playbooks_dir):
+        app.logger.error(f"Playbook directory configured but not found at: {abs_playbooks_dir}")
+        return jsonify({"success": False, "error": "Server configuration error: Playbook directory missing."}), 500
+
+    if os.path.commonpath([abs_requested_path, abs_playbooks_dir]) != abs_playbooks_dir:
+        app.logger.error(f"Directory traversal attempt detected for playbook: {filename}")
+        return jsonify({"success": False, "error": "Access denied."}), 403
+    # --- END SECURITY CHECK ---
+
+    # Now use the potentially space-containing path for the existence check
+    if not os.path.isfile(abs_requested_path):
+         app.logger.error(f"Playbook file not found at calculated path: {abs_requested_path}")
+         raise NotFound(f"Playbook '{filename}' not found.") # Let Flask handle 404
+
+    try:
+        # Read the file using the validated absolute path
+        with open(abs_requested_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        # Return the original filename as requested by the client for consistency
+        return jsonify({"success": True, "filename": filename, "content": content}) 
+    except Exception as e:
+        app.logger.error(f"Error reading playbook file {filename} at {abs_requested_path}: {e}", exc_info=True)
+        return jsonify({"success": False, "error": f"Failed to read playbook '{filename}'."}), 500
+
+
+# --- END Playbook API Endpoints ---
+
 
 # --- Terminal Management Endpoints ---
 @app.route('/api/terminals/new', methods=['POST'])
 def new_terminal():
     """API endpoint to start a new ttyd/tmux terminal instance."""
     global _next_ttyd_port, USE_DEFAULT_TMUX_CONFIG_FLAG # <<< Need global flag here
-    
+
     found_port = find_available_port(_next_ttyd_port, _max_ttyd_port)
     if found_port is None:
         return jsonify({'success': False, 'error': 'No available ports found.'}), 503
@@ -420,16 +522,16 @@ if __name__ == '__main__':
         help="Ignore the local commandwave_theme.tmux.conf and use tmux's default configuration."
     )
     args = parser.parse_args()
-    
+
     # <<< Store parsed argument in global variable >>>
     USE_DEFAULT_TMUX_CONFIG_FLAG = args.use_default_tmux_config
-    
+
     if USE_DEFAULT_TMUX_CONFIG_FLAG:
         app.logger.info("Command-line option --use-default-tmux-config detected.")
 
     # <<< Pass the flag to the initial start function >>>
     start_initial_ttyd(use_default_config=USE_DEFAULT_TMUX_CONFIG_FLAG)
-    
+
     app.logger.info("Starting Flask application server...")
     try:
         # WARNING: Running on 0.0.0.0 makes the app accessible from your network.
