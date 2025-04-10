@@ -114,6 +114,7 @@ Command Wave is a web-based interface for managing multiple terminal sessions an
 - [ ] More rubust search options.
 - [ ] Command line argument to tell the application where you want it to search for your playbooks.
 - [ ] Restyle the look and behaviour of the search bar.
+- [ ] Add the ability to add new or remove unused variables. 
 - [ ] Docker.io expandable section to enable visual network map creation.
 - [ ] Code cleanup.
 - [ ] Update README/Webiste with current feature set. 
