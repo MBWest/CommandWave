@@ -387,7 +387,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Using preRect.height might be more accurate for visual size
         // Add a small buffer (e.g., 2px) just in case.
         if (requiredHeight > 0) { // Only set if height is valid
-             editorTextarea.style.height = (requiredHeight + 2) + 'px';
+             editorTextarea.style.height = (requiredHeight + 15) + 'px';
         }
 
         // Other styles (should match CSS or be defined there)
