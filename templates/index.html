@@ -10,7 +10,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <button id="tab-notes-toggle-btn" class="floating-notes-btn" title="Toggle Tab Notes">TN</button> <button id="global-notes-toggle-btn" class="floating-notes-btn" title="Toggle Global Notes">GN</button> <div id="tab-notes-panel" class="notes-panel">
+    <button id="tab-notes-toggle-btn" class="floating-notes-btn" title="Toggle Tab Notes">TN</button> 
+    <button id="global-notes-toggle-btn" class="floating-notes-btn" title="Toggle Global Notes">GN</button> 
+    <div id="tab-notes-panel" class="notes-panel">
         <div class="notes-panel-header">
             <h3>Tab Notes (<span id="tab-notes-panel-label">Main</span>)</h3>
             <button class="close-notes-panel-btn" data-panel="tab-notes-panel" title="Close Tab Notes">&times;</button>
@@ -34,9 +36,14 @@
 \____/\____/_/  /_/_/  /_/_/  |_/_/ |_/_____/     |__/|__/_/  |_|___/_____/   
 	</pre>
         <div class="header-controls">
-            <input type="text" id="searchInput" placeholder="Search playbook content...">
+             <input type="text" id="searchInput" placeholder="Search local playbooks...">
         </div>
 
+        <div id="search-results-container" class="search-results-area" style="display: none;">
+            <h4>Local Playbook Matches:</h4>
+            <ul id="search-results-list">
+                </ul>
+        </div>
         <div id="io-message" class="message" style="margin: 15px auto; max-width: 950px; display: none; opacity: 0;"></div>
 
          {% with messages = get_flashed_messages(with_categories=true) %}
@@ -81,7 +88,8 @@
                     </div>
                     </div>
                 <div id="playbook-content">
-                    <p>Upload a playbook using the button above.</p> </div>
+                    <p>Upload a playbook using the button above or search and import local playbooks.</p> 
+                </div>
             </section>
 
         </main>
